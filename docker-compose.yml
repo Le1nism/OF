@@ -1,5 +1,7 @@
 networks:
-  trains_network: {} # Declares the network for services to communicate
+  trains_network: {
+    driver: bridge
+  } # Declares the network for services to communicate
 
 services:
   # Zookeeper service
@@ -32,6 +34,7 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1 # Sets the replication factor for Kafka offsets topic
       KAFKA_CREATE_TOPIC: "train-sensor-data" # Specifies topic to create (format: topic:partitions:replication-factor)
+      #KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
       #KAFKA_LISTENER_NAME_INSIDE_SECURITY_PROTOCOL: PLAINTEXT
       #KAFKA_LISTENER_NAME_OUTSIDE_SECURITY_PROTOCOL: PLAINTEXT
     ports:

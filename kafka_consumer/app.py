@@ -2,9 +2,9 @@ import os
 import threading
 import json
 
+import kafka
 from flask import Flask, jsonify, render_template
 from confluent_kafka import Consumer, KafkaException, KafkaError
-
 
 app = Flask(__name__)
 
@@ -42,7 +42,7 @@ conf_cons = {
 
 
 def kafka_consumer_thread():
-    consumer = Consumer(conf_cons)
+    consumer = C
     consumer.subscribe([TOPIC_NAME])
     try:
         while True:

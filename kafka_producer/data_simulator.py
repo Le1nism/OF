@@ -38,7 +38,7 @@ if not TOPIC_NAME:
 conf_prod = {
     'bootstrap.servers': KAFKA_BROKER,      # Kafka broker URL
     'key.serializer': StringSerializer('utf_8'),  # Serializer for message keys
-    'value.serializer': lambda x: json.dumps(x).encode('utf-8')
+    'value.serializer': lambda x, ctx: json.dumps(x).encode('utf-8')
 }
 producer = SerializingProducer(conf_prod)
 
