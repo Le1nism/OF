@@ -1,0 +1,93 @@
+networks:
+  trains_network: {} # Declares the network for services to communicate
+
+services:
+  # Zookeeper service
+  zookeeper: # Distributed coordination service that manages the Kafka cluster
+    image: confluentinc/cp-zookeeper:latest # Official Confluent platform image for Zookeeper
+    container_name: zookeeper # Name for the container running Zookeeper
+    environment: # Environment Variables
+      #ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_CLIENT_PORT: 2181 # Port exposed by Zookeeper for client communication
+      #ZOOKEEPER_TICK_TIME: 2000  # Sets the tick time for Zookeeper's internal heartbeat (ms)
+    ports:
+      - "2181:2181" # Maps the container's port 2181 to the host machine's port 2181
+    networks:
+      - trains_network
+
+  # Kafka service
+  kafka: # Server responsible for storing, managing, and serving messages within the Kafka cluster
+    image: confluentinc/cp-kafka:latest # confluentinc/cp-kafka:latest - Official Confluent platform image for Kafka
+    hostname: kafka
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    environment: # Environment Variables for configuring Kafka broker
+      #KAFKA_BROKER_ID: 1 # Assigns a unique ID for this broker
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181 # Specifies the Zookeeper connection string within Docker Compose network
+      #KAFKA_LISTENERS: INSIDE://0.0.0.0:9092,OUTSIDE://0.0.0.0:19092
+      #KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9092,OUTSIDE://localhost:19092 # Configures advertised listeners (external/internal)
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9092 # Configures advertised listeners (external/internal)
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1 # Sets the replication factor for Kafka offsets topic
+      KAFKA_CREATE_TOPIC: "train-sensor-data" # Specifies topic to create (format: topic:partitions:replication-factor)
+      #KAFKA_LISTENER_NAME_INSIDE_SECURITY_PROTOCOL: PLAINTEXT
+      #KAFKA_LISTENER_NAME_OUTSIDE_SECURITY_PROTOCOL: PLAINTEXT
+    ports:
+      - "9092:9092" # Maps the container's port 9092 to the host machine's port 9092 (commonly 9092 for external connections)
+    networks:
+      - trains_network
+
+
+  #schema-registry:
+  # image: confluentinc/cp-schema-registry:latest
+  #  container_name: schema-registry
+  #  environment:
+  #    SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "INSIDE://kafka:9092"
+  #    SCHEMA_REGISTRY_HOST_NAME: "schema-registry"  #Hostname per lo schema registry
+  #    SCHEMA_REGISTRY_LISTENERS: "http://0.0.0.0:8081"
+  #  ports:
+  #    - "8081:8081"
+  #  depends_on:
+  #    - kafka
+  #  networks:
+  #    - trains_network
+
+  # Data sensor simulator as Kafka producer
+  data_sensor_simulator_kafka_producer:
+    build:
+      context: ./kafka_producer # Path to the Dockerfile for data simulator
+      dockerfile: Dockerfile
+    container_name: kafka_producer
+    environment:
+      KAFKA_BROKER: 'kafka:9092' # Kafka broker address
+      KAFKA_TOPIC: "train-sensor-data" # Kafka topic to produce to
+            #SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
+    depends_on:
+      - kafka # Ensures Kafka is running before starting this service
+      #- schema-registry
+    links:
+      - kafka
+    networks:
+      - trains_network
+
+  # Flask application as Kafka consumer
+  flask_app_kafka_consumer:
+    build:
+      context: ./kafka_consumer # Path to the Dockerfile for Flask app
+      dockerfile: Dockerfile
+    container_name: kafka_consumer
+    environment:
+      KAFKA_BROKER: 'kafka:9092' # Kafka broker address
+      TOPIC_NAME: 'train-sensor-data' # Kafka topic to consume from
+            #SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
+    ports:
+      - "5000:5000" # Maps Flask app's port 5000 to host's port 5000
+    depends_on:
+      - kafka # Ensures Kafka is running before starting this service
+      #- schema-registry
+    links:
+      - kafka
+    networks:
+      - trains_network
