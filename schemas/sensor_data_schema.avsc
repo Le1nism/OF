@@ -1,0 +1,25 @@
+{
+  "type": "record",
+  "name": "SensorData",
+  "namespace": "messages",
+  "fields": [
+    {"name": "timestamp", "type": "long"},
+    {"name": "train_id", "type": "string"},
+    {"name": "sensor_id", "type": "string"},
+    {"name": "sensor_type", "type": "string"},
+    {
+      "name": "value",
+      "type": [
+        "float",
+        {
+          "type": "record",
+          "name": "GPSData",
+          "fields": [
+            {"name": "lat", "type": "double"},
+            {"name": "lon", "type": "double"}
+          ]
+        }]
+    }
+  ]
+}
+
