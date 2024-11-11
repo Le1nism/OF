@@ -2,19 +2,16 @@ import json
 import os
 import time
 import random
+
+import logging
 from confluent_kafka import SerializingProducer
 from confluent_kafka.serialization import StringSerializer
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Environment variables for Kafka broker, Schema Registry, and topic name
 KAFKA_BROKER = os.getenv('KAFKA_BROKER', 'kafka:9092')
 TOPIC_NAME = os.getenv('TOPIC_NAME', 'train-sensor-data')
-#SCHEMA_REGISTRY_URL = os.getenv('SCHEMA_REGISTRY_URL')
-
-# Print environment variables to verify they are set correctly
-print(f"KAFKA_BROKER: {KAFKA_BROKER}")
-#print(f"SCHEMA_REGISTRY_URL: {SCHEMA_REGISTRY_URL}")
-print(f"TOPIC_NAME: {TOPIC_NAME}")
 
 # Validate that KAFKA_BROKER and TOPIC_NAME are properly set
 if not KAFKA_BROKER:
@@ -22,18 +19,6 @@ if not KAFKA_BROKER:
 if not TOPIC_NAME:
     raise ValueError("Environment variable TOPIC_NAME is missing.")
 
-
-# Load the Avro schema from the local file
-#with open("sensor_data_schema.avsc", "r") as f:
-    #schema_str = f.read()
-#print("loading avro schema >>>", schema_str)
-
-# Configure the Schema Registry client
-#schema_registry_conf = {'url': SCHEMA_REGISTRY_URL}
-#schema_registry_client = SchemaRegistryClient(schema_registry_conf)
-
-# Configure the AvroSerializer with the Schema Registry client and loaded schema
-#avro_serializer = AvroSerializer(schema_registry_client, schema_str)
 
 conf_prod = {
     'bootstrap.servers': KAFKA_BROKER,      # Kafka broker URL
@@ -104,20 +89,20 @@ def produce_message(sensor_type):
     try:
         # Generate sensor data using the specified type
         sensor_data = generate_sensor_data(sensor_type)
-        print(f"Producing message >>> {sensor_data}")
+        logging.info(f"Producing message >>> {sensor_data}")
         # Produce the message to Kafka on the specified topic
         producer.produce(topic=TOPIC_NAME, value=sensor_data)
         producer.flush()  # Ensure the message is immediately sent
-        print(f"Message sent >>> {sensor_data}")
+        logging.info(f"Message sent >>> {sensor_data}")
     except Exception as e:
         print(f"Error while producing message: {e}")
 
 
 # Wrapper function to send a message to Kafka
 def send_to_kafka(sensor_type):
-    print("PRODUCING MESSAGE >>> ")
+    logging.info("Starting message production >>> ")
     produce_message(sensor_type)
-    print("DONE")
+    print("Finished producing message!")
 
 # Main loop to continuously send data for different sensor types
 if __name__ == '__main__':

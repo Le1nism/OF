@@ -10,15 +10,17 @@ ENV TOPIC_NAME="train-sensor-data"
 #ENV SCHEMA_REGISTRY_URL="http://schema-registry:8081"
 
 # Install build tools required for native dependencies and librdkafka
-RUN apk update
-RUN apk add --no-cache gcc g++ musl-dev linux-headers librdkafka librdkafka-dev libc-dev python3-dev
+RUN apk update && apk add --no-cache gcc g++ musl-dev linux-headers librdkafka librdkafka-dev libc-dev python3-dev bash
+
+
+COPY wait-for-it.sh /wait-for-it.sh
+RUN chmod +x /wait-for-it.sh
 
 # Copy all project files into the working directory of the container
 COPY . .
 
+# Update pip
 RUN pip install --no-cache-dir --upgrade pip
-RUN pip install --no-cache-dir kafka-python
-
 # Install the dependencies specified in requirements_all.txt
 # This will also help in case you add more dependencies later.
 RUN pip install --no-cache-dir -r requirements_producer.txt
