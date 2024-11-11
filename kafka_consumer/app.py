@@ -6,6 +6,7 @@ import json
 import kafka
 from flask import Flask, jsonify, render_template
 from confluent_kafka import Consumer, KafkaException, KafkaError
+from pyexpat.errors import messages
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 app = Flask(__name__)
@@ -78,7 +79,8 @@ threading.Thread(target=kafka_consumer_thread, daemon=True).start()
 # Flask route to retrieve the last 100 messages
 @app.route('/', methods=['GET'])
 def get_messages():
-    return jsonify(msg_list[-100:]) # Return the last 100 messages as JSON
+    return render_template('trainsensordatavisualization.html', messages=msg_list[-100:])
+    #return jsonify(msg_list[-100:]) # Return the last 100 messages as JSON
 
 # Start the Flask web application
 if __name__ == '__main__':
