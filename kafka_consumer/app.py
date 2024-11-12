@@ -4,7 +4,7 @@ import threading
 import json
 
 import kafka
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, request
 from confluent_kafka import Consumer, KafkaException, KafkaError
 from pyexpat.errors import messages
 
@@ -89,3 +89,41 @@ def home():
 @app.route('/datavisualization')
 def get_data():
     return render_template('trainsensordatavisualization.html', messages=msg_list[-100:])
+
+@app.route('/by-type')
+def get_data_by_type():
+    sorted_data_by_type = sort_data_by_type(msg_list[-100:])
+    return render_template('trainsensordatavisualization.html', messages=sorted_data_by_type)
+
+def order_by(str1, str2):
+    """Retrieve the value of a specific request argument or return a default.
+
+        Args:
+            str1 (str): The name of the request argument to retrieve.
+            str2 (str): The default value to return if the argument is not found.
+
+        Returns:
+            str: The value of the argument or the default value.
+        """
+    return request.args.get(str1, str2)
+
+
+def order_by_type():
+    """Get the order parameter for sensor_type.
+
+    Returns:
+        str: The order parameter for sensor_type, defaults to 'sensor_type'.
+    """
+    return order_by('order_by_type', 'sensor_type')
+
+
+def sort_data_by_type(var):
+    """Sort the given sensor data by ID.
+
+    Args:
+        var (list): The list of sensors to sort.
+
+    Returns:
+        list: The sorted list of sensors by ID.
+    """
+    return sorted(var, key=lambda x: x[order_by_type()])
