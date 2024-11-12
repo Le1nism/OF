@@ -3,48 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Messages</title>
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>DataVisualizationOfTrainSensors</title>
 </head>
 <body>
-    <h2>Last 100 Messages</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Timestamp</th>
-                <th>Train ID</th>
-                <th>Sensor ID</th>
-                <th>Sensor Type</th>
-                <th>Value</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for message in messages %}
+    <div>
+        <h2>Data Visualization Of Train Sensors</h2>
+        <table>
+            <thead>
                 <tr>
-                    <td>{{ message['timestamp'] }}</td>
-                    <td>{{ message['train_id'] }}</td>
-                    <td>{{ message['sensor_id'] }}</td>
-                    <td>{{ message['sensor_type'] }}</td>
-                    <td>{{ message['value'] }}</td>
+                    <th>Timestamp</th>
+                    <th>Train_ID</th>
+                    <th>Sensor_ID</th>
+                    <th>Sensor_Type</th>
+                    <th>Value</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for message in messages %}
+                    <tr>
+                        <td>{{ message['timestamp'] }}</td>
+                        <td>{{ message['train_id'] }}</td>
+                        <td>{{ message['sensor_id'] }}</td>
+                        <td>{{ message['sensor_type'] }}</td>
+                        <td>{{ message['value'] }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="containerForGroup">
+        <a href="/static">HOME</a>
+    </div>
 </body>
 </html>

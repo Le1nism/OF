@@ -1,0 +1,62 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 800px;
+    margin: auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.containerForGroup {
+    max-width: 800px;
+    margin: auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+}
+
+/*tr:nth-child(even) {
+    background-color: indigo;
+}*/
+
+tr.anomalys {
+    background-color: darkred; /* Colore rosso per le anomalie */
+}
+
+tr.ok {
+     background-color: green; /* Colore verde per i sensori ok */
+}
+
+tr.uno{
+    background-color: indianred; /* Colore indianred per i sensori del gr.1 */
+}
+tr.due {
+    background-color: indigo; /* Colore indaco per i sensori del gr.2 */
+    color: white
+}
+

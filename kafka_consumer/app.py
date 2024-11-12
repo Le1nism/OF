@@ -76,12 +76,16 @@ def kafka_consumer_thread():
 # Start the Kafka consumer thread
 threading.Thread(target=kafka_consumer_thread, daemon=True).start()
 
-# Flask route to retrieve the last 100 messages
-@app.route('/', methods=['GET'])
-def get_messages():
-    return render_template('trainsensordatavisualization.html', messages=msg_list[-100:])
-    #return jsonify(msg_list[-100:]) # Return the last 100 messages as JSON
-
 # Start the Flask web application
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
+
+# Flask route to retrieve the last 100 messages
+@app.route('/', methods=['GET'])
+def home():
+    return render_template('index.html')
+    #return jsonify(msg_list[-100:]) # Return the last 100 messages as JSON
+
+@app.route('/datavisualization')
+def get_data():
+    return render_template('trainsensordatavisualization.html', messages=msg_list[-100:])
