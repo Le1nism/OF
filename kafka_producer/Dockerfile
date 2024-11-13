@@ -18,7 +18,6 @@ RUN chmod +x /wait-for-it.sh
 # Copy all project files into the working directory of the container
 COPY . .
 
-
 # Upgrade pip to the latest version
 RUN pip install --no-cache-dir --upgrade pip
 # Install the dependencies specified in the requirements file
