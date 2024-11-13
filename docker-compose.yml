@@ -1,9 +1,10 @@
+# Definition of the custom network
 networks:
   trains_network:
     driver: bridge
 
 services:
-  # Zookeeper service
+  # Zookeeper service for Kafka coordination
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     container_name: zookeeper
@@ -13,17 +14,17 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     ports:
-      - "2181:2181"
+      - "2181:2181" # Exposes port 2181 for client connections
     networks:
       - trains_network
 
-  # Kafka service
+  # Kafka service for message handling
   kafka:
     image: confluentinc/cp-kafka:latest
     container_name: kafka
     hostname: kafka
     depends_on:
-      - zookeeper
+      - zookeeper # Kafka depends on Zookeeper
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -34,12 +35,12 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
     ports:
-      - "9092:9092"
-      - "19092:19092"
+      - "9092:9092" # Internal port for Kafka
+      - "19092:19092" # External port for Kafka
     networks:
       - trains_network
     healthcheck:
-      test: [ "CMD", "nc", "-z", "localhost", "9092" ]
+      test: [ "CMD", "nc", "-z", "localhost", "9092" ] # Health check to ensure Kafka is running
       interval: 10s
       timeout: 5s
       retries: 5
@@ -47,33 +48,33 @@ services:
   # Data sensor simulator as Kafka producer
   data_sensor_simulator_kafka_producer:
     build:
-      context: ./kafka_producer
+      context: ./kafka_producer # Path to the producer's Dockerfile
       dockerfile: Dockerfile
     container_name: kafka_producer
     hostname: producer
     environment:
-      KAFKA_BROKER: 'kafka:9092'
-      TOPIC_NAME: "train-sensor-data"
+      KAFKA_BROKER: 'kafka:9092' # Kafka broker to connect to
+      TOPIC_NAME: "train-sensor-data" # Kafka topic name
     depends_on:
-      - kafka
+      - kafka # Producer depends on Kafka
     networks:
       - trains_network
-    entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python data_simulator.py"]
+    entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python data_simulator.py"] # Starts the Python script after Kafka is available
 
   # Flask application as Kafka consumer
   flask_app_kafka_consumer:
     build:
-      context: ./kafka_consumer
+      context: ./kafka_consumer # Path to the consumer's Dockerfile
       dockerfile: Dockerfile
     container_name: kafka_consumer
     hostname: consumer
     environment:
-      KAFKA_BROKER: 'kafka:9092'
-      TOPIC_NAME: 'train-sensor-data'
+      KAFKA_BROKER: 'kafka:9092' # Kafka broker to connect to
+      TOPIC_NAME: 'train-sensor-data' # Kafka topic name
     ports:
-      - "5000:5000"
+      - "5000:5000" # Port for the Flask app
     depends_on:
-      - kafka
+      - kafka # Consumer depends on Kafka
     networks:
       - trains_network
-    entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "flask run"]
+    entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "flask run"] # Starts the Flask server after Kafka is available
