@@ -16,7 +16,7 @@ ENV KAFKA_BROKER="kafka:9092"
 ENV TOPIC_NAME="train-sensor-data"
 
 
-# Install build tools required for native dependencies and librdkafka
+# Install required build tools and libraries for native dependencies and librdkafka
 RUN apk update && apk add --no-cache gcc g++ musl-dev linux-headers librdkafka librdkafka-dev libc-dev python3-dev bash
 
 # Copy the wait-for-it.sh script and set executable permissions
