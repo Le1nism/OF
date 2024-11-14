@@ -1,0 +1,600 @@
+Descrizione,Tipo_Evento,Codice,Nome
+Pantografo DC alto in T2,Funzionamento Normale,151014,_DCPantoSts_
+Stato STANDBY attivo,Funzionamento Normale,051001,ScmtOn_CabOff_1
+Mancata comunicazione WTB in CCU M8,Anomalia,018202,CCU_FltWtbComm
+Mancata ricezione R2 in CCU M8,Anomalia,018201,CCU_FltWtbR2
+Stato RUNNING attivo,Funzionamento Normale,150006,_Running_
+Cod. 04 Condotta Generale scarica,Anomalia,ILCK_PROP_04,ILCK_PROP_04
+Mancata ricezione R1 in CCU M8,Anomalia,018200,CCU_FltWtbR1
+Stato PARKING attivo,Funzionamento Normale,150009,_Parking_
+Pantografo DC alto in T7,Funzionamento Normale,158014,_DCPantoSts_
+Cod. 02 Taglio trazione comandato da RCEC,Anomalia,ILCK_PROP_02,ILCK_PROP_02
+Cod. 05 Taglio trazione da SSB attivo,Anomalia,ILCK_PROP_05,ILCK_PROP_05
+Cod. 08 Loop porte aperto,Anomalia,ILCK_PROP_08,ILCK_PROP_08
+Cod. 03 Comando di frenatura da manipolatore attivo,Funzionamento Normale,ILCK_PROP_03,ILCK_PROP_03
+Comando chiusura IR/IP da banco,Funzionamento Normale,150017,_CmdCloseIR_
+Comando alzamento panto da banco,Funzionamento Normale,150012,_CmdPantoUp_
+Nessun pantografo alto,Funzionamento Normale,150011,_PantoLowSts_
+Nessun IR o IP chiuso,Anomalia,150016,_IRIP_OpenSts_
+Comando abbassamento panto da banco,Funzionamento Normale,150013,_CmdPantoDw_
+Cod. 01 Max fren. di servizio richiesta da segnalamento,Anomalia,ILCK_PROP_01,ILCK_PROP_01
+Direzione indietro in M8,Funzionamento Normale,158024,_Rear_
+Direzione avanti in M1,Funzionamento Normale,151023,_Front_
+Cod. 10 Nessuna velocita' impostata,Funzionamento Normale,ILCK_PROP_10,ILCK_PROP_10
+Pressione CP sotto 8.5 bar in M8 (press. 9S14),Anomalia,150026,_9S14_
+Mancata comunicazione WTB in CCU M1,Anomalia,011202,CCU_FltWtbComm
+Mancata ricezione R2 in CCU M1,Anomalia,011201,CCU_FltWtbR2
+Pressione CP sotto 7.5 bar in M1 (press. 9S13),Anomalia,150025,_9S13_
+Selezionata tensione 3 kV,Funzionamento Normale,150004,_LineVoltType_
+Ingresso in POC,Funzionamento Normale,150010,_Poc_
+Pantografo AC alto in T2,Funzionamento Normale,151015,_ACPantoSts_
+Selezionata tensione 25 kV,Funzionamento Normale,150005,_LineVoltType_
+Direzione indietro in M1,Funzionamento Normale,151024,_Rear_
+Direzione avanti in M8,Funzionamento Normale,158023,_Front_
+Mancata ricezione R1 in CCU M1,Anomalia,011200,CCU_FltWtbR1
+Cod. 09 Gradino macchinista aperto,Funzionamento Normale,ILCK_PROP_09,ILCK_PROP_09
+Comando apertura IR/IP da banco,Funzionamento Normale,150018,_CmdOpenIR_
+Comando riconfigurazione e reset da banco,Funzionamento Normale,150027,_CmdTCUFailReset_
+Incoerenza Tensione di Linea ,Anomalia,020006,_NokVoltSts_
+Guasto GTW semitreno M1-T4,Anomalia,011203,CCU_GtwFlt 
+Pantografo AC alto in T7,Funzionamento Normale,158015,_ACPantoSts_
+Stato SLEEPING attivo,Funzionamento Normale,150008,_Sleeping_
+Cod. 06 Errata Manovra nella Gestione Poc,Anomalia,ILCK_PROP_06,ILCK_PROP_06
+Guasto al sensore del damper Y75,Anomalia,085094,_SnsDmprY75_
+Perdita di comunicazione con HVAC cabina M1,Anomalia,011050,_HVACcabNotOK_
+Cod 40. Contattore 1Q1 non nello stato DC,Funzionamento Normale,ILCK_IR_T2_40,ILCK_IR_T2_40
+Cod 68. Mancata comunic. WTB con semitreno remoto,Anomalia,ILCK_IRIP_T2_68,ILCK_IRIP_T2_68
+Cod 45. Mancata comunic. WTB con semitreno remoto,Anomalia,ILCK_Panto_T2_45,ILCK_Panto_T2_45
+Stato STANDBY attivo,Funzionamento Normale,150007,_Standby_
+Cod 68. Mancata comunic. WTB con semitreno remoto,Anomalia,ILCK_IRIP_T7_68,ILCK_IRIP_T7_68
+Cod 45. Mancata comunic. WTB con semitreno remoto,Anomalia,ILCK_Panto_T7_45,ILCK_Panto_T7_45
+Cod. 15 Nessun banco abilitato,Funzionamento Normale,ILCK_PROP_15,ILCK_PROP_15
+Cod. 11 Rilascio Porte Destre Attivo,Funzionamento Normale,ILCK_PROP_11M1,ILCK_PROP_11M1
+Cod. 12 Rilascio Porte Sinistre Attivo,Funzionamento Normale,ILCK_PROP_12M1,ILCK_PROP_12M1
+IR chiuso in cassa T7,Funzionamento Normale,157019,_1Q21_
+Banco Abilitato M1,Funzionamento Normale,151003,_CabOccupied_
+Chiave di Banco inserita in M1,Funzionamento Normale,151002,_DeskKeyIn_
+Cod. 14 Nessuna direzione impostata,Funzionamento Normale,ILCK_PROP_14,ILCK_PROP_14
+Frenatura di emergenza attivata da leva di trazione in M1,Funzionamento Normale,041352,6S01_Emg
+Cod. 13 Leva MC 6S01 non in trazione,Funzionamento Normale,ILCK_PROP_13M1,ILCK_PROP_13_M1
+Cod. 18 Linea Emergenza Attiva,Funzionamento Normale,ILCK_PROP_18M1,ILCK_PROP_18M1
+Cod. 19 Maniglia Allarme Passeggeri Attivata,Funzionamento Normale,ILCK_PROP_19M1,ILCK_PROP_19M1
+Cod. 20 Freno di stazionamento attivo (TT a 2 km/h),Funzionamento Normale,ILCK_PROP_20M1,ILCK_PROP_20M1
+Guasto al sensore del damper Y70,Anomalia,088093,_SnsDmprY70_
+Guasto microswitch porta Gangway 2,Anomalia,103038,_IDoorDCSFlt_
+Guasto microswitch porta Gangway 2,Anomalia,103036,_IDoorUnblock_
+Guasto al sensore del damper Y75,Anomalia,084094,_SnsDmprY75_
+Guasto al sensore del damper Y70,Anomalia,082093,_SnsDmprY70_
+Guasto al sensore del damper Y70,Anomalia,085093,_SnsDmprY70_
+Cod 40. Contattore 1Q1 non nello stato DC,Funzionamento Normale,ILCK_IR_T7_40,ILCK_IR_T7_40
+Frenatura di emergenza attivata da leva di frenatura in M1,Funzionamento Normale,041353,9K48_Emg
+Apertura forz. contatt. Convert. Princip. DC,Funzionamento Normale,026476,OP_DCMAINCNT_PREC_DC
+Apertura forz. contatt. Convert. Princip. DC,Funzionamento Normale,021476,OP_DCMAINCNT_PREC_DC
+Linea treno Velocita' zero  attiva in M1-T4,Funzionamento Normale,151021,_LowSpdTL_
+Linea treno Velocita' zero  attiva in M8-T5,Funzionamento Normale,158021,_LowSpdTL_
+Cod. 22 Manettino fuori coasting dopo taglio trazione,Funzionamento Normale,ILCK_PROP_22M1,ILCK_PROP_22M1
+Cod 47. Line Voltage Type non 25KV,Funzionamento Normale,EVT_IP_T2_47,EVT_IP_T2_47
+Cod 47. Line Voltage Type non 25KV,Funzionamento Normale,EVT_IP_T7_47,EVT_IP_T7_47
+IR chiuso in cassa T2,Funzionamento Normale,152019,_1Q21_
+Cod 01. Mancanza tensione di linea su treno locale,Funzionamento Normale,EVT_IR_T2_01,EVT_IR_T2_01
+Cod 40. Contattore 1Q1 non nello stato DC,Funzionamento Normale,EVT_IR_T2_40,EVT_IR_T2_40
+Cod 01. Mancanza tensione di linea su treno locale,Funzionamento Normale,EVT_IR_T7_01,EVT_IR_T7_01
+Cod 01. Mancanza tensione di linea su treno locale,Funzionamento Normale,ILCK_IR_T2_01,ILCK_IR_T2_01
+Cod 01. Mancanza tensione di linea su treno locale,Funzionamento Normale,ILCK_IR_T7_01,ILCK_IR_T7_01
+Guasto interruttore di isolamento 25 kV (stato),Anomalia,028219,_MCQ1SwitchSts_
+Cod 42. Pantografo DC non alto,Funzionamento Normale,ILCK_IR_T2_42,ILCK_IR_T2_42
+Nessuna tensione di linea,Funzionamento Normale,021376,NO_LINE_VOLTAGE
+Nessuna tensione di linea,Funzionamento Normale,023376,NO_LINE_VOLTAGE
+Cod 56. Apertura da TCU1  locale (M1),Funzionamento Normale,ILCK_IRIP_T2_56,ILCK_IRIP_T2_56
+Cod 57. Apertura da TCU2  locale (M3),Funzionamento Normale,ILCK_IRIP_T2_57,ILCK_IRIP_T2_57
+Cod 58. Apertura da TCU1 remota (M8),Funzionamento Normale,ILCK_IRIP_T2_58,ILCK_IRIP_T2_58
+Cod 59. Apertura da TCU2 remota (M6),Funzionamento Normale,ILCK_IRIP_T2_59,ILCK_IRIP_T2_59
+Cod 56. Apertura da TCU1  locale (M8),Funzionamento Normale,ILCK_IRIP_T7_56,ILCK_IRIP_T7_56
+Cod 57. Apertura da TCU2  locale (M6),Funzionamento Normale,ILCK_IRIP_T7_57,ILCK_IRIP_T7_57
+Nessuna tensione di linea,Funzionamento Normale,026376,NO_LINE_VOLTAGE
+Nessuna tensione di linea,Funzionamento Normale,028376,NO_LINE_VOLTAGE
+Apertura forz. contatt. Convert. Princip. DC,Funzionamento Normale,028476,OP_DCMAINCNT_PREC_DC
+Cod 16. Filo treno di abbassamento Panto Attivo,Funzionamento Normale,ILCK_Panto_T2_16,ILCK_Panto_T2_16
+Apertura forz. contatt. Convert. Princip. DC,Funzionamento Normale,023476,OP_DCMAINCNT_PREC_DC
+Cod 07. Comando abbassamento panto richiesto da remoto,Funzionamento Normale,ILCK_Panto_T7_07,ILCK_Panto_T7_07
+Cod 16. Filo treno di abbassamento Panto Attivo,Funzionamento Normale,ILCK_Panto_T7_16,ILCK_Panto_T7_16
+Alta tensione non presente in M1-T4,Funzionamento Normale,151022,_HvOnBoardUnit_
+Alta tensione non presente in M8-T5,Funzionamento Normale,158022,_HvOnBoardUnit_
+Cod 08. Comando abbassamento da selettore Panto,Funzionamento Normale,ILCK_Panto_T2_08,ILCK_Panto_T2_08
+Cod. 21 AT non presente,Funzionamento Normale,ILCK_PROP_21M1,ILCK_PROP_21M1
+Cod. 17 Filo treno Taglio Trazione non alimentato,Funzionamento Normale,ILCK_PROP_17M1,ILCK_PROP_17M1
+Avaria unita' pneum. gradino porta 4 M3,Funzionamento Normale,093189,_PneuFlt_
+Piastra ERTMS inserita in M1,Funzionamento Normale,051004,ScmtInserito
+Assistenza EP fuori servizio ,Funzionamento Normale,041069,_EpEscFlt_
+Guasto al sensore del damper Y75,Anomalia,086094,_SnsDmprY75_
+Perdita di comunicazione con HVAC cabina M1,Anomalia,018050,_HVACcabNotOK_
+Guasto microswitch porta Gangway,Anomalia,101030,_IDoorDCSFlt_
+Guasto microswitch porta Gangway,Anomalia,101028,_IDoorUnblock_
+Piastra abilitata in M8 con banco M8 disabilitato,Funzionamento Normale,058001,ScmtOn_CabOff_1
+Cod. 20 Freno di stazionamento attivo (TT a 2 km/h),Funzionamento Normale,ILCK_PROP_20M8,ILCK_PROP_20M8
+Frenatura di emergenza attivata da leva di frenatura in M8,Funzionamento Normale,048353,9K48_Emg
+Cod. 18 Linea Emergenza Attiva,Funzionamento Normale,ILCK_PROP_18M8,ILCK_PROP_18M8
+Cod. 11 Rilascio Porte Destre Attivo,Funzionamento Normale,ILCK_PROP_11M8,ILCK_PROP_11M8
+Cod. 13 Leva MC 6S01 non in trazione,Funzionamento Normale,ILCK_PROP_13M8,ILCK_PROP_13_M8
+Guasto valvola secondaria WC toilette T7,Anomalia,137025,_SecondValveFlt_
+Toilette fuori servizio veicolo T7,Funzionamento Normale,137017,_StToiletSys_
+Guasto microswitch porta Gangway 2,Anomalia,106038,_IDoorDCSFlt_
+Guasto microswitch porta Gangway 2,Anomalia,106036,_IDoorUnblock_
+Guasto microswitch porta Gangway 1,Anomalia,105030,_IDoorDCSFlt_
+Guasto microswitch porta Gangway 1,Anomalia,105028,_IDoorUnblock_
+Guasto sensore di pressione B46,Anomalia,086079,_SnsrHighprssrB46_
+Guasto microswitch porta Gangway 2,Anomalia,105038,_IDoorDCSFlt_
+Guasto microswitch porta Gangway 2,Anomalia,105036,_IDoorUnblock_
+Guasto microswitch porta Gangway 2,Anomalia,107038,_IDoorDCSFlt_
+Guasto microswitch porta Gangway 2,Anomalia,107036,_IDoorUnblock_
+Guasto microswitch porta Gangway 1,Anomalia,106030,_IDoorDCSFlt_
+Guasto microswitch porta Gangway 1,Anomalia,106028,_IDoorUnblock_
+Cod. 22 Manettino fuori coasting dopo taglio trazione,Funzionamento Normale,ILCK_PROP_22M8,ILCK_PROP_22M8
+H2O: FL1 - flusso circ. trattamento basso,Funzionamento Normale,023062,DIO_DI_FL1
+Guasto centralina idraulica TACU M3,Anomalia,023206,_H2OWarn_
+Incongruenza contatti 1Q7 in T2 (11),Funzionamento Normale,012215,CCU_1Q7_11
+Cod 47. Line Voltage Type non 25KV,Funzionamento Normale,ILCK_IP_T2_47,ILCK_IP_T2_47
+Cod 47. Line Voltage Type non 25KV,Funzionamento Normale,ILCK_IP_T7_47,ILCK_IP_T7_47
+Cod 42. Pantografo DC non alto,Funzionamento Normale,ILCK_IR_T7_42,ILCK_IR_T7_42
+Apertura forzata IP-IR per apertura Q1,Funzionamento Normale,021481,OPIR_OPQ1
+Apertura forzata IP-IR per apertura Q1,Funzionamento Normale,023481,OPIR_OPQ1
+Apertura forzata IP-IR per apertura Q1,Funzionamento Normale,026481,OPIR_OPQ1
+Apertura forzata IP-IR per apertura Q1,Funzionamento Normale,028481,OPIR_OPQ1
+Cod 03. Apertura Interruttore principale richiesto da TCU1 M1,Funzionamento Normale,ILCK_IRIP_T2_03,ILCK_IRIP_T2_03
+Cod 50. Assenza tensione 25KV,Funzionamento Normale,ILCK_IP_T2_50,ILCK_IP_T2_50
+Cod 03. Apertura Interruttore principale richiesto da TCU1 M8,Funzionamento Normale,ILCK_IRIP_T7_03,ILCK_IRIP_T7_03
+Cod 58. Apertura da TCU1 remota (M1),Funzionamento Normale,ILCK_IRIP_T7_58,ILCK_IRIP_T7_58
+Cod 59. Apertura da TCU2 remota (M3),Funzionamento Normale,ILCK_IRIP_T7_59,ILCK_IRIP_T7_59
+Cod 07. Comando abbassamento panto richiesto da remoto,Funzionamento Normale,ILCK_Panto_T2_07,ILCK_Panto_T2_07
+Cod 12. Abbassamento Panto richiesto dal segnalamento,Funzionamento Normale,ILCK_Panto_T7_12,ILCK_Panto_T7_12
+Cod. 21 AT non presente,Funzionamento Normale,ILCK_PROP_21M8,ILCK_PROP_21M8
+Abbassamento pantogr. comandato da ERTMS,Funzionamento Normale,010085,PntLow3
+Cod 39. Master Controller non in IDLE,Funzionamento Normale,ILCK_IRIP_T7_39,ILCK_IRIP_T7_39
+Cod 09. Apertura Interruttore principale da ETCS ,Funzionamento Normale,ILCK_IRIP_T7_09,ILCK_IRIP_T7_09
+Guasto microswitch porta Gangway 2,Anomalia,102038,_IDoorDCSFlt_
+Guasto microswitch porta Gangway 2,Anomalia,102036,_IDoorUnblock_
+Guasto microswitch porta Gangway,Anomalia,108030,_IDoorDCSFlt_
+Guasto microswitch porta Gangway,Anomalia,108028,_IDoorUnblock_
+Guasto microswitch porta Gangway 1,Anomalia,107030,_IDoorDCSFlt_
+Guasto microswitch porta Gangway 1,Anomalia,107028,_IDoorUnblock_
+IP chiuso in cassa T2,Funzionamento Normale,152020,_1Q41_
+Perdita di comunicazione MVB con TCU M3,Anomalia,013064,_TCUNotOk_
+Cod 51. 1Q7 non nello stato di aperto,Funzionamento Normale,ILCK_IP_T2_51,ILCK_IP_T2_51
+Cod 55. Sezionatore 1Q7  non aperto in AC,Funzionamento Normale,ILCK_IP_T2_55,ILCK_IP_T2_55
+Cod 51. 1Q7 non nello stato di aperto,Funzionamento Normale,ILCK_IP_T7_51,ILCK_IP_T7_51
+Cod 55. Sezionatore 1Q7  non aperto in AC,Funzionamento Normale,ILCK_IP_T7_55,ILCK_IP_T7_55
+Cod 41. Line Voltage Type non 3KV,Funzionamento Normale,ILCK_IR_T2_41,ILCK_IR_T2_41
+Cod 41. Line Voltage Type non 3KV,Funzionamento Normale,ILCK_IR_T7_41,ILCK_IR_T7_41
+"Cod 60. Apertura per linea treno HW Opening TL"" a 1 senza alcuna TCU che alimenta la linea""",Funzionamento Normale,ILCK_IRIP_T2_60,ILCK_IRIP_T2_60
+Guasto interruttore di isolamento 25 kV (stato),Anomalia,026219,_MCQ1SwitchSts_
+Guasto interruttore di isolamento 25 kV (stato),Anomalia,021219,_MCQ1SwitchSts_
+Mancata Comunicazione con LCU4,Anomalia,015058,_LCUNotOk_
+Cod 13. Apertura IR/IP da TRAIN LINE,Funzionamento Normale,ILCK_IRIP_T2_13,ILCK_IRIP_T2_13
+Guasto microswitch porta Gangway 1,Anomalia,104030,_IDoorDCSFlt_
+Guasto microswitch porta Gangway 1,Anomalia,104028,_IDoorUnblock_
+Cod. 17 Filo treno Taglio Trazione non alimentato,Funzionamento Normale,ILCK_PROP_17M8,ILCK_PROP_17M8
+Guasto rilascio porta sorvegliata 3 M6,Anomalia,096170,_UndrCtrlLLvlFlt_
+Perdita di comunicazione con HVAC T4,Anomalia,014051,_HVACpxNotOK_
+Perdita di comunicazione con HVAC M3,Anomalia,013051,_HVACpxNotOK_
+Perdita di comunicazione con HVAC M6,Anomalia,016051,_HVACpxNotOK_
+Perdita di comunicazione con HVAC T7,Anomalia,017051,_HVACpxNotOK_
+Perdita di comunicazione con HVAC T5,Anomalia,015051,_HVACpxNotOK_
+Perdita di comunicazione con HVAC T2,Anomalia,012051,_HVACpxNotOK_
+Avaria unita' pneum. gradino porta 1 M6,Funzionamento Normale,096183,_PneuFlt_
+Guasto rilascio porta sorvegliata 2 T4,Anomalia,094169,_UndrCtrlLLvlFlt_
+Incongruenza BRAKE_STATUS_TL e manettino di frenatura M8,Funzionamento Normale,048357,BRKSTS_TL_Inc1
+Guasto rilascio porta sorvegliata 1 T2,Anomalia,092168,_UndrCtrlLLvlFlt_
+Cod. 12 Rilascio Porte Sinistre Attivo,Funzionamento Normale,ILCK_PROP_12M8,ILCK_PROP_12M8
+Avaria Rilevatore di instabilita',Funzionamento Normale,062012,_13K18_
+Attivazione prolungata unigibordo M8,Funzionamento Normale,148002,_WhlLubrActFlt_
+Guasto Sensore 1 antiserpeggio,Anomalia,062064,_INSensorsFlt_1_
+Guasto microswitch porta Gangway 2,Anomalia,104038,_IDoorDCSFlt_
+Guasto microswitch porta Gangway 2,Anomalia,104036,_IDoorUnblock_
+Guasto rilascio porta sorvegliata 1 M3,Anomalia,093168,_UndrCtrlLLvlFlt_
+Avaria unita' pneum. gradino porta 2 M6,Funzionamento Normale,096185,_PneuFlt_
+Guasto rilascio porta sorvegliata 3 M3,Anomalia,093170,_UndrCtrlLLvlFlt_
+Guasto rilascio porta sorvegliata 4 M6,Anomalia,096171,_UndrCtrlLLvlFlt_
+Incoerenza tra stato BCU e stato rubinetto RIM (9S30),Funzionamento Normale,048245,_9S30RIMFlt_
+Rubinetto RIM 9S30 chiuso (valvola freni macchinista isolata man.),Funzionamento Normale,048244,_ManDbvIsol_
+Incoerenza stato BCU e stato rubinetto di backup RD (9A02),Funzionamento Normale,048234,_BckupMode_
+Piastra ERTMS inserita in M8,Funzionamento Normale,058004,ScmtInserito
+Rilevata perdita nella condotta freno,Anomalia,048068,_BCUBpLeakFlt_
+CCU: Mancata comunicazione MVB con ERTMS M8-T5,Anomalia,058003,ScmtMvbKo
+Assistenza EP fuori servizio ,Funzionamento Normale,048069,_EpEscFlt_
+Banco Abilitato M8,Funzionamento Normale,158003,_CabOccupied_
+Chiave di Banco inserita in M8,Funzionamento Normale,158002,_DeskKeyIn_
+Gradino sx salita macchinista aperto M1,Funzionamento Normale,091191,_GradSxLckFlt_
+Rubinetto RIM 9S30 chiuso (valvola freni macchinista isolata man.),Funzionamento Normale,041244,_ManDbvIsol_
+Incoerenza stato BCU e stato rubinetto di backup RD (9A02),Funzionamento Normale,041234,_BckupMode_
+Vacuostato difettoso toilette T5,Funzionamento Normale,135027,_VacuumProbeFlt_
+Filtro aria fresca sporco,Funzionamento Normale,088173,_CabFiltrfrshairsat_
+Guasto valvola primaria WC toilette T7,Anomalia,137024,_FirstValveFlt_
+Perdita ridondanza LCU3 M3,Anomalia,013110,LCU_RID_KO
+Guasto sensore di pressione B46,Anomalia,082079,_SnsrHighprssrB46_
+Incoerenza stato 9S14 con valore di pressione CP in T5,Funzionamento Normale,045272,_9S14Flt_
+Allarme blocco restato,Funzionamento Normale,026456,MIC_INV_ALRM_RHEO_BLOC_NO_APIR
+Allarme blocco restato,Funzionamento Normale,021456,MIC_INV_ALRM_RHEO_BLOC_NO_APIR
+Livello olio basso nel compressore 1,Funzionamento Normale,044275,_Cmpr1OilLvlFlt_
+Guasto microswitch porta Gangway 1,Anomalia,103030,_IDoorDCSFlt_
+Guasto microswitch porta Gangway 1,Anomalia,103028,_IDoorUnblock_
+Cod 28. Apertura Interruttore principale richiesto DRIVER da banco Abilitato,Funzionamento Normale,ILCK_IRIP_T7_28,ILCK_IRIP_T7_28
+Avaria unita' pneum. gradino porta 1 T5,Funzionamento Normale,095183,_PneuFlt_
+Intervento pressostato bassa pressione B45,Funzionamento Normale,081075,_LwPrsrM45_
+Livello olio basso nel compressore 1,Funzionamento Normale,045275,_Cmpr1OilLvlFlt_
+Livello olio basso nel compressore 2,Funzionamento Normale,045281,_Cmpr2OilLvlFlt_
+Incoerenza temperature olio trasformatore in T7,Funzionamento Normale,027153,_TrafoTempFlt_
+Filtro aria fresca sporco,Funzionamento Normale,081173,_CabFiltrfrshairsat_
+Interruttore Q51 aperto,Funzionamento Normale,082018,_CrctBrkQ51_
+Cod 08. Comando abbassamento da selettore Panto,Funzionamento Normale,ILCK_Panto_T7_08,ILCK_Panto_T7_08
+Cod 52. Comando apertura DC per guasto Pantografo,Anomalia,ILCK_IR_T2_52,ILCK_IR_T2_52
+Cod 22. Guasto centralina EPCU di controllo Pantografo,Anomalia,ILCK_PantoDC_T2_22,ILCK_PantoDC_T2_22
+Avaria PCU panto 3 kV T2,Funzionamento Normale,202001,PCU_Flt
+Mancata segnalazione filata avaria PCU T2,Anomalia,202022,PCU_Flt_incoer
+Mancata segnalazione filata avaria PCU T2,Anomalia,202023,PCU_Flt_incoer2
+CCU: Mancata comunicazione MVB con la PCU T2,Anomalia,202024,CCU_PCU_MVBKo
+"Cod 60. Apertura per linea treno HW Opening TL"" a 1 senza alcuna TCU che alimenta la linea""",Funzionamento Normale,ILCK_IRIP_T7_60,ILCK_IRIP_T7_60
+Mancata ricezione ds 200 da CCU,Anomalia,011106,IDUKo
+Mancata ricezione ds 200 da CCU,Anomalia,018106,IDUKo
+Cod 44. Incoerenza Selettore di Linea,Funzionamento Normale,ILCK_Panto_44,ILCK_Panto_44
+Cod 42. Incoerenza Tensione di Linea TCU M8,Funzionamento Normale,ILCK_Panto_T7_42,ILCK_Panto_T7_42
+Cod 43. Incoerenza Tensione di Linea TCU M6,Funzionamento Normale,ILCK_Panto_T7_43,ILCK_Panto_T7_43
+Cod 42. Incoerenza Tensione di Linea TCU M1,Funzionamento Normale,ILCK_Panto_T2_42,ILCK_Panto_T2_42
+Cod 43. Incoerenza Tensione di Linea TCU M3,Funzionamento Normale,ILCK_Panto_T2_43,ILCK_Panto_T2_43
+Abbassamento pantogr. per incongruenza linea,Funzionamento Normale,010098,PntLow16
+Cod 17. Incoerenza Tensione di Linea da Remoto,Funzionamento Normale,ILCK_Panto_T7_17,ILCK_Panto_T7_17
+Incoerenza tensione di linea da TCU M6,Funzionamento Normale,026006,_NokVoltSts_TCU
+Incoerenza tensione di linea da TCU M8,Funzionamento Normale,028006,_NokVoltSts_TCU
+Cod 17. Incoerenza Tensione di Linea da Remoto,Funzionamento Normale,ILCK_Panto_T2_17,ILCK_Panto_T2_17
+Incoerenza tensione di linea da TCU M1,Funzionamento Normale,021006,_NokVoltSts_TCU
+Incoerenza tensione di linea da TCU M3,Funzionamento Normale,023006,_NokVoltSts_TCU
+Guasto pantografo 3kV in T2,Anomalia,022008,_DCPantoFlt_
+Errore regolazione pressione di riferimento,Anomalia,202010,PCU_reg
+Ventilazione di emergenza attiva,Funzionamento Normale,081130,_EmVnt_
+Ventilazione di emergenza attiva,Funzionamento Normale,082130,_EmVnt_
+Ventilazione di emergenza attiva,Funzionamento Normale,083130,_EmVnt_
+Ventilazione di emergenza attiva,Funzionamento Normale,084130,_EmVnt_
+Ventilazione di emergenza attiva,Funzionamento Normale,085130,_EmVnt_
+Ventilazione di emergenza attiva,Funzionamento Normale,087130,_EmVnt_
+Ventilazione di emergenza attiva,Funzionamento Normale,088130,_EmVnt_
+Cod 28. Stato del 1Q2 o del 5K03 di configurazione linea DC 3KV incongruente con il comando,Funzionamento Normale,ILCK_PantoDC_T2_28,ILCK_PantoDC_T2_28
+Abbassamento pantogr. per guasto IR,Anomalia,010090,PntLow8
+Guasto 5K03 in T2,Anomalia,202021,5K03Flt
+Ventilazione di emergenza attiva,Funzionamento Normale,086130,_EmVnt_
+Cod 45. Inconguenza tra comando e segnale di ritorno per HSCB ,Funzionamento Normale,ILCK_IR_T2_45,ILCK_IR_T2_45
+Intervento 2F47 (Toilette) in T7,Funzionamento Normale,027872,_2F47_
+Dispositivo 9S06 attivo (assistenza EP isolata),Funzionamento Normale,041257,_9S06On_
+Dispositivo 9S06 attivo (assistenza EP isolata),Funzionamento Normale,048257,_9S06On_
+Avvio centralina BCU M1,Funzionamento Normale,041001,_BCUPwrOn_
+Avvio centralina BCU T2,Funzionamento Normale,042001,_BCUPwrOn_
+Avvio centralina BCU M3,Funzionamento Normale,043001,_BCUPwrOn_
+Avvio centralina BCU T4,Funzionamento Normale,044001,_BCUPwrOn_
+Avvio centralina BCU T5,Funzionamento Normale,045001,_BCUPwrOn_
+Avvio centralina BCU M6,Funzionamento Normale,046001,_BCUPwrOn_
+Avvio centralina BCU T7,Funzionamento Normale,047001,_BCUPwrOn_
+Avvio centralina BCU M8,Funzionamento Normale,048001,_BCUPwrOn_
+Perdita di comunicazione con HVAC M1,Anomalia,011051,_HVACpxNotOK_
+Perdita di comunicazione con HVAC M8,Anomalia,018051,_HVACpxNotOK_
+Pressione serbatoio ausiliario fuori limite (carrello 1),Funzionamento Normale,042025,_IRV1AuxResOutRngFlt_
+Pressione serbatoio ausiliario fuori limite (carrello 1),Funzionamento Normale,045025,_IRV1AuxResOutRngFlt_
+Pressione serbatoio ausiliario fuori limite (carrello 1),Funzionamento Normale,048025,_IRV1AuxResOutRngFlt_
+Pressione serbatoio ausiliario fuori limite (carrello 2),Funzionamento Normale,042031,_IRV2AuxResOutRngFlt_
+Pressione serbatoio ausiliario fuori limite (carrello 2),Funzionamento Normale,045031,_IRV2AuxResOutRngFlt_
+Pressione serbatoio ausiliario fuori limite (carrello 2),Funzionamento Normale,048031,_IRV2AuxResOutRngFlt_
+Avvio diagnostica SMC,Funzionamento Normale,150001,_SMCPowerOn_
+Toilette fuori servizio veicolo T2,Funzionamento Normale,132017,_StToiletSys_
+Cod 15. Assenza di comunicazione tra LCU5 e CCU,Funzionamento Normale,ILCK_Panto_T2_15,ILCK_Panto_T2_15
+Cod 15. Assenza di comunicazione tra LCU5 e CCU,Funzionamento Normale,ILCK_Panto_T7_15,ILCK_Panto_T7_15
+Mancata Comunicazione con LCU5,Anomalia,012060,_LCU5NotOk_
+Mancata Comunicazione con LCU5,Anomalia,017060,_LCU5NotOk_
+Mancata Comunicazione con LCU3,Anomalia,013058,_LCUNotOk_
+Mancata Comunicazione con LCU4,Anomalia,014058,_LCUNotOk_
+Mancata Comunicazione con LCU3,Anomalia,016058,_LCUNotOk_
+Mancata Comunicazione con LCU2,Anomalia,017058,_LCUNotOk_
+Perdita di comunicazione MVB con TCU M6,Anomalia,016064,_TCUNotOk_
+Perdita di comunicazione MVB con TCU M8,Anomalia,018064,_TCUNotOk_
+Mancata Comunicazione con LCU1,Anomalia,011058,_LCUNotOk_
+Mancata Comunicazione con LCU2,Anomalia,012058,_LCUNotOk_
+Mancata Comunicazione con LCU1,Anomalia,018058,_LCUNotOk_
+Perdita di comunicazione MVB con TCU M1,Anomalia,011064,_TCUNotOk_
+Cod 03. Treno in spegnimento,Funzionamento Normale,ILCK_Panto_T2_03,ILCK_Panto_T2_03
+Cod 03. Treno in spegnimento,Funzionamento Normale,ILCK_Panto_T7_03,ILCK_Panto_T7_03
+Cod 36. Banco non abilitato,Funzionamento Normale,ILCK_IRIP_36,ILCK_IRIP_T2_36
+Cod 04. Banco non abilitato,Funzionamento Normale,ILCK_Panto_04,ILCK_Panto_04
+Guasto interruttore di isolamento 25 kV (stato),Anomalia,023219,_MCQ1SwitchSts_
+Mancata chiusura damper Y75,Anomalia,084090,_ClngDctDmprY75Nc_
+Piastra abilitata in M1 con banco M1 disabilitato,Funzionamento Normale,051001,ScmtOn_CabOff_1
+Allarme blocco restato,Funzionamento Normale,023456,MIC_INV_ALRM_RHEO_BLOC_NO_APIR
+Allarme blocco restato,Funzionamento Normale,028456,MIC_INV_ALRM_RHEO_BLOC_NO_APIR
+Cod 28. Apertura Interruttore principale richiesto DRIVER da banco Abilitato,Funzionamento Normale,ILCK_IRIP_T2_28,ILCK_IRIP_T2_28
+Avaria unita' pneum. gradino porta 2 T2,Funzionamento Normale,092185,_PneuFlt_
+Cod 31. Apertura Interruttore principale per Attivazione PARKING MODE  ,Funzionamento Normale,ILCK_IRIP_T2_31,ILCK_IRIP_T2_31
+Cod 31. Apertura Interruttore principale per Attivazione PARKING MODE  ,Funzionamento Normale,ILCK_IRIP_T7_31,ILCK_IRIP_T7_31
+Stato interruttore Q4 incongruente,Funzionamento Normale,026223,_GSSwitchSts_
+Errore scarica filtri DC,Anomalia,026509,PREC_NO_DISCHARGE_DC
+Errata precarica,Funzionamento Normale,026199,_PreChrgNotOk_
+Avaria segnale eurometer locale,Funzionamento Normale,026484,LOCAL_EURO_SIGN_KO
+Avaria segnale eurometer remoto,Funzionamento Normale,026485,REMOTE_EURO_SIGN_KO
+Avaria segnale eurometer remoto ridondato,Funzionamento Normale,026486,REMOTE_R_EURO_SIGN_KO
+Guasto fibra ottica locale,Anomalia,026194,_OptcFbrLclFlt_
+Guasto della fibra ottica remota 1,Anomalia,026195,_OptcFbrRmt1Flt_
+Guasto della fibra ottica remota 2,Anomalia,026196,_OptcFbrRmt2Flt_
+Perdita captazione su TCU M6,Anomalia,026193,_PerditaCaptazione_
+Cod 69. Attesa Chiusura IR/IP per TCU2 esclusa e non correttamente isolata,Funzionamento Normale,ILCK_IRIP_T7_70,ILCK_IRIP_T7_70
+Auto esclusione convertitore M6,Funzionamento Normale,026192,_tcu2OK_
+Guasto CPU,Anomalia,026211,_FaultCPU_
+I prot. sovratensione filtro linea TV2,Funzionamento Normale,026420,FIRST_AFI_TV2MX_MEM
+ESCL: Segnale life LSC Ko,Funzionamento Normale,026643,RACK_LSC_KO
+Cod 05. Apertura Interruttore principale richiesto da TCU3 o TCU4 del semitreno remoto,Funzionamento Normale,ILCK_IRIP_T2_05,ILCK_IRIP_T2_05
+Apertura IR comandata da TCU3,Funzionamento Normale,026225,_TCURecApir_
+Avaria sistema antincendio,Funzionamento Normale,165002,SAI_OutServ
+Avaria sistema antincendio,Funzionamento Normale,167002,SAI_OutServ
+Avaria sistema antincendio,Funzionamento Normale,168002,SAI_OutServ
+Avaria sistema antincendio,Funzionamento Normale,162002,SAI_OutServ
+Avaria sistema antincendio,Funzionamento Normale,163002,SAI_OutServ
+Avaria sistema antincendio,Funzionamento Normale,164002,SAI_OutServ
+Avaria sistema antincendio,Funzionamento Normale,166002,SAI_OutServ
+Avaria sistema antincendio,Funzionamento Normale,161002,SAI_OutServ
+LCU4 - T5: Avaria Scheda RDI-RDO posizione 5 ,Funzionamento Normale,015240,RIO_Brd_Sts
+Esclusione conv. Ausiliario da TOD (M6),Funzionamento Normale,026847,ESCL_GS3
+Esclusione conv. Ausiliario da TOD (M8),Funzionamento Normale,028847,ESCL_GS4
+Esclusione conv. Ausiliario da TOD (M3),Funzionamento Normale,023847,ESCL_GS2
+Intervento 3F21 - Alim. GTW2,Funzionamento Normale,011078,_3F21_
+Incongruenza contatti 1Q1 in T7 (11),Funzionamento Normale,017205,CCU_1Q1_11
+Cod 19. Contattore 1Q1 non aperto,Funzionamento Normale,ILCK_Panto_T7_19,ILCK_Panto_T7_19
+Incoerenza temperature olio trasformatore in T2,Funzionamento Normale,022153,_TrafoTempFlt_
+Cod 13. Apertura IR/IP da TRAIN LINE,Funzionamento Normale,ILCK_IRIP_T7_13,ILCK_IRIP_T7_13
+Guasto pompa 2 del Trasform. Primario in T2,Anomalia,022156,_TrafoPump2Out_
+Guasto rilascio porta sorvegliata 2 M3,Anomalia,093169,_UndrCtrlLLvlFlt_
+Guasto LED pulsante porta HK toilette T2,Anomalia,132052,_HKDoorLEDBtnFail_
+Incongruenza BRAKE_STATUS_TL e manettino di frenatura M1,Funzionamento Normale,041357,BRKSTS_TL_Inc1
+Guasto rilascio porta sorvegliata 1 T5,Anomalia,095168,_UndrCtrlLLvlFlt_
+Intervento pressostato bassa pressione B45,Funzionamento Normale,085075,_LwPrsrM45_
+Guasto microswitch porta Gangway 1,Anomalia,102030,_IDoorDCSFlt_
+Guasto microswitch porta Gangway 1,Anomalia,102028,_IDoorUnblock_
+Cod 50. Assenza tensione 25KV,Funzionamento Normale,ILCK_IP_T7_50,ILCK_IP_T7_50
+Cod 12. Abbassamento Panto richiesto dal segnalamento,Funzionamento Normale,ILCK_Panto_T2_12,ILCK_Panto_T2_12
+Cod 39. Master Controller non in IDLE,Funzionamento Normale,ILCK_IRIP_T2_39,ILCK_IRIP_T2_39
+Cod 09. Apertura Interruttore principale da ETCS ,Funzionamento Normale,ILCK_IRIP_T2_09,ILCK_IRIP_T2_09
+Porta Gangway 1 isolata,Funzionamento Normale,106050,_IDoorEmrgCmd_
+IP chiuso in cassa T7,Funzionamento Normale,157020,_1Q41_
+Intervento pressostato bassa pressione B45,Funzionamento Normale,086075,_LwPrsrM45_
+Guasto Sensore 2 antiserpeggio,Anomalia,062065,_INSensorsFlt_2_
+Attivazione prolungata unigibordo M1,Funzionamento Normale,141002,_WhlLubrActFlt_
+Guasto rilascio porta sorvegliata 4 M3,Anomalia,093171,_UndrCtrlLLvlFlt_
+Rilevata perdita nella condotta freno,Anomalia,041068,_BCUBpLeakFlt_
+Guasto display stato toilette T2,Anomalia,132058,_PAVErr_
+Incongruenza contatti 1Q1 in M6 (00),Funzionamento Normale,016216,CCU_Q1_00
+Guasto rilascio porta sorvegliata 1 M6,Anomalia,096168,_UndrCtrlLLvlFlt_
+Sforzo frenatura dinamica insufficiente in frenatura di servizio,Funzionamento Normale,046043,_Ed2Low_
+Sforzo frenatura dinamica insufficiente in frenatura di servizio,Funzionamento Normale,048042,_Ed1Low_
+Intervento pressostato bassa pressione B45,Funzionamento Normale,088075,_LwPrsrM45_
+Sforzo frenatura dinamica insufficiente in frenatura di servizio,Funzionamento Normale,043043,_Ed2Low_
+Sforzo frenatura dinamica insufficiente in frenatura di servizio,Funzionamento Normale,041042,_Ed1Low_
+Guasto rilascio porta sorvegliata 2 M6,Anomalia,096169,_UndrCtrlLLvlFlt_
+Intervento pressostato bassa pressione B45,Funzionamento Normale,083075,_LwPrsrM45_
+Intervento pressostato bassa pressione B45,Funzionamento Normale,084075,_LwPrsrM45_
+Stato indebito alto pressostati freno staz. PFSA e PFSR del 9A08,Funzionamento Normale,042209,_ParkBrakePrSwHighFlt_
+Stato indebito alto pressostati freno staz. PFSA e PFSR del 9A08,Funzionamento Normale,044209,_ParkBrakePrSwHighFlt_
+Stato indebito alto pressostati freno staz. PFSA e PFSR del 9A08,Funzionamento Normale,047209,_ParkBrakePrSwHighFlt_
+Stato indebito alto pressostati freno staz. PFSA e PFSR del 9A08,Funzionamento Normale,045209,_ParkBrakePrSwHighFlt_
+Guasto rilascio porta sorvegliata 2 T2,Anomalia,092169,_UndrCtrlLLvlFlt_
+Guasto pressostato porta toilette T2,Anomalia,132038,_HKPressSwitchFlt_
+Intervento bordo sensibile toilette T2,Funzionamento Normale,132023,_Edg3tms_
+Guasto rilascio porta sorvegliata 3 T2,Anomalia,092170,_UndrCtrlLLvlFlt_
+Guasto rilascio porta sorvegliata 2 M1,Anomalia,091169,_UndrCtrlLLvlFlt_
+Vacuostato difettoso toilette T7,Funzionamento Normale,137027,_VacuumProbeFlt_
+Frenatura di emergenza attivata da leva di trazione in M8,Funzionamento Normale,048352,6S01_Emg
+Cod. 19 Maniglia Allarme Passeggeri Attivata,Funzionamento Normale,ILCK_PROP_19M8,ILCK_PROP_19M8
+Guasto microswitch porta interna 2,Anomalia,101021,_IDoorDCSFlt_
+Guasto microswitch porta interna 2,Anomalia,101019,_IDoorUnblock_
+Mancata chiusura damper S82,Anomalia,082124,_ExhstDmprS82NtOp_
+Interruttore Q56 aperto,Funzionamento Normale,085019,_CrctBrkQ56_
+Cod 40. Contattore 1Q1 non nello stato DC,Funzionamento Normale,EVT_IR_T7_40,EVT_IR_T7_40
+Cod 22. Guasto centralina EPCU di controllo Pantografo,Anomalia,EVT_PantoDC_T7_22,EVT_PantoDC_T7_22
+Cod 52. Comando apertura DC per guasto Pantografo,Anomalia,ILCK_IR_T7_52,ILCK_IR_T7_52
+Cod 22. Guasto centralina EPCU di controllo Pantografo,Anomalia,ILCK_PantoDC_T7_22,ILCK_PantoDC_T7_22
+Avaria PCU panto 3 kV T7,Funzionamento Normale,207001,PCU_Flt
+Mancata segnalazione filata avaria PCU T2,Anomalia,207022,PCU_Flt_incoer
+Mancata segnalazione filata avaria PCU T2,Anomalia,207023,PCU_Flt_incoer2
+CCU: Mancata comunicazione MVB con la PCU T7,Anomalia,207024,CCU_PCU_MVBKo
+Guasto pantografo 3kV in T7,Anomalia,027008,_DCPantoFlt_
+Errore regolazione pressione di riferimento,Anomalia,207010,PCU_reg
+Porta Gangway 2 isolata,Funzionamento Normale,103034,_IDoorEmrgCmd_
+Avaria 1Q3 - sezionatore AT 3kV,Funzionamento Normale,027013,_1Q3Flt_
+Incongruenza contatti 1Q3 in T7 (00),Funzionamento Normale,017210,CCU_1Q3_00
+Cod 26. Guasto sensore Tensione di Linea,Anomalia,ILCK_Panto_T7_26,ILCK_Panto_T7_26
+Guasto trasduttore TVL,Anomalia,010088,PntLow6
+Cod 34. Pressione bassa nel serbatorio del Compressore  per piu' di 10 minuti consecutivi,Funzionamento Normale,EVT_Panto_T7_34,EVT_Panto_T7_34
+Cod 42. Incoerenza Tensione di Linea TCU M8,Funzionamento Normale,EVT_Panto_T7_42,EVT_Panto_T7_42
+Cod 43. Incoerenza Tensione di Linea TCU M6,Funzionamento Normale,EVT_Panto_T7_43,EVT_Panto_T7_43
+Cod 17. Incongruenza Linea,Funzionamento Normale,EVT_Panto_T7_17,EVT_Panto_T7_17
+Cod 34. Pressione bassa nel serbatorio del Compressore  per piu' di 10 minuti consecutivi,Funzionamento Normale,ILCK_Panto_T7_34,ILCK_Panto_T7_34
+Mancata ricarica condotta primo alzamento pantografo,Anomalia,017113,CompAuxProl
+Abbassamento pantogr. per guasto compress. Aux,Anomalia,010091,PntLow9
+Mancata chiusura damper Y5_S,Anomalia,088172,_CabDamperY5S2ntcl_
+Mancata moviment. gradino porta 2 T5,Anomalia,095083,_EDCU_StepFlt_
+Pressione serbatoio ausiliario fuori limite (carrello 1),Funzionamento Normale,041025,_IRV1AuxResOutRngFlt_
+Pressione serbatoio ausiliario fuori limite (carrello 1),Funzionamento Normale,043025,_IRV1AuxResOutRngFlt_
+Pressione serbatoio ausiliario fuori limite (carrello 1),Funzionamento Normale,047025,_IRV1AuxResOutRngFlt_
+Pressione serbatoio ausiliario fuori limite (carrello 2),Funzionamento Normale,041031,_IRV2AuxResOutRngFlt_
+Pressione serbatoio ausiliario fuori limite (carrello 2),Funzionamento Normale,043031,_IRV2AuxResOutRngFlt_
+Pressione serbatoio ausiliario fuori limite (carrello 2),Funzionamento Normale,047031,_IRV2AuxResOutRngFlt_
+Selezione Eurometer remoto KO,Funzionamento Normale,021483,REMOTE_EURO_SEL_KO
+Selezione Eurometer remoto KO,Funzionamento Normale,023483,REMOTE_EURO_SEL_KO
+Avaria segnale eurometer remoto,Funzionamento Normale,021485,REMOTE_EURO_SIGN_KO
+Avaria segnale eurometer remoto,Funzionamento Normale,023485,REMOTE_EURO_SIGN_KO
+Avaria segnale eurometer remoto ridondato,Funzionamento Normale,021486,REMOTE_R_EURO_SIGN_KO
+Avaria segnale eurometer remoto ridondato,Funzionamento Normale,023486,REMOTE_R_EURO_SIGN_KO
+Avaria micro gradino SCS porta 2 M8,Funzionamento Normale,098081,_EDCU_SCSFlt_
+Avaria micro gradino SFCS porta 2 T5,Funzionamento Normale,095080,_EDCUy_SFCSFlt_
+Mancata moviment. gradino porta 2 T2,Anomalia,092083,_EDCU_StepFlt_
+Mancata moviment. gradino porta 4 T2,Anomalia,092133,_EDCU_StepFlt_
+Mancata moviment. gradino porta 2 M3,Anomalia,093083,_EDCU_StepFlt_
+Mancata moviment. gradino porta 4 M3,Anomalia,093133,_EDCU_StepFlt_
+Mancata moviment. gradino porta 3 M6,Anomalia,096108,_EDCU_StepFlt_
+Mancata moviment. gradino porta 3 T7,Anomalia,097108,_EDCU_StepFlt_
+Mancata moviment. gradino porta 2 M1,Anomalia,091083,_EDCU_StepFlt_
+Mancata moviment. gradino porta 1 T2,Anomalia,092058,_EDCU_StepFlt_
+Mancata moviment. gradino porta 1 M3,Anomalia,093058,_EDCU_StepFlt_
+Mancata moviment. gradino porta 1 T5,Anomalia,095058,_EDCU_StepFlt_
+Mancata moviment. gradino porta 1 M6,Anomalia,096058,_EDCU_StepFlt_
+Mancata moviment. gradino porta 1 T7,Anomalia,097058,_EDCU_StepFlt_
+Mancata moviment. gradino porta 2 T4,Anomalia,094083,_EDCU_StepFlt_
+Mancata moviment. gradino porta 4 M6,Anomalia,096133,_EDCU_StepFlt_
+Mancata moviment. gradino porta 4 T7,Anomalia,097133,_EDCU_StepFlt_
+Mancata moviment. gradino porta 3 M3,Anomalia,093108,_EDCU_StepFlt_
+Mancata moviment. gradino porta 1 T4,Anomalia,094058,_EDCU_StepFlt_
+Mancata moviment. gradino porta 1 M8,Anomalia,098058,_EDCU_StepFlt_
+Mancata moviment. gradino porta 3 T2,Anomalia,092108,_EDCU_StepFlt_
+Mancata moviment. gradino porta 2 M6,Anomalia,096083,_EDCU_StepFlt_
+Mancata moviment. gradino porta 2 T7,Anomalia,097083,_EDCU_StepFlt_
+Mancata moviment. gradino porta 2 M8,Anomalia,098083,_EDCU_StepFlt_
+Mancata moviment. gradino porta 1 M1,Anomalia,091058,_EDCU_StepFlt_
+Cod 52. Comando apertura DC per guasto Pantografo,Anomalia,EVT_IR_T2_52,EVT_IR_T2_52
+Cod 22. Guasto centralina EPCU di controllo Pantografo,Anomalia,EVT_PantoDC_T2_22,EVT_PantoDC_T2_22
+Press. Sospens. fuori range (carrello 1) DOWN,Funzionamento Normale,043098,_D_SUSP_LOW1_
+Cod 48. Pantografo AC non alto,Funzionamento Normale,ILCK_IP_T2_48,ILCK_IP_T2_48
+Cod 48. Pantografo AC non alto,Funzionamento Normale,ILCK_IP_T7_48,ILCK_IP_T7_48
+Apertura IR comandata da TCU4,Funzionamento Normale,028225,_TCURecApir_
+Cod 04. Apertura Interruttore principale richiesto da TCU2 M3,Funzionamento Normale,ILCK_IRIP_T2_04,ILCK_IRIP_T2_04
+Cod 04. Apertura Interruttore principale richiesto da TCU2 M6,Funzionamento Normale,ILCK_IRIP_T7_04,ILCK_IRIP_T7_04
+Guasto rilascio porta sorvegliata 1 T4,Anomalia,094168,_UndrCtrlLLvlFlt_
+Guasto rilascio porta sorvegliata 2 T5,Anomalia,095169,_UndrCtrlLLvlFlt_
+Guasto pulsante scarico toilette T5,Anomalia,135029,_FluxBtnAct15_
+Incoerenza rele' 9K04 e modalita' operativa treno,Funzionamento Normale,048125,_9K04OpModeFlt_
+Frenatura pneumatica attiva in modalita' diversa da RUNNING,Funzionamento Normale,048250,_BrakeStsTLOpModeFlt_
+Guasto microswitch porta interna 1,Anomalia,103012,_IDoorDCSFlt_
+Guasto microswitch porta interna 1,Anomalia,103010,_IDoorUnblock_
+Rilevata perdita condotta freno e direzione marcia non in posizione neutra,Anomalia,041264,_BpLeakFlt_
+H2O: FL1 - flusso circ. trattamento basso,Funzionamento Normale,026062,DIO_DI_FL1
+Guasto centralina idraulica TACU M6,Anomalia,026206,_H2OWarn_
+Guasto microswitch porta interna 2,Anomalia,103021,_IDoorDCSFlt_
+Guasto microswitch porta interna 2,Anomalia,103019,_IDoorUnblock_
+Porta interna 2 isolata,Funzionamento Normale,103017,_IDoorEmrgCmd_
+Press. Sospens. fuori range (carrello 1) DOWN,Funzionamento Normale,041098,_D_SUSP_LOW1_
+Guasto microswitch porta intermedia,Anomalia,103046,_IDoorDCSFlt_
+Porta interna 1 isolata,Funzionamento Normale,103003,_IDoorEmrgCmd_
+Guasto microswitch porta intermedia,Anomalia,103044,_IDoorUnblock_
+Pressione serbatoio ausiliario fuori limite (carrello 2),Funzionamento Normale,044031,_IRV2AuxResOutRngFlt_
+Guasto rilascio porta sorvegliata 1 M8,Anomalia,098168,_UndrCtrlLLvlFlt_
+Guasto rilascio porta sorvegliata 2 T7,Anomalia,097169,_UndrCtrlLLvlFlt_
+Avaria unita' pneum. gradino porta 2 T7,Funzionamento Normale,097185,_PneuFlt_
+Eurotrol fuori servizio,Funzionamento Normale,048090,_TCPNotZeroEmrg_
+Guasto rilascio porta sorvegliata 3 T7,Anomalia,097170,_UndrCtrlLLvlFlt_
+Guasto rilascio porta sorvegliata 1 T7,Anomalia,097168,_UndrCtrlLLvlFlt_
+Guasto rilascio porta sorvegliata 1 M1,Anomalia,091168,_UndrCtrlLLvlFlt_
+Avaria ungibordo veicolo M8,Funzionamento Normale,148001,_WhlLubrFlt_
+Guasto microswitch porta interna 1,Anomalia,106012,_IDoorDCSFlt_
+Guasto microswitch porta interna 1,Anomalia,106010,_IDoorUnblock_
+Guasto microswitch porta interna 1,Anomalia,105012,_IDoorDCSFlt_
+Guasto microswitch porta interna 1,Anomalia,105010,_IDoorUnblock_
+Cod 52. Comando apertura DC per guasto Pantografo,Anomalia,EVT_IR_T7_52,EVT_IR_T7_52
+Intervento pressostato bassa pressione B45,Funzionamento Normale,082075,_LwPrsrM45_
+Frenatura pneumatica attiva in modalita' diversa da RUNNING,Funzionamento Normale,041250,_BrakeStsTLOpModeFlt_
+Mancata apertura damper Y5_S,Anomalia,081171,_CabDamperY5S2ntop_
+Convert. Trazione guasto  (CLL lato linea),Anomalia,026218,_TracConverter_
+Convert. Trazione guasto  (CLL lato linea),Anomalia,028218,_TracConverter_
+Auto esclusione convertitore M8,Funzionamento Normale,028192,_tcu1OK_
+Comando apertura IR da TCU3 attivo,Funzionamento Normale,026226,_TCUCmdApir_
+Comando apertura IR da TCU4 attivo,Funzionamento Normale,028226,_TCUCmdApir_
+Avaria 1Q3 - sezionatore AT 3kV,Funzionamento Normale,022013,_1Q3Flt_
+Stato interruttore Q4 incongruente,Funzionamento Normale,023223,_GSSwitchSts_
+Stato interruttore Q4 incongruente,Funzionamento Normale,021223,_GSSwitchSts_
+Stato interruttore Q4 incongruente,Funzionamento Normale,028223,_GSSwitchSts_
+Incongruenza contatti 1Q3 in T2 (00),Funzionamento Normale,012210,CCU_1Q3_00
+Avaria 3K06,Funzionamento Normale,018024,_3K06Flt_
+Avaria 3K07,Funzionamento Normale,018025,_3K07Flt_
+Indebita eccitazione 10K19 veicolo T2,Funzionamento Normale,092015,_10K19Flt0_
+Indebita eccitazione 10K19 veicolo M3,Funzionamento Normale,093015,_10K19Flt0_
+Indebita eccitazione 10K19 veicolo T4,Funzionamento Normale,094015,_10K19Flt0_
+Indebita eccitazione 10K19 veicolo T5,Funzionamento Normale,095015,_10K19Flt0_
+Indebita eccitazione 10K19 veicolo M6,Funzionamento Normale,096015,_10K19Flt0_
+Indebita eccitazione 10K19 veicolo T7,Funzionamento Normale,097015,_10K19Flt0_
+Incorenza sts velocita' 0 porta 1 M1,Funzionamento Normale,091150,_EDCU_LwSpdFlt_
+Incorenza sts velocita' 0 porta 2 M1,Funzionamento Normale,091151,_EDCU_LwSpdFlt_
+Incorenza sts velocita' 0 porta 1 T2,Funzionamento Normale,092150,_EDCU_LwSpdFlt_
+Incorenza sts velocita' 0 porta 2 T2,Funzionamento Normale,092151,_EDCU_LwSpdFlt_
+Incorenza sts velocita' 0 porta 3 T2,Funzionamento Normale,092152,_EDCU_LwSpdFlt_
+Incorenza sts velocita' 0 porta 4 T2,Funzionamento Normale,092153,_EDCU_LwSpdFlt_
+Incorenza sts velocita' 0 porta 1 M3,Funzionamento Normale,093150,_EDCU_LwSpdFlt_
+Incorenza sts velocita' 0 porta 2 M3,Funzionamento Normale,093151,_EDCU_LwSpdFlt_
+Incorenza sts velocita' 0 porta 3 M3,Funzionamento Normale,093152,_EDCU_LwSpdFlt_
+Incorenza sts velocita' 0 porta 4 M3,Funzionamento Normale,093153,_EDCU_LwSpdFlt_
+Incorenza sts velocita' 0 porta 1 T4,Funzionamento Normale,094150,_EDCU_LwSpdFlt_
+Incorenza sts velocita' 0 porta 2 T4,Funzionamento Normale,094151,_EDCU_LwSpdFlt_
+Incorenza sts velocita' 0 porta 1 T5,Funzionamento Normale,095150,_EDCU_LwSpdFlt_
+Incorenza sts velocita' 0 porta 2 T5,Funzionamento Normale,095151,_EDCU_LwSpdFlt_
+Incorenza sts velocita' 0 porta 1 M6,Funzionamento Normale,096150,_EDCU_LwSpdFlt_
+Incorenza sts velocita' 0 porta 2 M6,Funzionamento Normale,096151,_EDCU_LwSpdFlt_
+Incorenza sts velocita' 0 porta 3 M6,Funzionamento Normale,096152,_EDCU_LwSpdFlt_
+Incorenza sts velocita' 0 porta 4 M6,Funzionamento Normale,096153,_EDCU_LwSpdFlt_
+Incorenza sts velocita' 0 porta 1 T7,Funzionamento Normale,097150,_EDCU_LwSpdFlt_
+Incorenza sts velocita' 0 porta 2 T7,Funzionamento Normale,097151,_EDCU_LwSpdFlt_
+Incorenza sts velocita' 0 porta 3 T7,Funzionamento Normale,097152,_EDCU_LwSpdFlt_
+Incorenza sts velocita' 0 porta 4 T7,Funzionamento Normale,097153,_EDCU_LwSpdFlt_
+Incorenza sts velocita' 0 porta 1 M8,Funzionamento Normale,098150,_EDCU_LwSpdFlt_
+Incorenza sts velocita' 0 porta 2 M8,Funzionamento Normale,098151,_EDCU_LwSpdFlt_
+Auto esclusione convertitore M1,Funzionamento Normale,021192,_tcu1OK_
+Auto esclusione convertitore M3,Funzionamento Normale,023192,_tcu2OK_
+Comando apertura IR da TCU1 attivo,Funzionamento Normale,021226,_TCUCmdApir_
+Comando apertura IR da TCU2 attivo,Funzionamento Normale,023226,_TCUCmdApir_
+Cod 68. Mancata comunic. WTB con semitreno remoto,Anomalia,EVT_IRIP_T2_68,EVT_IRIP_T2_68
+Cod 45. Mancata comunic. WTB con semitreno remoto,Anomalia,EVT_Panto_T2_45,EVT_Panto_T2_45
+Interruttore Q46 aperto,Funzionamento Normale,085015,_CrctBrkQ46_
+Interruttore Q46 aperto,Funzionamento Normale,084015,_CrctBrkQ46_
+Guasto chiusura pta disabili toilette T2,Anomalia,132037,_HKClsDoorFlt_
+Eurotrol fuori servizio,Funzionamento Normale,041090,_TCPNotZeroEmrg_
+Press. Sospens. fuori range (carrello 1) DOWN,Funzionamento Normale,048098,_D_SUSP_LOW1_
+Press. Sospens. fuori range (carrello 2) DOWN,Funzionamento Normale,043099,_D_SUSP_LOW2_
+Press. Sospens. fuori range (carrello 2) DOWN,Funzionamento Normale,048099,_D_SUSP_LOW2_
+Maniglia di emergenza sbloccata su porta 2 di M8,Funzionamento Normale,098032,_EH1_
+Pressione serbatoio ausiliario fuori limite (carrello 1),Funzionamento Normale,046025,_IRV1AuxResOutRngFlt_
+Pressione serbatoio ausiliario fuori limite (carrello 2),Funzionamento Normale,046031,_IRV2AuxResOutRngFlt_
+Toilette fuori servizio veicolo T5,Funzionamento Normale,135017,_StToiletSys_
+Indebita eccitazione 10K19 veicolo M8,Funzionamento Normale,098015,_10K19Flt0_
+Incoerenza loop e maniglie emg in M8,Funzionamento Normale,098027,_EDoorEmrgFlt_
+Incoerenza loop e maniglie emg in T4,Funzionamento Normale,094027,_EDoorEmrgFlt_
+Guasto microswitch porta interna 2,Anomalia,106021,_IDoorDCSFlt_
+Guasto microswitch porta interna 2,Anomalia,106019,_IDoorUnblock_
+Guasto microswitch porta interna 1,Anomalia,107012,_IDoorDCSFlt_
+Guasto microswitch porta interna 1,Anomalia,107010,_IDoorUnblock_
+Cod 07. Comando abbassamento panto richiesto da remoto,Funzionamento Normale,EVT_Panto_T2_07,EVT_Panto_T2_07
+Cod 12. Abbassamento Panto richiesto dal segnalamento,Funzionamento Normale,EVT_Panto_T7_12,EVT_Panto_T7_12
+Cod 41. Line Voltage Type non 3KV,Funzionamento Normale,EVT_IR_T2_41,EVT_IR_T2_41
+Cod 41. Line Voltage Type non 3KV,Funzionamento Normale,EVT_IR_T7_41,EVT_IR_T7_41
+IGBT INVERTER OFF: Fase R,Funzionamento Normale,021313,MIC_INV_OFF_MEM_FASE_R
+Guasto microswitch porta interna 1,Anomalia,108012,_IDoorDCSFlt_
+Guasto microswitch porta interna 2,Anomalia,108021,_IDoorDCSFlt_
+Guasto microswitch porta interna 1,Anomalia,108010,_IDoorUnblock_
+Guasto microswitch porta interna 2,Anomalia,108019,_IDoorUnblock_
+Guasto circuito di raffreddamento M45,Anomalia,086077,_SnsrHighprssrM45_
+Allarme SOS TOILETTE veicolo T7,Funzionamento Normale,137018,_StSos_
+Avaria unita' pneum. gradino porta 4 M6,Funzionamento Normale,096189,_PneuFlt_
+Tensione minima dei filtri,Funzionamento Normale,026403,ANALOG_STTVI
+Apertura IR comandata da TCU2,Funzionamento Normale,023225,_TCURecApir_
+Tensione minima dei filtri,Funzionamento Normale,023403,ANALOG_STTVI
+Tensione minima dei filtri,Funzionamento Normale,021403,ANALOG_STTVI
+Tensione minima dei filtri,Funzionamento Normale,028403,ANALOG_STTVI
+Guasto rilascio porta sorvegliata 2 M8,Anomalia,098169,_UndrCtrlLLvlFlt_
+Guasto microswitch porta bar,Anomalia,104046,_IDoorDCSFlt_
+Guasto microswitch porta bar,Anomalia,104044,_IDoorUnblock_
+Porta interna 2 guasta,Funzionamento Normale,103018,_IDoorDCUFlt_
+H2O: FL1 - flusso circ. trattamento basso,Funzionamento Normale,028062,DIO_DI_FL1
+Guasto centralina idraulica TACU M8,Anomalia,028206,_H2OWarn_
+Guasto chiusura porta toilette T4,Anomalia,134054,_DoorLockErr_
+Guasto chiusura porta toilette M6,Anomalia,136054,_DoorLockErr_
+Incongruenza velocita' 0 pta 1 T5,Funzionamento Normale,095172,_EDCU_OffFlt_
+Incongruenza velocita' 0 pta 2 T5,Funzionamento Normale,095173,_EDCU_OffFlt_
+Incongruenza velocita' 0 pta 1 M6,Funzionamento Normale,096172,_EDCU_OffFlt_
+Incongruenza velocita' 0 pta 2 M6,Funzionamento Normale,096173,_EDCU_OffFlt_
+Incongruenza velocita' 0 pta 3 M6,Funzionamento Normale,096174,_EDCU_OffFlt_
+Incongruenza velocita' 0 pta 4 M6,Funzionamento Normale,096175,_EDCU_OffFlt_
+Incongruenza velocita' 0 pta 1 T7,Funzionamento Normale,097172,_EDCU_OffFlt_
+Incongruenza velocita' 0 pta 2 T7,Funzionamento Normale,097173,_EDCU_OffFlt_
+Incongruenza velocita' 0 pta 3 T7,Funzionamento Normale,097174,_EDCU_OffFlt_
+Incongruenza velocita' 0 pta 4 T7,Funzionamento Normale,097175,_EDCU_OffFlt_
+Incongruenza velocita' 0 pta 1 M8,Funzionamento Normale,098172,_EDCU_OffFlt_
+Incongruenza velocita' 0 pta 2 M8,Funzionamento Normale,098173,_EDCU_OffFlt_
+Pressione serbatoio ausiliario fuori limite (carrello 1),Funzionamento Normale,044025,_IRV1AuxResOutRngFlt_
+Toilette fuori servizio veicolo T4,Funzionamento Normale,134017,_StToiletSys_
+Toilette fuori servizio veicolo M6,Funzionamento Normale,136017,_StToiletSys_
