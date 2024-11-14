@@ -4,14 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <title>AllDataVisualizationOfTrainSensors</title>
+    <title>AllRealDataVisualizationOfTrainSensors</title>
 </head>
 <body>
     <div>
-        <h2>Data Visualization Of Train Sensors</h2>
+        <h2>Real Data Visualization Of Train Sensors</h2>
         <table>
             <thead>
-                <tr>
                 <tr>
                     {% if messages and messages[0] %}
                         {% for key in messages[0].keys() %}

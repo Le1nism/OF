@@ -24,7 +24,8 @@ if not TOPIC_NAME:
     raise ValueError("Environment variable TOPIC_NAME is missing.")
 
 # List to store received messages and a constant for the maximum number of stored messages
-msg_list = []
+simulate_msg_list = []
+real_msg_list = []
 MAX_MESSAGES = 100
 
 # Kafka consumer configuration
@@ -57,10 +58,11 @@ def kafka_consumer_thread():
     Kafka consumer thread function that reads and processes messages from the Kafka topic.
 
     This function continuously polls the Kafka topic for new messages, deserializes them,
-    and appends them to the global msg_list.
+    and appends them to the global simulate_msg_list.
     """
     consumer = Consumer(conf_cons)
     consumer.subscribe([TOPIC_NAME])
+    global simulate_msg_list, real_msg_list
     try:
         while True:
             msg = consumer.poll(1.0)  # Poll for messages with a timeout of 1 second
@@ -76,14 +78,21 @@ def kafka_consumer_thread():
             # Deserialize the JSON value of the message
             deserialized_data = deserialize_message(msg)
             if deserialized_data:
-                logging.info(f"Deserialized message: {deserialized_data}")
-                msg_list.append(deserialized_data)
+                num_keys=len(deserialized_data.keys())
+                if num_keys == 5:
+                    logging.info(f"5K - Deserialized message: {deserialized_data}")
+                    simulate_msg_list.append(deserialized_data)
+                    simulate_msg_list=simulate_msg_list[-MAX_MESSAGES:]
+                else:
+                    logging.info(f"RK - Deserialized message: {deserialized_data}")
+                    real_msg_list.append(deserialized_data)
+                    real_msg_list=real_msg_list[-MAX_MESSAGES:]
             else:
                 logging.warning("Deserialized message is None")
 
             # Keep only the last MAX_MESSAGES messages
-            if len(msg_list) > MAX_MESSAGES:
-                msg_list.pop(0)
+            if len(simulate_msg_list) > MAX_MESSAGES:
+                simulate_msg_list.pop(0)
     except Exception as e:
         logging.error(f"Error while reading message: {e}")
     finally:
@@ -107,7 +116,7 @@ def home():
     """
     return render_template('index.html')
 
-@app.route('/datavisualization')
+@app.route('/my-all-data')
 def get_data():
     """
     Render the data visualization page with the last 100 messages.
@@ -115,9 +124,9 @@ def get_data():
     Returns:
         str: The rendered template with message data.
     """
-    return render_template('trainsensordatavisualization.html', messages=msg_list[-100:])
+    return render_template('trainsensordatavisualization.html', messages=simulate_msg_list[-100:])
 
-@app.route('/by-type')
+@app.route('/my-all-data-by-type')
 def get_data_by_type():
     """
     Render the data visualization page sorted by sensor type.
@@ -125,8 +134,18 @@ def get_data_by_type():
     Returns:
         str: The rendered template with sorted message data by type.
     """
-    sorted_data_by_type = sort_data_by_type(msg_list[-100:])
+    sorted_data_by_type = sort_data_by_type(simulate_msg_list[-100:])
     return render_template('trainsensordatavisualization.html', messages=sorted_data_by_type)
+
+@app.route('/real-all-data')
+def get_real_data():
+    """
+    Render the data visualization page with the last 100 messages.
+
+    Returns:
+        str: The rendered template with message data.
+    """
+    return render_template('realdatavisualization.html', messages=real_msg_list[-100:])
 
 def order_by(param_name, default_value):
     """
