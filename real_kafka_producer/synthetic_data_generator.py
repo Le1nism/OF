@@ -23,14 +23,12 @@ columns_to_generate = [
     'usBpPres', 'usMpPres'
 ]
 
-
 #unisco il dataset con le classificazioni
 dataset = pd.read_csv('dataset.csv')
 classifications = pd.read_csv('descrizioni_classificate.csv')
 event_mapped = dict(zip(classifications['Descrizione'], classifications['Tipo_Evento']))
 dataset['Tipo_Evento'] = dataset['Descrizione'].map(event_mapped)
 dataset.to_csv('dataset_classificato.csv', index=False)
-
 
 # rappresetaione grafica dei dati
 if 'Componente' in dataset.columns and 'Tipo_Evento' in dataset.columns:
@@ -62,7 +60,6 @@ if 'Componente' in dataset.columns and 'Tipo_Evento' in dataset.columns:
 else:
     print("Le colonne 'Componente' e 'Tipo_Evento' devono essere presenti nel dataset per generare i grafici.")
 
-
 #filtro il dataset per il componente VEHICLE e rimuovo le colonne vuote
 print(f"Numero di righe prima del filtraggio: {dataset.shape[0]}")
 print(f"Numero di colonne prima della rimozione di colonne vuote: {dataset.shape[1]}")
@@ -71,7 +68,6 @@ df_vehicle_cleaned = df_vehicle.dropna(axis=1, how='all')
 print(f"Numero di righe dopo il filtraggio: {df_vehicle_cleaned.shape[0]}")
 print(f"Numero di colonne dopo la rimozione di colonne vuote: {df_vehicle_cleaned.shape[1]}")
 
-
 #visualizzazione della distribuzione degli eventi
 event_type = df_vehicle_cleaned['Tipo_Evento'].value_counts()
 event_type.plot(kind='bar', color=['green', 'red'])
@@ -79,7 +75,6 @@ plt.title('Distribuzione degli Eventi (Anomalia vs Funzionamento Normale)')
 plt.xlabel('Tipo di Evento')
 plt.ylabel('Numero di Eventi')
 plt.show()
-
 
 #visualizzazione della distribuzione degli eventi
 df_unique_description = df_vehicle_cleaned[['Descrizione', 'Tipo_Evento']].drop_duplicates()
@@ -90,7 +85,6 @@ plt.xlabel('Tipo di Evento')
 plt.ylabel('Numero di Eventi')
 plt.show()
 
-
 #visualizzazione della distribazione delle anomalie nel tempo
 df_vehicle_cleaned['Timestamp'] = pd.to_datetime(df_vehicle_cleaned['Timestamp'], errors='coerce')
 df_anomalie = df_vehicle_cleaned[df_vehicle_cleaned['Tipo_Evento'] == 'Anomalia'].dropna(subset=['Timestamp'])
@@ -99,7 +93,6 @@ df_anomalie.resample('D').size().plot(title='Distribuzione delle Anomalie nel Te
 plt.xlabel('Data')
 plt.ylabel('Numero di Anomalie')
 plt.show()
-
 
 #visualizzazione della distribazione dei funzionamenti normali nel tempo
 df_vehicle_cleaned['Timestamp'] = pd.to_datetime(df_vehicle_cleaned['Timestamp'], errors='coerce')
@@ -110,17 +103,14 @@ plt.xlabel('Data')
 plt.ylabel('Numero di Anomalie')
 plt.show()
 
-
 #aggiungo la colonna 'Tipo_Evento_Classificato' al dataset
 df_vehicle_cleaned['Tipo_Evento_Classificato'] = df_vehicle_cleaned['Tipo_Evento'].apply(lambda x: 1 if x == 'Funzionamento Normale' else 0)
 df_vehicle_cleaned.head()
 
-
-#rimuovo le righe che contengono valori mancanti
+#rumuovo le righe che contengono valori mancanti
 df_cleaned_no_nan = df_vehicle_cleaned.dropna()
 df_cleaned_no_nan.isnull().sum().sum(), df_cleaned_no_nan.shape
 df_cleaned_no_nan.to_csv('dataset_cleaned.csv', index=False) #ho salvato i nuovi file per poterli vedere e capire la struttura, non ha un'utilità pratica
-
 
 #matrice di correlazione
 correlation_matrix = df_vehicle_cleaned[columns_to_generate].corr()
@@ -128,7 +118,6 @@ plt.figure(figsize=(20, 15))
 sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', linewidths=0.5)
 plt.title('Matrice di Correlazione delle Feature Numeriche')
 plt.show()
-
 
 #funzione per plottare la matrice di confusione
 def plot_confusion_matrix(y_true, y_pred, title):
@@ -140,7 +129,6 @@ def plot_confusion_matrix(y_true, y_pred, title):
     plt.ylabel('Valore Reale')
     plt.title(title)
     plt.show()
-
 
 #creatzione modello e valutazione accuratezza
 X_final = df_cleaned_no_nan.drop(columns=['Tipo_Evento_Classificato', 'Tipo_Evento', 'Descrizione', 'Timestamp', 'Timestamp chiusura', 'Posizione', 'Flotta', 'Veicolo', 'Codice', 'Nome', 'Test'])
@@ -163,13 +151,11 @@ disp.plot(cmap=plt.cm.Blues)
 plt.title('Confusion Matrix')
 plt.show()
 
-
 #leggo il file csv e pulisco i dati
 df_cleaned_no_nan['Timestamp'] = pd.to_datetime(df_cleaned_no_nan['Timestamp'], errors='coerce')
 vehicle_data_clean = df_cleaned_no_nan.dropna(subset=['Timestamp', 'Timestamp chiusura'])
 vehicle_data_clean = vehicle_data_clean.drop_duplicates(subset=['Descrizione', 'Timestamp'])
 print(f"Righe rimaste dopo la pulizia: {len(vehicle_data_clean)}")
-
 
 #calcolo il tempo di interarrivo medio tra le anomalie
 anomalies = vehicle_data_clean[vehicle_data_clean['Tipo_Evento'] == 'Anomalia']
@@ -177,7 +163,6 @@ anomalies_sorted = anomalies.sort_values(by='Timestamp')
 anomalies_sorted['Interarrival_Time'] = anomalies_sorted['Timestamp'].diff().dt.total_seconds()
 anomalies_interarrival = anomalies_sorted['Interarrival_Time'].dropna()
 print(f"Numero di anomalie dopo il calcolo del tempo di interarrivo: {len(anomalies_interarrival)}")
-
 
 #filtro le anomalie per la deviazione standard
 mean_anomalies = anomalies_interarrival.mean()
@@ -187,7 +172,6 @@ filtered_anomalies_interarrival = anomalies_interarrival[
     (anomalies_interarrival < mean_anomalies + 2 * std_anomalies)
 ]
 print(f"Numero di anomalie dopo il filtraggio: {len(filtered_anomalies_interarrival)}")
-
 
 #distribuzione esponenziale sui tempi di interarrivo delle anomalie, filtrato per deviazione standard maggiore di 2
 lambda_expon_anomalies = 1 / filtered_anomalies_interarrival.mean()
@@ -203,14 +187,12 @@ plt.xlim(0, x_limit)
 plt.legend()
 plt.show()
 
-
 #calcolo il tempo di interarrivo medio tra i funzionamenti normali
 normal_operations = vehicle_data_clean[vehicle_data_clean['Tipo_Evento'] == 'Funzionamento Normale']
 normal_operations_sorted = normal_operations.sort_values(by='Timestamp')
 normal_operations_sorted['Interarrival_Time'] = normal_operations_sorted['Timestamp'].diff().dt.total_seconds()
 normal_interarrival = normal_operations_sorted['Interarrival_Time'].dropna()
 print(f"Numero di operazioni normali dopo il calcolo del tempo di interarrivo: {len(normal_interarrival)}")
-
 
 #filtro i log di funzionamento nornmale per la deviazione standard
 mean_normal = normal_interarrival.mean()
@@ -220,7 +202,6 @@ filtered_normal_interarrival = normal_interarrival[
     (normal_interarrival < mean_normal + 2 * std_normal)
 ]
 print(f"Numero di operazioni normali dopo il filtraggio: {len(filtered_normal_interarrival)}")
-
 
 #distribuzione esponenziale sui tempi di interarrivo del funzionamento normale, filtrato per deviazione standard maggiore di 2
 lambda_expon_normal = 1 / filtered_normal_interarrival.mean()
@@ -235,7 +216,6 @@ plt.xlim(0, x_limit)
 plt.legend()
 plt.show()
 
-
 #calcolo media e mediana dei tempi di interarrivo delle anomalie e del funzionamento normale
 mean_filtered_anomalies = filtered_anomalies_interarrival.mean()
 median_filtered_anomalies = filtered_anomalies_interarrival.median()
@@ -246,7 +226,6 @@ median_filtered_normal = filtered_normal_interarrival.median()
 print(f"Media dei tempi di interarrivo del funzionamento normale filtrato: {mean_filtered_normal}")
 print(f"Mediana dei tempi di interarrivo del funzionamento normale filtrato: {median_filtered_normal}")
 
-
 #caricare il dataset e selezionare i dati
 print(f"Dataset caricato con {len(df_cleaned_no_nan)} righe.")
 df_anomalie = df_cleaned_no_nan[df_cleaned_no_nan['Tipo_Evento_Classificato'] == 0]
@@ -254,14 +233,12 @@ df_normali = df_cleaned_no_nan[df_cleaned_no_nan['Tipo_Evento_Classificato'] == 
 print(f"Eventi di anomalia selezionati: {len(df_anomalie)} righe.")
 print(f"Eventi di funzionamento normale selezionati: {len(df_normali)} righe.")
 
-
 #matrice di correlazione
 correlation_matrix = df_anomalie[columns_to_generate].corr()
 plt.figure(figsize=(20, 15))
 sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', linewidths=0.5)
 plt.title('Matrice di Correlazione delle Feature Numeriche')
 plt.show()
-
 
 #creatzione modello e valutazione accuratezza
 X_final = df_cleaned_no_nan.drop(columns=['Tipo_Evento_Classificato', 'Tipo_Evento', 'Descrizione', 'Timestamp', 'Timestamp chiusura', 'Posizione', 'Flotta', 'Veicolo', 'Codice', 'Nome', 'Test', 'Longitudine', 'Latitudine', 'Contemporaneo'])
@@ -279,13 +256,11 @@ print(f"Accuratezza del modello: {accuracy:.4f}")
 print("Report di classificazione:")
 print(classification_rep)
 
-
 #rimuovo i duplicati consecutivi
 columns_to_check = ['Descrizione', 'Timestamp', 'Codice', 'Nome']
 df_deduplicated_anomalies = df_anomalie.loc[(df_anomalie[columns_to_check] != df_anomalie[columns_to_check].shift()).any(axis=1)]
 print(f"Righe originali: {len(df_anomalie)}")
 print(f"Righe dopo rimozione delle ridondanze: {len(df_deduplicated_anomalies)}")
-
 
 #rimuovo i duplicati consecutivi
 columns_to_check = ['Descrizione', 'Timestamp', 'Codice', 'Nome']
@@ -293,9 +268,7 @@ df_deduplicated_normals = df_normali.loc[(df_normali[columns_to_check] != df_nor
 print(f"Righe originali: {len(df_normali)}")
 print(f"Righe dopo rimozione delle ridondanze: {len(df_deduplicated_normals)}")
 
-
 #generazione dati sintetici con copula gaussiana
-print("entro in: # generazione dati sintetici con copula gaussiana")
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 data_us_anomalie = df_deduplicated_anomalies[columns_to_generate].drop(columns=['Durata'])
 data_us_normali = df_deduplicated_normals[columns_to_generate].drop(columns=['Durata'])
@@ -319,7 +292,6 @@ synthetic_us_anomalie['Tipo_Evento_Classificato'] = 0
 synthetic_us_normali['Tipo_Evento_Classificato'] = 1
 warnings.filterwarnings("default", category=RuntimeWarning)
 
-
 #sposto colonna durata in prima posizione e salvo i dataset
 col_durata_anomalie = synthetic_us_anomalie.pop('Durata')
 synthetic_us_anomalie.insert(0, 'Durata', col_durata_anomalie)
@@ -327,7 +299,6 @@ col_durata_normali = synthetic_us_normali.pop('Durata')
 synthetic_us_normali.insert(0, 'Durata', col_durata_normali)
 synthetic_us_anomalie.to_csv('dataset_sintetico_anomalie.csv', index=False)
 synthetic_us_normali.to_csv('dataset_sintetico_normali.csv', index=False)
-
 
 #calcolo media e mediana dei tempi di interarrivo delle anomalie e del funzionamento normale
 mean_filtered_synthetic_anomalies = synthetic_us_anomalie['Durata'].mean()
@@ -339,7 +310,6 @@ median_filtered_synthetic_normal = synthetic_us_normali['Durata'].median()
 print(f"Media dei tempi di interarrivo del funzionamento normale filtrato: {mean_filtered_synthetic_normal}")
 print(f"Mediana dei tempi di interarrivo del funzionamento normale filtrato: {median_filtered_synthetic_normal}")
 
-
 #matrice di correlazione dei dati sintetici con copula gaussiana
 numerical_columns = synthetic_us_anomalie.select_dtypes(include=['float64', 'int64']).columns
 correlation_matrix = synthetic_us_anomalie[numerical_columns].corr()
@@ -348,7 +318,6 @@ sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', linewidths=0.5)
 plt.title('Matrice di Correlazione delle Feature Numeriche')
 plt.show()
 
-
 #matrice di #matrice di correlazione dei dati sintetici con copula gaussiana
 numerical_columns = synthetic_us_normali.select_dtypes(include=['float64', 'int64']).columns
 correlation_matrix = synthetic_us_normali[numerical_columns].corr()
@@ -356,7 +325,6 @@ plt.figure(figsize=(20, 15))
 sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', linewidths=0.5)
 plt.title('Matrice di Correlazione delle Feature Numeriche')
 plt.show()
-
 
 #funzione per plottare la matrice di confusione
 def plot_confusion_matrix(y_true, y_pred, title):
@@ -368,7 +336,6 @@ def plot_confusion_matrix(y_true, y_pred, title):
     plt.ylabel('Valore Reale')
     plt.title(title)
     plt.show()
-
 
 #testiamo il modello sulle anomalie sintetiche
 X_sintetici_anomalie = synthetic_us_anomalie.drop(columns=[
@@ -385,7 +352,6 @@ print(f"Accuratezza del modello sui dati sintetici (anomalie): {accuracy_sinteti
 print("Report di classificazione sui dati sintetici (anomalie):")
 print(classification_rep_sintetici_anomalie)
 plot_confusion_matrix(y_sintetici_true_anomalie, y_pred_sintetici_anomalie, 'Confusion Matrix - Anomalie Sintetiche')
-
 
 #testiamo il modello sui funzionamenti normali sintetiche
 X_sintetici_normali = synthetic_us_normali.drop(columns=[
@@ -425,15 +391,41 @@ for column in common_columns:
 
 
 # script per la generazione continua di dati sintetici
+import json
+import os
+import time
+import random
+import logging
+import warnings
 import pandas as pd
 import numpy as np
-import time
 from concurrent.futures import ThreadPoolExecutor
-from copulas.multivariate import GaussianMultivariate
-import warnings
-import os
 from datetime import timedelta
 from random import uniform
+from confluent_kafka import SerializingProducer
+from confluent_kafka.serialization import StringSerializer
+from copulas.multivariate import GaussianMultivariate
+
+# Configure logging for detailed information
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Environment variables for Kafka broker and topic name
+KAFKA_BROKER = os.getenv('KAFKA_BROKER', 'kafka:9092')
+TOPIC_NAME = os.getenv('TOPIC_NAME', 'train-sensor-data')
+
+# Validate that KAFKA_BROKER and TOPIC_NAME are set
+if not KAFKA_BROKER:
+    raise ValueError("Environment variable KAFKA_BROKER is missing.")
+if not TOPIC_NAME:
+    raise ValueError("Environment variable TOPIC_NAME is missing.")
+
+# Kafka producer configuration
+conf_prod = {
+    'bootstrap.servers': KAFKA_BROKER,
+    'key.serializer': StringSerializer('utf_8'),
+    'value.serializer': lambda x, ctx: json.dumps(x).encode('utf-8')
+}
+producer = SerializingProducer(conf_prod)
 
 columns_to_generate = [
     'Durata', 'CabEnabled_M1', 'CabEnabled_M8', 'ERTMS_PiastraSts', 'HMI_ACPntSts_T2', 'HMI_ACPntSts_T7',
@@ -452,31 +444,39 @@ all_columns = [
                   'Timestamp segnale'
               ] + columns_to_generate + ['Tipo_Evento', 'Tipo_Evento_Classificato']
 
+# Load and prepare synthetic data
+df_originale = pd.read_csv('dataset_cleaned.csv')
+df_anomalie = df_originale[df_originale['Tipo_Evento'] == 'Anomalia']
+df_normali = df_originale[df_originale['Tipo_Evento'] == 'Funzionamento Normale']
+columns_to_check = ['Descrizione', 'Timestamp', 'Codice', 'Nome']
+df_deduplicated_anomalies = df_anomalie.loc[(df_anomalie[columns_to_check] != df_anomalie[columns_to_check].shift()).any(axis=1)]
+df_deduplicated_normals = df_normali.loc[(df_normali[columns_to_check] != df_normali[columns_to_check].shift()).any(axis=1)]
+
 timestamp_iniziale = pd.Timestamp.now()
 
-print(f"stampo colonne: {all_columns}")
-
 def rigeneraDatasetSintetico(file_anomalie, file_normali, df_anomalie, df_normali, num_righe):
-    print("entro in 'rigeneraDatasetSintetico' ")
     warnings.filterwarnings("ignore", category=RuntimeWarning)
     df_anomalie_copula = df_anomalie.drop(columns=['Durata'], errors='ignore')
     df_normali_copula = df_normali.drop(columns=['Durata'], errors='ignore')
+
     copula_anomalie = GaussianMultivariate()
     copula_anomalie.fit(df_anomalie_copula)
     synthetic_anomalie = copula_anomalie.sample(num_righe // 2)
+
     copula_normali = GaussianMultivariate()
     copula_normali.fit(df_normali_copula)
     synthetic_normali = copula_normali.sample(num_righe // 2)
+
     alpha = 0.2
     beta = 1.9
     media_durata_anomalie = 157 * alpha
     media_durata_normali = 115 * alpha
     sigma_anomalie = 1 * beta
     sigma_normali = 1 * beta
-    synthetic_anomalie['Durata'] = np.random.lognormal(mean=np.log(media_durata_anomalie), sigma=sigma_anomalie,
-                                                       size=len(synthetic_anomalie))
-    synthetic_normali['Durata'] = np.random.lognormal(mean=np.log(media_durata_normali), sigma=sigma_normali,
-                                                      size=len(synthetic_normali))
+
+    synthetic_anomalie['Durata'] = np.random.lognormal(mean=np.log(media_durata_anomalie), sigma=sigma_anomalie, size=len(synthetic_anomalie))
+    synthetic_normali['Durata'] = np.random.lognormal(mean=np.log(media_durata_normali), sigma=sigma_normali, size=len(synthetic_normali))
+
     for df in [synthetic_anomalie, synthetic_normali]:
         df['Flotta'] = 'ETR700'
         df['Veicolo'] = 'e700_4801'
@@ -487,92 +487,55 @@ def rigeneraDatasetSintetico(file_anomalie, file_normali, df_anomalie, df_normal
         df['Sistema'] = 'VEHICLE'
         df['Componente'] = 'VEHICLE'
         df['Timestamp segnale'] = np.nan
+
     for col in all_columns:
         if col not in synthetic_anomalie.columns:
             synthetic_anomalie[col] = np.nan
         if col not in synthetic_normali.columns:
             synthetic_normali[col] = np.nan
+
     synthetic_anomalie = synthetic_anomalie.round(2)
     synthetic_normali = synthetic_normali.round(2)
+
     synthetic_anomalie = synthetic_anomalie[all_columns]
     synthetic_normali = synthetic_normali[all_columns]
+
     synthetic_anomalie.to_csv(file_anomalie, index=False)
     synthetic_normali.to_csv(file_normali, index=False)
     warnings.filterwarnings("default", category=RuntimeWarning)
     print(f"Dataset sintetici rigenerati: {file_anomalie} e {file_normali}")
 
-def aggiungoRigaAlFileDiDestinazione(file_output, file_anomalie, file_normali):
-    global timestamp_iniziale
-    print("entro in 'aggiungoRigaAlFileDiDestinazione' ")
-    if np.random.rand() < 0.5:
-        dataset_file = file_anomalie
-        tipo_evento = 'Anomalia'
-        tipo_evento_classificato = 0
-    else:
-        dataset_file = file_normali
-        tipo_evento = 'Funzionamento Normale'
-        tipo_evento_classificato = 1
-    dataset_sintetico = pd.read_csv(dataset_file)
-    nuova_riga = dataset_sintetico.iloc[0].copy()
-    dataset_sintetico = dataset_sintetico.iloc[1:]
-    nuova_riga['Timestamp'] = timestamp_iniziale
-    nuova_riga['Timestamp chiusura'] = timestamp_iniziale + pd.to_timedelta(nuova_riga['Durata'], unit='s')
-    nuova_riga['Timestamp segnale'] = timestamp_iniziale + timedelta(seconds=uniform(0, 1))
-    nuova_riga['Tipo_Evento'] = tipo_evento
-    nuova_riga['Tipo_Evento_Classificato'] = tipo_evento_classificato
-    if not os.path.exists(file_output):
-        nuova_riga.to_frame().T.to_csv(file_output, mode='a', header=all_columns, index=False)
-    else:
-        nuova_riga.to_frame().T.to_csv(file_output, mode='a', header=False, index=False)
-    dataset_sintetico.to_csv(dataset_file, index=False)
-    timestamp_iniziale = pd.Timestamp.now()
-    print(f"Riga sintetica aggiunta dal dataset {tipo_evento}")
+def produce_message(data):
+    """
+    Produce a message to Kafka for a specific sensor type.
 
-def generazioneContinuataDataset(file_output, file_anomalie, file_normali, df_anomalie, df_normali, soglia=100,
-                                 num_righe_rigenerazione=1000):
-    print("entro in 'generazioneContinuataDataset' ")
-    executor = ThreadPoolExecutor(max_workers=2)
-    rigenerazione_in_corso = None
+    Args:
+        data (str): The type of sensor to produce a message for.
+    """
+    try:
+        logging.info(f"Producing message >>> {data}")
+        producer.produce(topic=TOPIC_NAME, value=data) # Send the message to Kafka
+        producer.flush()  # Ensure the message is immediately sent
+        logging.info(f"Message sent >>> {data}")
+    except Exception as e:
+        print(f"Error while producing message: {e}")
+
+# Continuous data generation function
+def generazioneContinuataDataset(file_anomalie, file_normali, df_anomalie, df_normali, num_righe_rigenerazione=1000):
+    rigeneraDatasetSintetico(file_anomalie, file_normali, df_anomalie, df_normali, num_righe_rigenerazione)
+    dataset_anomalie = pd.read_csv(file_anomalie)
+    dataset_normali = pd.read_csv(file_normali)
+
     while True:
-        dataset_anomalie = pd.read_csv(file_anomalie)
-        dataset_normali = pd.read_csv(file_normali)
-        if (len(dataset_anomalie) < soglia or len(dataset_normali) < soglia) and rigenerazione_in_corso is None:
-            rigenerazione_in_corso = executor.submit(
-                rigeneraDatasetSintetico, file_anomalie, file_normali, df_anomalie, df_normali, num_righe_rigenerazione
-            )
-            print("Rigenerazione del dataset sintetico avviata in parallelo.")
-        durata = dataset_anomalie.iloc[0].get('Durata', 1) if np.random.rand() < 0.5 else dataset_normali.iloc[0].get(
-            'Durata', 1)
-        time.sleep(durata)
-        aggiungoRigaAlFileDiDestinazione(file_output, file_anomalie, file_normali)
-        if rigenerazione_in_corso and rigenerazione_in_corso.done():
-            print("Rigenerazione completata.")
-            rigenerazione_in_corso = None
+        data_to_send = dataset_anomalie.iloc[0].to_dict() if np.random.rand() < 0.5 else dataset_normali.iloc[0].to_dict()
+        data_to_send['Timestamp'] = str(data_to_send['Timestamp'])
+        produce_message(data_to_send)
+        dataset_anomalie = dataset_anomalie.iloc[1:] if np.random.rand() < 0.5 else dataset_anomalie
+        dataset_normali = dataset_normali.iloc[1:] if not np.random.rand() < 0.5 else dataset_normali
+        time.sleep(1)
 
-df_originale = pd.read_csv('dataset_cleaned.csv')
-df_anomalie = df_originale[df_originale['Tipo_Evento'] == 'Anomalia']
-df_normali = df_originale[df_originale['Tipo_Evento'] == 'Funzionamento Normale']
-columns_to_check = ['Descrizione', 'Timestamp', 'Codice', 'Nome']
-df_deduplicated_anomalies = df_anomalie.loc[
-    (df_anomalie[columns_to_check] != df_anomalie[columns_to_check].shift()).any(axis=1)]
-df_deduplicated_normals = df_normali.loc[
-    (df_normali[columns_to_check] != df_normali[columns_to_check].shift()).any(axis=1)]
-rigeneraDatasetSintetico('dataset_sintetico_anomalie.csv', 'dataset_sintetico_normali.csv',
-                         df_deduplicated_anomalies[columns_to_generate], df_deduplicated_normals[columns_to_generate],
-                         num_righe=1000)
-generazioneContinuataDataset('dataset_destinazione.csv', 'dataset_sintetico_anomalie.csv',
-                             'dataset_sintetico_normali.csv', df_deduplicated_anomalies[columns_to_generate],
-                             df_deduplicated_normals[columns_to_generate])
+if __name__ == '__main__':
+    generazioneContinuataDataset('dataset_sintetico_anomalie.csv', 'dataset_sintetico_normali.csv',
+                                 df_deduplicated_anomalies[columns_to_generate],
+                                 df_deduplicated_normals[columns_to_generate])
 
-
-#test del modello sui dati sintetici
-train_columns = X_final.columns
-df_sintetico = pd.read_csv('dataset_destinazione.csv')
-X_sintetico = df_sintetico[train_columns]
-y_sintetico = df_sintetico['Tipo_Evento_Classificato'].replace({1: 'Funzionamento Normale', 0: 'Anomalia'})
-y_pred_sintetico = rf_model.predict(X_sintetico)
-accuracy_sintetico = accuracy_score(y_sintetico, y_pred_sintetico)
-classification_rep_sintetico = classification_report(y_sintetico, y_pred_sintetico, target_names=['Anomalia', 'Funzionamento Normale'])
-print(f"Accuratezza del modello sui dati sintetici: {accuracy_sintetico:.4f}")
-print("Report di classificazione sui dati sintetici:")
-print(classification_rep_sintetico)

@@ -78,3 +78,19 @@ services:
     networks:
       - trains_network
     entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "flask run"] # Starts the Flask server after Kafka is available
+
+  # Data sensor simulator as Kafka producer
+  synthetic_data_sensor_generator_kafka_producer:
+    build:
+      context: ./real_kafka_producer # Path to the producer's Dockerfile
+      dockerfile: Dockerfile
+    container_name: real_kafka_producer
+    hostname: real_producer
+    environment:
+      KAFKA_BROKER: 'kafka:9092' # Kafka broker to connect to
+      TOPIC_NAME: "train-sensor-data" # Kafka topic name
+    depends_on:
+      - kafka # Producer depends on Kafka
+    networks:
+      - trains_network
+    entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python synthetic_data_generator.py"] # Starts the Python script after Kafka is available
