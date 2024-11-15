@@ -139,12 +139,6 @@ def get_data_by_type():
 
 @app.route('/real-all-data')
 def get_real_data():
-    """
-    Render the data visualization page with the last 100 messages.
-
-    Returns:
-        str: The rendered template with message data.
-    """
     return render_template('realdatavisualization.html', messages=real_msg_list[-100:])
 
 def order_by(param_name, default_value):

@@ -454,18 +454,32 @@ df_deduplicated_normals = df_normali.loc[(df_normali[columns_to_check] != df_nor
 
 timestamp_iniziale = pd.Timestamp.now()
 
-def rigeneraDatasetSintetico(file_anomalie, file_normali, df_anomalie, df_normali, num_righe):
+# Aggiungi metadati
+def add_metadata(synthetic_data):
+    synthetic_data['Flotta'] = 'ETR700'
+    synthetic_data['Veicolo'] = 'e700_4801'
+    synthetic_data['Test'] = 'N'
+    synthetic_data['Timestamp'] = pd.Timestamp.now()
+    synthetic_data['Timestamp chiusura'] = synthetic_data['Timestamp'] + pd.to_timedelta(
+    synthetic_data['Durata'], unit='s')
+    synthetic_data['Posizione'] = np.nan
+    synthetic_data['Sistema'] = 'VEHICLE'
+    synthetic_data['Componente'] = 'VEHICLE'
+    synthetic_data['Timestamp segnale'] = np.nan
+    return synthetic_data
+
+def rigeneraEInviaDatasetSintetico(df_anomalie, df_normali, num_righe, topic_name):
     warnings.filterwarnings("ignore", category=RuntimeWarning)
     df_anomalie_copula = df_anomalie.drop(columns=['Durata'], errors='ignore')
     df_normali_copula = df_normali.drop(columns=['Durata'], errors='ignore')
 
     copula_anomalie = GaussianMultivariate()
     copula_anomalie.fit(df_anomalie_copula)
-    synthetic_anomalie = copula_anomalie.sample(num_righe // 2)
+    #synthetic_anomalie = copula_anomalie.sample(num_righe // 2)
 
     copula_normali = GaussianMultivariate()
     copula_normali.fit(df_normali_copula)
-    synthetic_normali = copula_normali.sample(num_righe // 2)
+    #synthetic_normali = copula_normali.sample(num_righe // 2)
 
     alpha = 0.2
     beta = 1.9
@@ -474,36 +488,30 @@ def rigeneraDatasetSintetico(file_anomalie, file_normali, df_anomalie, df_normal
     sigma_anomalie = 1 * beta
     sigma_normali = 1 * beta
 
-    synthetic_anomalie['Durata'] = np.random.lognormal(mean=np.log(media_durata_anomalie), sigma=sigma_anomalie, size=len(synthetic_anomalie))
-    synthetic_normali['Durata'] = np.random.lognormal(mean=np.log(media_durata_normali), sigma=sigma_normali, size=len(synthetic_normali))
+    # Generazione e invio continuo dei dati
+    while True:
+        is_anomalia = np.random.rand() < 0.5
+        if is_anomalia:
+            synthetic_data = copula_anomalie.sample(1)
+            synthetic_data['Durata'] = np.random.lognormal(mean=np.log(media_durata_anomalie), sigma=sigma_anomalie, size=1)
+            synthetic_data['Tipo_Evento'] = 'Anomalia'
+            synthetic_data['Tipo_Evento_Classificato'] = 0
+        else:
+            synthetic_data = copula_normali.sample(1)
+            synthetic_data['Durata'] = np.random.lognormal(mean=np.log(media_durata_normali), sigma=sigma_normali, size=1)
+            synthetic_data['Tipo_Evento'] = 'Funzionamento Normale'
+            synthetic_data['Tipo_Evento_Classificato'] = 1
 
-    for df in [synthetic_anomalie, synthetic_normali]:
-        df['Flotta'] = 'ETR700'
-        df['Veicolo'] = 'e700_4801'
-        df['Test'] = 'N'
-        df['Timestamp'] = pd.Timestamp.now()
-        df['Timestamp chiusura'] = df['Timestamp'] + pd.to_timedelta(df['Durata'], unit='s')
-        df['Posizione'] = np.nan
-        df['Sistema'] = 'VEHICLE'
-        df['Componente'] = 'VEHICLE'
-        df['Timestamp segnale'] = np.nan
+        add_metadata(synthetic_data)
 
-    for col in all_columns:
-        if col not in synthetic_anomalie.columns:
-            synthetic_anomalie[col] = np.nan
-        if col not in synthetic_normali.columns:
-            synthetic_normali[col] = np.nan
+        # Converti in formato JSON
+        data_to_send = synthetic_data.iloc[0].to_dict()
+        data_to_send['Timestamp'] = str(data_to_send['Timestamp'])
+        data_to_send['Timestamp chiusura'] = str(data_to_send['Timestamp chiusura'])
 
-    synthetic_anomalie = synthetic_anomalie.round(2)
-    synthetic_normali = synthetic_normali.round(2)
+        produce_message(data_to_send)
 
-    synthetic_anomalie = synthetic_anomalie[all_columns]
-    synthetic_normali = synthetic_normali[all_columns]
-
-    synthetic_anomalie.to_csv(file_anomalie, index=False)
-    synthetic_normali.to_csv(file_normali, index=False)
-    warnings.filterwarnings("default", category=RuntimeWarning)
-    print(f"Dataset sintetici rigenerati: {file_anomalie} e {file_normali}")
+        time.sleep(1)
 
 def produce_message(data):
     """
@@ -521,21 +529,33 @@ def produce_message(data):
         print(f"Error while producing message: {e}")
 
 # Continuous data generation function
-def generazioneContinuataDataset(file_anomalie, file_normali, df_anomalie, df_normali, num_righe_rigenerazione=1000):
-    rigeneraDatasetSintetico(file_anomalie, file_normali, df_anomalie, df_normali, num_righe_rigenerazione)
-    dataset_anomalie = pd.read_csv(file_anomalie)
-    dataset_normali = pd.read_csv(file_normali)
+#def generazioneContinuataDataset(file_anomalie, file_normali, df_anomalie, df_normali, num_righe_rigenerazione=1000):
+#    rigeneraDatasetSintetico(file_anomalie, file_normali, df_anomalie, df_normali, num_righe_rigenerazione)
+#    dataset_anomalie = pd.read_csv(file_anomalie)
+#    dataset_normali = pd.read_csv(file_normali)
+#
+#    while True:
+#        data_to_send = dataset_anomalie.iloc[0].to_dict() if np.random.rand() < 0.5 else dataset_normali.iloc[0].to_dict()
+#        data_to_send['Timestamp'] = str(data_to_send['Timestamp'])
+#        produce_message(data_to_send)
+#       dataset_anomalie = dataset_anomalie.iloc[1:] if np.random.rand() < 0.5 else dataset_anomalie
+#       dataset_normali = dataset_normali.iloc[1:] if not np.random.rand() < 0.5 else dataset_normali
+#        time.sleep(1)
 
-    while True:
-        data_to_send = dataset_anomalie.iloc[0].to_dict() if np.random.rand() < 0.5 else dataset_normali.iloc[0].to_dict()
-        data_to_send['Timestamp'] = str(data_to_send['Timestamp'])
-        produce_message(data_to_send)
-        dataset_anomalie = dataset_anomalie.iloc[1:] if np.random.rand() < 0.5 else dataset_anomalie
-        dataset_normali = dataset_normali.iloc[1:] if not np.random.rand() < 0.5 else dataset_normali
-        time.sleep(1)
+# Continuous data generation function
+#def generazioneContinuataDatasetInMemory(df_anomalie, df_normali, num_righe_rigenerazione=1000):
+#    dataset_anomalie, dataset_normali = rigeneraDatasetSinteticoInMemory(df_anomalie, df_normali, num_righe_rigenerazione)
+#
+#    while True:
+#        data_to_send = dataset_anomalie.iloc[0].to_dict() if np.random.rand() < 0.5 else dataset_normali.iloc[0].to_dict()
+#        data_to_send['Timestamp'] = str(data_to_send['Timestamp'])
+#        produce_message(data_to_send)
+#        dataset_anomalie = dataset_anomalie.iloc[1:] if not dataset_anomalie.empty else rigeneraDatasetSinteticoInMemory(df_anomalie, df_normali, num_righe_rigenerazione)[0]
+#        dataset_normali = dataset_normali.iloc[1:] if not dataset_normali.empty else rigeneraDatasetSinteticoInMemory(df_anomalie, df_normali, num_righe_rigenerazione)[1]
+#        time.sleep(1)
 
 if __name__ == '__main__':
-    generazioneContinuataDataset('dataset_sintetico_anomalie.csv', 'dataset_sintetico_normali.csv',
-                                 df_deduplicated_anomalies[columns_to_generate],
-                                 df_deduplicated_normals[columns_to_generate])
-
+    rigeneraEInviaDatasetSintetico(df_deduplicated_anomalies[columns_to_generate],
+                                   df_deduplicated_normals[columns_to_generate],
+                                   num_righe=1000,
+                                   topic_name=TOPIC_NAME)
