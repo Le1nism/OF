@@ -452,22 +452,20 @@ columns_to_check = ['Descrizione', 'Timestamp', 'Codice', 'Nome']
 df_deduplicated_anomalies = df_anomalie.loc[(df_anomalie[columns_to_check] != df_anomalie[columns_to_check].shift()).any(axis=1)]
 df_deduplicated_normals = df_normali.loc[(df_normali[columns_to_check] != df_normali[columns_to_check].shift()).any(axis=1)]
 
-timestamp_iniziale = pd.Timestamp.now()
-
 # Aggiungi metadati
 def add_metadata(synthetic_data):
     synthetic_data['Flotta'] = 'ETR700'
     synthetic_data['Veicolo'] = 'e700_4801'
     synthetic_data['Test'] = 'N'
     synthetic_data['Timestamp'] = pd.Timestamp.now()
-    synthetic_data['Timestamp chiusura'] = synthetic_data['Timestamp'] + pd.to_timedelta(
-    synthetic_data['Durata'], unit='s')
+    synthetic_data['Timestamp chiusura'] = synthetic_data['Timestamp'] + pd.to_timedelta(synthetic_data['Durata'], unit='s')
     synthetic_data['Posizione'] = np.nan
     synthetic_data['Sistema'] = 'VEHICLE'
     synthetic_data['Componente'] = 'VEHICLE'
     synthetic_data['Timestamp segnale'] = np.nan
     return synthetic_data
 
+# Continuous data generation function
 def rigeneraEInviaDatasetSintetico(df_anomalie, df_normali, num_righe, topic_name):
     warnings.filterwarnings("ignore", category=RuntimeWarning)
     df_anomalie_copula = df_anomalie.drop(columns=['Durata'], errors='ignore')
@@ -527,32 +525,6 @@ def produce_message(data):
         logging.info(f"Message sent >>> {data}")
     except Exception as e:
         print(f"Error while producing message: {e}")
-
-# Continuous data generation function
-#def generazioneContinuataDataset(file_anomalie, file_normali, df_anomalie, df_normali, num_righe_rigenerazione=1000):
-#    rigeneraDatasetSintetico(file_anomalie, file_normali, df_anomalie, df_normali, num_righe_rigenerazione)
-#    dataset_anomalie = pd.read_csv(file_anomalie)
-#    dataset_normali = pd.read_csv(file_normali)
-#
-#    while True:
-#        data_to_send = dataset_anomalie.iloc[0].to_dict() if np.random.rand() < 0.5 else dataset_normali.iloc[0].to_dict()
-#        data_to_send['Timestamp'] = str(data_to_send['Timestamp'])
-#        produce_message(data_to_send)
-#       dataset_anomalie = dataset_anomalie.iloc[1:] if np.random.rand() < 0.5 else dataset_anomalie
-#       dataset_normali = dataset_normali.iloc[1:] if not np.random.rand() < 0.5 else dataset_normali
-#        time.sleep(1)
-
-# Continuous data generation function
-#def generazioneContinuataDatasetInMemory(df_anomalie, df_normali, num_righe_rigenerazione=1000):
-#    dataset_anomalie, dataset_normali = rigeneraDatasetSinteticoInMemory(df_anomalie, df_normali, num_righe_rigenerazione)
-#
-#    while True:
-#        data_to_send = dataset_anomalie.iloc[0].to_dict() if np.random.rand() < 0.5 else dataset_normali.iloc[0].to_dict()
-#        data_to_send['Timestamp'] = str(data_to_send['Timestamp'])
-#        produce_message(data_to_send)
-#        dataset_anomalie = dataset_anomalie.iloc[1:] if not dataset_anomalie.empty else rigeneraDatasetSinteticoInMemory(df_anomalie, df_normali, num_righe_rigenerazione)[0]
-#        dataset_normali = dataset_normali.iloc[1:] if not dataset_normali.empty else rigeneraDatasetSinteticoInMemory(df_anomalie, df_normali, num_righe_rigenerazione)[1]
-#        time.sleep(1)
 
 if __name__ == '__main__':
     rigeneraEInviaDatasetSintetico(df_deduplicated_anomalies[columns_to_generate],
