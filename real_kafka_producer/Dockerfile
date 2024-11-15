@@ -20,7 +20,7 @@ COPY . .
 
 # Upgrade pip to the latest version
 RUN pip install --no-cache-dir --upgrade pip
-# Install the dependencies specified in the requirements file
+# Install the dependencies specified in the requirements file and others dependencing
 RUN pip install --no-cache-dir -r requirements_real_producer.txt
 RUN pip install --no-cache-dir seaborn matplotlib scikit-learn scipy pandas numpy copulas
 
