@@ -1,62 +1,89 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Arial', sans-serif;
     background-color: #f4f4f4;
     margin: 0;
     padding: 20px;
 }
 
-.container {
-    max-width: 800px;
-    margin: auto;
+.container, .containerForGroup {
+    max-width: 900px;
+    margin: 20px auto;
     background: #fff;
     padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-.containerForGroup {
-    max-width: 800px;
-    margin: auto;
-    background: #fff;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-h1 {
+h1, h2 {
     text-align: center;
+    color: #333;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
+    margin-bottom: 20px;
 }
 
 table, th, td {
     border: 1px solid #ddd;
 }
 
-th, td {
-    padding: 10px;
-    text-align: left;
+th {
+    background-color: #007BFF;
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
 }
 
-/*tr:nth-child(even) {
-    background-color: indigo;
-}*/
+td {
+    padding: 12px;
+    text-align: left;
+    transition: background-color 0.3s;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+tr:hover {
+    background-color: #f1f1f1;
+}
 
 tr.anomalys {
-    background-color: darkred; /* Colore rosso per le anomalie */
+    background-color: darkred;
+    color: #fff;
 }
 
 tr.ok {
-     background-color: green; /* Colore verde per i sensori ok */
+    background-color: green;
+    color: #fff;
 }
 
-tr.uno{
-    background-color: indianred; /* Colore indianred per i sensori del gr.1 */
+tr.uno {
+    background-color: indianred;
+    color: #fff;
 }
+
 tr.due {
-    background-color: indigo; /* Colore indaco per i sensori del gr.2 */
-    color: white
+    background-color: indigo;
+    color: #fff;
 }
 
+a {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color: #007BFF;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    text-align: center;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+a:hover {
+    background-color: #0056b3;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
