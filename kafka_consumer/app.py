@@ -14,8 +14,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 app = Flask(__name__)
 
 # Read Kafka configuration from environment variables
-KAFKA_BROKER = os.getenv('KAFKA_BROKER', 'kafka:9092')
-TOPIC_NAME = os.getenv('TOPIC_NAME', 'train-sensor-data')
+KAFKA_BROKER = os.getenv('KAFKA_BROKER', 'kafka:9092')  # Kafka broker URL
+TOPIC_NAME = os.getenv('TOPIC_NAME', 'train-sensor-data')  # Kafka topic name
 
 # Validate that KAFKA_BROKER and TOPIC_NAME are set
 if not KAFKA_BROKER:
@@ -24,15 +24,15 @@ if not TOPIC_NAME:
     raise ValueError("Environment variable TOPIC_NAME is missing.")
 
 # List to store received messages and a constant for the maximum number of stored messages
-simulate_msg_list = []
-real_msg_list = []
-MAX_MESSAGES = 100
+simulate_msg_list = []  # Stores simulated sensor messages
+real_msg_list = []  # Stores real sensor messages
+MAX_MESSAGES = 100  # Limit for the number of stored messages
 
 # Kafka consumer configuration
 conf_cons = {
-    'bootstrap.servers': KAFKA_BROKER,
-    'group.id': 'kafka-consumer-group-1',  # Consumer group ID
-    'auto.offset.reset': 'earliest'  # Start reading at the earliest message
+    'bootstrap.servers': KAFKA_BROKER,  # Kafka broker URL
+    'group.id': 'kafka-consumer-group-1',  # Consumer group ID for message offset tracking
+    'auto.offset.reset': 'earliest'  # Start reading from the earliest message if no offset is present
 }
 
 def deserialize_message(msg):
@@ -58,7 +58,7 @@ def kafka_consumer_thread():
     Kafka consumer thread function that reads and processes messages from the Kafka topic.
 
     This function continuously polls the Kafka topic for new messages, deserializes them,
-    and appends them to the global simulate_msg_list.
+    and appends them to the global simulate_msg_list or real_msg_list based on the message structure.
     """
     consumer = Consumer(conf_cons)
     consumer.subscribe([TOPIC_NAME])
@@ -78,34 +78,31 @@ def kafka_consumer_thread():
             # Deserialize the JSON value of the message
             deserialized_data = deserialize_message(msg)
             if deserialized_data:
-                num_keys=len(deserialized_data.keys())
+                num_keys = len(deserialized_data.keys())
                 if num_keys == 5:
+                    # If the message has 5 keys, treat it as simulated data
                     logging.info(f"5K - Deserialized message: {deserialized_data}")
                     simulate_msg_list.append(deserialized_data)
-                    simulate_msg_list=simulate_msg_list[-MAX_MESSAGES:]
+                    simulate_msg_list = simulate_msg_list[-MAX_MESSAGES:]  # Keep only the last MAX_MESSAGES
                 else:
+                    # Otherwise, treat it as real sensor data
                     logging.info(f"RK - Deserialized message: {deserialized_data}")
                     real_msg_list.append(deserialized_data)
-                    real_msg_list=real_msg_list[-MAX_MESSAGES:]
+                    real_msg_list = real_msg_list[-MAX_MESSAGES:]  # Keep only the last MAX_MESSAGES
             else:
                 logging.warning("Deserialized message is None")
-
-            # Keep only the last MAX_MESSAGES messages
-            if len(simulate_msg_list) > MAX_MESSAGES:
-                simulate_msg_list.pop(0)
     except Exception as e:
         logging.error(f"Error while reading message: {e}")
     finally:
-        consumer.close()
+        consumer.close()  # Close the Kafka consumer gracefully
 
-# Start the Kafka consumer thread
+# Start the Kafka consumer thread as a daemon to run in the background
 threading.Thread(target=kafka_consumer_thread, daemon=True).start()
 
 # Start the Flask web application
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
 
-# Flask route to retrieve the last 100 messages
 @app.route('/', methods=['GET'])
 def home():
     """
@@ -122,7 +119,7 @@ def get_data():
     Render the data visualization page with the last 100 messages.
 
     Returns:
-        str: The rendered template with message data.
+        str: The rendered template with the last 100 simulated messages.
     """
     return render_template('trainsensordatavisualization.html', messages=simulate_msg_list[-100:])
 
@@ -132,13 +129,19 @@ def get_data_by_type():
     Render the data visualization page sorted by sensor type.
 
     Returns:
-        str: The rendered template with sorted message data by type.
+        str: The rendered template with sorted simulated message data by type.
     """
     sorted_data_by_type = sort_data_by_type(simulate_msg_list[-100:])
     return render_template('trainsensordatavisualization.html', messages=sorted_data_by_type)
 
 @app.route('/real-all-data')
 def get_real_data():
+    """
+    Render the data visualization page for real sensor data.
+
+    Returns:
+        str: The rendered template with the last 100 real sensor messages.
+    """
     return render_template('realdatavisualization.html', messages=real_msg_list[-100:])
 
 def order_by(param_name, default_value):
@@ -173,4 +176,4 @@ def sort_data_by_type(data_list):
     Returns:
         list: The sorted list of sensor data by type.
     """
-    return sorted(data_list, key=lambda x: x[order_by_type()])
+    return sorted(data_list, key=lambda x: x.get(order_by_type()))
