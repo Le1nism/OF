@@ -13,8 +13,10 @@
     <title>AllRealDataVisualizationOfTrainSensors</title>
 </head>
 <body>
-    <div>
+    <div class="containerForGroup">
         <h2>Real Data Visualization Of Train Sensors</h2>
+    </div>
+    <div>
         <table>
             <thead>
                 <tr>
@@ -27,7 +29,7 @@
             </thead>
             <tbody>
                 {% for message in messages %}
-                    <tr>
+                    <tr class="{{ 'anomalys' if message['TIPO_EVENTO_CLASSIFICATO'] == '0' else 'ok' if message['TIPO_EVENTO_CLASSIFICATO'] == '1' else '' }}">
                         {% for key, value in message.items() %}
                             <td>{{ value }}</td>
                         {% endfor %}

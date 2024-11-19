@@ -30,7 +30,7 @@ table, th, td {
 }
 
 th {
-    background-color: #007BFF;
+    background-color: green;
     color: #fff;
     font-size: 16px;
     font-weight: bold;
@@ -75,7 +75,7 @@ a {
     display: inline-block;
     margin-top: 10px;
     padding: 10px 20px;
-    background-color: #007BFF;
+    background-color: green;
     color: #fff;
     text-decoration: none;
     border-radius: 5px;
