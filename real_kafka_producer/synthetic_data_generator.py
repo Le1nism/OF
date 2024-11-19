@@ -390,7 +390,8 @@ for column in common_columns:
     plt.show()
 
 
-# script per la generazione continua di dati sintetici
+# Script for continuous generation of synthetic data and sending it to a Kafka topic
+
 import json
 import os
 import time
@@ -427,6 +428,7 @@ conf_prod = {
 }
 producer = SerializingProducer(conf_prod)
 
+# Columns used for generating synthetic data
 columns_to_generate = [
     'Durata', 'CabEnabled_M1', 'CabEnabled_M8', 'ERTMS_PiastraSts', 'HMI_ACPntSts_T2', 'HMI_ACPntSts_T7',
     'HMI_DCPntSts_T2', 'HMI_DCPntSts_T7', 'HMI_Iline', 'HMI_Irsts_T2', 'HMI_Irsts_T7', 'HMI_VBatt_T2',
@@ -437,23 +439,37 @@ columns_to_generate = [
     'usB2BCilPres_T5', 'usB2BCilPres_T7', 'usBpPres', 'usMpPres'
 ]
 
+# Full list of columns including metadata and generated data
 all_columns = [
                   'Flotta', 'Veicolo', 'Codice', 'Nome', 'Descrizione', 'Test', 'Timestamp', 'Timestamp chiusura',
-                  'Durata',
-                  'Posizione', 'Sistema', 'Componente', 'Latitudine', 'Longitudine', 'Contemporaneo',
+                  'Durata', 'Posizione', 'Sistema', 'Componente', 'Latitudine', 'Longitudine', 'Contemporaneo',
                   'Timestamp segnale'
               ] + columns_to_generate + ['Tipo_Evento', 'Tipo_Evento_Classificato']
 
-# Load and prepare synthetic data
+# Load and prepare synthetic data from CSV
 df_originale = pd.read_csv('dataset_cleaned.csv')
 df_anomalie = df_originale[df_originale['Tipo_Evento'] == 'Anomalia']
 df_normali = df_originale[df_originale['Tipo_Evento'] == 'Funzionamento Normale']
 columns_to_check = ['Descrizione', 'Timestamp', 'Codice', 'Nome']
-df_deduplicated_anomalies = df_anomalie.loc[(df_anomalie[columns_to_check] != df_anomalie[columns_to_check].shift()).any(axis=1)]
-df_deduplicated_normals = df_normali.loc[(df_normali[columns_to_check] != df_normali[columns_to_check].shift()).any(axis=1)]
 
-# Aggiungi metadati
+# Deduplicate anomaly and normal datasets
+df_deduplicated_anomalies = df_anomalie.loc[
+    (df_anomalie[columns_to_check] != df_anomalie[columns_to_check].shift()).any(axis=1)
+]
+df_deduplicated_normals = df_normali.loc[
+    (df_normali[columns_to_check] != df_normali[columns_to_check].shift()).any(axis=1)
+]
+
 def add_metadata(synthetic_data):
+    """
+    Add metadata columns to the synthetic data.
+
+    Args:
+        synthetic_data (pd.DataFrame): The synthetic data to enrich with metadata.
+
+    Returns:
+        pd.DataFrame: The synthetic data with additional metadata.
+    """
     synthetic_data['Flotta'] = 'ETR700'
     synthetic_data['Veicolo'] = 'e700_4801'
     synthetic_data['Test'] = 'N'
@@ -465,20 +481,28 @@ def add_metadata(synthetic_data):
     synthetic_data['Timestamp segnale'] = np.nan
     return synthetic_data
 
-# Continuous data generation function
-def rigeneraEInviaDatasetSintetico(df_anomalie, df_normali, num_righe, topic_name):
+def generatorSyntheticDataset(df_anomalie, df_normali, topic_name):
+    """
+    Continuously generate synthetic data based on anomaly and normal datasets and send it to Kafka.
+
+    Args:
+        df_anomalie (pd.DataFrame): The dataset containing anomaly data.
+        df_normali (pd.DataFrame): The dataset containing normal operational data.
+        topic_name (str): The name of the Kafka topic to which data will be sent.
+    """
     warnings.filterwarnings("ignore", category=RuntimeWarning)
+
+    # Prepare copula models for anomaly and normal data
     df_anomalie_copula = df_anomalie.drop(columns=['Durata'], errors='ignore')
     df_normali_copula = df_normali.drop(columns=['Durata'], errors='ignore')
 
     copula_anomalie = GaussianMultivariate()
     copula_anomalie.fit(df_anomalie_copula)
-    #synthetic_anomalie = copula_anomalie.sample(num_righe // 2)
 
     copula_normali = GaussianMultivariate()
     copula_normali.fit(df_normali_copula)
-    #synthetic_normali = copula_normali.sample(num_righe // 2)
 
+    # Parameters for duration generation
     alpha = 0.2
     beta = 1.9
     media_durata_anomalie = 157 * alpha
@@ -486,9 +510,9 @@ def rigeneraEInviaDatasetSintetico(df_anomalie, df_normali, num_righe, topic_nam
     sigma_anomalie = 1 * beta
     sigma_normali = 1 * beta
 
-    # Generazione e invio continuo dei dati
+    # Continuous data generation and message production loop
     while True:
-        is_anomalia = np.random.rand() < 0.5
+        is_anomalia = np.random.rand() < 0.5  # Randomly choose between anomaly and normal data
         if is_anomalia:
             synthetic_data = copula_anomalie.sample(1)
             synthetic_data['Durata'] = np.random.lognormal(mean=np.log(media_durata_anomalie), sigma=sigma_anomalie, size=1)
@@ -500,34 +524,39 @@ def rigeneraEInviaDatasetSintetico(df_anomalie, df_normali, num_righe, topic_nam
             synthetic_data['Tipo_Evento'] = 'Funzionamento Normale'
             synthetic_data['Tipo_Evento_Classificato'] = 1
 
+        # Add metadata to the synthetic data
         add_metadata(synthetic_data)
 
-        # Converti in formato JSON
+        # Convert data to JSON and send it to Kafka
         data_to_send = synthetic_data.iloc[0].to_dict()
         data_to_send['Timestamp'] = str(data_to_send['Timestamp'])
         data_to_send['Timestamp chiusura'] = str(data_to_send['Timestamp chiusura'])
 
-        produce_message(data_to_send)
+        produce_message(data_to_send, topic_name)
 
+        # Sleep for 1 second before generating the next data
         time.sleep(1)
 
-def produce_message(data):
+def produce_message(data, topic_name):
     """
     Produce a message to Kafka for a specific sensor type.
 
     Args:
-        data (str): The type of sensor to produce a message for.
+        data (dict): The data to be sent as a message.
+        topic_name (str): The Kafka topic to which the message will be sent.
     """
     try:
         logging.info(f"Producing message >>> {data}")
-        producer.produce(topic=TOPIC_NAME, value=data) # Send the message to Kafka
+        producer.produce(topic=topic_name, value=data)  # Send the message to Kafka
         producer.flush()  # Ensure the message is immediately sent
         logging.info(f"Message sent >>> {data}")
     except Exception as e:
         print(f"Error while producing message: {e}")
 
 if __name__ == '__main__':
-    rigeneraEInviaDatasetSintetico(df_deduplicated_anomalies[columns_to_generate],
-                                   df_deduplicated_normals[columns_to_generate],
-                                   num_righe=1000,
-                                   topic_name=TOPIC_NAME)
+    # Start the data generation process
+    generatorSyntheticDataset(
+        df_deduplicated_anomalies[columns_to_generate],
+        df_deduplicated_normals[columns_to_generate],
+        topic_name=TOPIC_NAME
+    )
