@@ -7,8 +7,34 @@ from scipy.stats import lognorm
 import pickle
 import threading
 import time
+from confluent_kafka import SerializingProducer
+from confluent_kafka.serialization import StringSerializer
+import logging
+import os
+import json
+import argparse
 
 
+# Configure logging for detailed information
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Environment variables for Kafka broker and topic name
+KAFKA_BROKER = os.getenv('KAFKA_BROKER', 'kafka:9092')
+TOPIC_NAME = os.getenv('TOPIC_NAME', 'train-sensor-data')
+
+# Validate that KAFKA_BROKER and TOPIC_NAME are set
+if not KAFKA_BROKER:
+    raise ValueError("Environment variable KAFKA_BROKER is missing.")
+if not TOPIC_NAME:
+    raise ValueError("Environment variable TOPIC_NAME is missing.")
+
+# Kafka producer configuration
+conf_prod = {
+    'bootstrap.servers': KAFKA_BROKER,
+    'key.serializer': StringSerializer('utf_8'),
+    'value.serializer': lambda x, ctx: json.dumps(x).encode('utf-8')
+}
+producer = SerializingProducer(conf_prod)
 
 # Constants:
 
@@ -34,8 +60,28 @@ with open('copula_anomalie.pkl', 'rb') as f:
 with open('copula_normali.pkl', 'rb') as f:
     copula_normali = pickle.load(f)
 
+def produce_message(data, topic_name):
+    """
+    Produce a message to Kafka for a specific sensor type.
 
-def thread_anomalie(name, lognormal_anomalie):
+    Args:
+        data (dict): The data to be sent as a message.
+        topic_name (str): The Kafka topic to which the message will be sent.
+    """
+    try:
+        logging.info(f"Producing message >>> {data}")
+        producer.produce(topic=topic_name, value=data)  # Send the message to Kafka
+        producer.flush()  # Ensure the message is immediately sent
+        logging.info(f"Message sent >>> {data}")
+    except Exception as e:
+        print(f"Error while producing message: {e}")
+
+
+def thread_anomalie(args):
+  media_durata_anomalie = args.mu_anomalies * args.alpha
+  sigma_anomalie = 1 * args.beta
+  lognormal_anomalie = lognorm(s=sigma_anomalie, scale=np.exp(np.log(media_durata_anomalie)))
+  topic_name = args.vehicle_name + '_anomalies'
   while True:
     synthetic_anomalie = copula_anomalie.sample(1)
     durata_anomalia = lognormal_anomalie.rvs(size=1)
@@ -56,11 +102,21 @@ def thread_anomalie(name, lognormal_anomalie):
     
     synthetic_anomalie = synthetic_anomalie.round(2)
     synthetic_anomalie = synthetic_anomalie[all_columns]
-    print(f"Nuova anomalia generata: {synthetic_anomalie}")
+    # print(f"Nuova anomalia generata: {synthetic_anomalie}")
+    # Convert data to JSON and send it to Kafka
+    data_to_send = synthetic_anomalie.iloc[0].to_dict()
+    data_to_send['Timestamp'] = str(data_to_send['Timestamp'])
+    data_to_send['Timestamp chiusura'] = str(data_to_send['Timestamp chiusura'])
+    produce_message(data_to_send, topic_name)
     time.sleep(durata_anomalia[0])
 
 
-def thread_normali(name, lognormal_normali):
+def thread_normali(args):
+  media_durata_normali = args.mu_normal * args.alpha
+  sigma_normali = 1 * args.beta
+  lognormal_normali = lognorm(s=sigma_normali, scale=np.exp(np.log(media_durata_normali)))
+  topic_name = args.vehicle_name + '_normal_data'
+
   while True:
     synthetic_normali = copula_normali.sample(1)
     durata_normale = lognormal_normali.rvs(size=1)
@@ -81,27 +137,28 @@ def thread_normali(name, lognormal_normali):
     
     synthetic_normali = synthetic_normali.round(2)
     synthetic_normali = synthetic_normali[all_columns]
-    print(f"Nuova diagnostica generata: {synthetic_normali}")
+    # print(f"Nuova diagnostica generata: {synthetic_normali}")
+    # Convert data to JSON and send it to Kafka
+    data_to_send = synthetic_normali.iloc[0].to_dict()
+    data_to_send['Timestamp'] = str(data_to_send['Timestamp'])
+    data_to_send['Timestamp chiusura'] = str(data_to_send['Timestamp chiusura'])
+    produce_message(data_to_send, topic_name)
     time.sleep(durata_normale[0])
 
-# receive the alpha
-if __name__ == '__main__':
-
-    alpha = 0.2
-    beta = 1.9
-    media_durata_anomalie = 157 * alpha
-    media_durata_normali = 115 * alpha
-    sigma_anomalie = 1 * beta
-    sigma_normali = 1 * beta
-
-    lognormal_anomalie = lognorm(s=sigma_anomalie, scale=np.exp(np.log(media_durata_anomalie)))
-
-    lognormal_normali = lognorm(s=sigma_normali, scale=np.exp(np.log(media_durata_normali)))
 
 
-        
-    thread1 = threading.Thread(target=thread_anomalie, args=(1, lognormal_anomalie))
-    thread2 = threading.Thread(target=thread_normali, args=(2, lognormal_normali))
+def main():
+    parser = argparse.ArgumentParser(description='Your script description')
+    parser.add_argument('--mu_anomalies', type=float, default=157, help='Mu parameter (mean of the mean interarrival times of anomalies)')
+    parser.add_argument('--mu_normal', type=float, default=115, help='Mu parameter (mean of the mean interarrival times of normal data)')
+    parser.add_argument('--alpha', type=float, default=0.2, help='Alpha parameter (scaling factor of the mean interarrival times of both anomalies and normal data)')
+    parser.add_argument('--beta', type=float, default=1.9, help='Beta parameter (std dev of interarrivaltimes of both anomalies and normal data)')
+    parser.add_argument('--vehicle_name', type=str, default='e700_4801', help='Name of the vehicle')
+
+    args = parser.parse_args()
+
+    thread1 = threading.Thread(target=thread_anomalie, args=(args,))
+    thread2 = threading.Thread(target=thread_normali, args=(args,))
 
     # Set daemon to True
     thread1.daemon = True
@@ -114,3 +171,7 @@ if __name__ == '__main__':
     # Wait for the threads to finish
     thread1.join()
     thread2.join()
+
+
+if __name__ == '__main__':
+    main()
