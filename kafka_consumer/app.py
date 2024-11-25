@@ -17,6 +17,7 @@ app = Flask(__name__)
 KAFKA_BROKER = os.getenv('KAFKA_BROKER', 'kafka:9092')  # Kafka broker URL
 TOPIC_NAME = os.getenv('TOPIC_NAME', 'train-sensor-data')  # Kafka topic name
 
+
 # Validate that KAFKA_BROKER and TOPIC_NAME are set
 if not KAFKA_BROKER:
     raise ValueError("Environment variable KAFKA_BROKER is missing.")
@@ -53,7 +54,7 @@ def deserialize_message(msg):
         logging.error(f"Error deserializing message: {e}")
         return None
 
-def kafka_consumer_thread():
+def kafka_consumer_thread(topic_name):
     """
     Kafka consumer thread function that reads and processes messages from the Kafka topic.
 
@@ -61,7 +62,7 @@ def kafka_consumer_thread():
     and appends them to the global simulate_msg_list or real_msg_list based on the message structure.
     """
     consumer = Consumer(conf_cons)
-    consumer.subscribe([TOPIC_NAME])
+    consumer.subscribe([topic_name])
     global simulate_msg_list, real_msg_list
     try:
         while True:
@@ -97,7 +98,7 @@ def kafka_consumer_thread():
         consumer.close()  # Close the Kafka consumer gracefully
 
 # Start the Kafka consumer thread as a daemon to run in the background
-threading.Thread(target=kafka_consumer_thread, daemon=True).start()
+threading.Thread(target=kafka_consumer_thread, args=TOPIC_NAME, daemon=True).start()
 
 # Start the Flask web application
 if __name__ == '__main__':
