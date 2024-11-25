@@ -69,19 +69,21 @@ def produce_message(data, topic_name):
         topic_name (str): The Kafka topic to which the message will be sent.
     """
     try:
-        logging.info(f"Producing message >>> {data}")
+        logging.info(f"Producing message to {topic_name} >>> {data}")
         producer.produce(topic=topic_name, value=data)  # Send the message to Kafka
         producer.flush()  # Ensure the message is immediately sent
-        logging.info(f"Message sent >>> {data}")
+        logging.info(f"Message sent to {topic_name} >>> {data}")
     except Exception as e:
-        print(f"Error while producing message: {e}")
+        print(f"Error while producing message to {topic_name} : {e}")
 
 
 def thread_anomalie(args):
   media_durata_anomalie = args.mu_anomalies * args.alpha
   sigma_anomalie = 1 * args.beta
   lognormal_anomalie = lognorm(s=sigma_anomalie, scale=np.exp(np.log(media_durata_anomalie)))
+
   topic_name = args.vehicle_name + '_anomalies'
+
   while True:
     synthetic_anomalie = copula_anomalie.sample(1)
     durata_anomalia = lognormal_anomalie.rvs(size=1)
@@ -115,6 +117,7 @@ def thread_normali(args):
   media_durata_normali = args.mu_normal * args.alpha
   sigma_normali = 1 * args.beta
   lognormal_normali = lognorm(s=sigma_normali, scale=np.exp(np.log(media_durata_normali)))
+
   topic_name = args.vehicle_name + '_normal_data'
 
   while True:
@@ -152,7 +155,7 @@ def main():
     parser.add_argument('--mu_anomalies', type=float, default=157, help='Mu parameter (mean of the mean interarrival times of anomalies)')
     parser.add_argument('--mu_normal', type=float, default=115, help='Mu parameter (mean of the mean interarrival times of normal data)')
     parser.add_argument('--alpha', type=float, default=0.2, help='Alpha parameter (scaling factor of the mean interarrival times of both anomalies and normal data)')
-    parser.add_argument('--beta', type=float, default=1.9, help='Beta parameter (std dev of interarrivaltimes of both anomalies and normal data)')
+    parser.add_argument('--beta', type=float, default=1.9, help='Beta parameter (std dev of interarrival times of both anomalies and normal data)')
     parser.add_argument('--vehicle_name', type=str, default='e700_4801', help='Name of the vehicle')
 
     args = parser.parse_args()
