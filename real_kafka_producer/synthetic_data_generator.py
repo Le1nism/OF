@@ -82,7 +82,7 @@ def thread_anomalie(args):
   sigma_anomalie = 1 * args.beta
   lognormal_anomalie = lognorm(s=sigma_anomalie, scale=np.exp(np.log(media_durata_anomalie)))
 
-  topic_name = args.vehicle_name + '_anomalies'
+  #topic_name = args.vehicle_name + '_anomalies'
 
   while True:
     synthetic_anomalie = copula_anomalie.sample(1)
@@ -109,7 +109,7 @@ def thread_anomalie(args):
     data_to_send = synthetic_anomalie.iloc[0].to_dict()
     data_to_send['Timestamp'] = str(data_to_send['Timestamp'])
     data_to_send['Timestamp chiusura'] = str(data_to_send['Timestamp chiusura'])
-    produce_message(data_to_send, topic_name)
+    produce_message(data_to_send, TOPIC_NAME)
     time.sleep(durata_anomalia[0])
 
 
@@ -118,7 +118,7 @@ def thread_normali(args):
   sigma_normali = 1 * args.beta
   lognormal_normali = lognorm(s=sigma_normali, scale=np.exp(np.log(media_durata_normali)))
 
-  topic_name = args.vehicle_name + '_normal_data'
+  #topic_name = args.vehicle_name + '_normal_data'
 
   while True:
     synthetic_normali = copula_normali.sample(1)
@@ -145,7 +145,7 @@ def thread_normali(args):
     data_to_send = synthetic_normali.iloc[0].to_dict()
     data_to_send['Timestamp'] = str(data_to_send['Timestamp'])
     data_to_send['Timestamp chiusura'] = str(data_to_send['Timestamp chiusura'])
-    produce_message(data_to_send, topic_name)
+    produce_message(data_to_send, TOPIC_NAME)
     time.sleep(durata_normale[0])
 
 

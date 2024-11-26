@@ -98,7 +98,7 @@ def kafka_consumer_thread(topic_name):
         consumer.close()  # Close the Kafka consumer gracefully
 
 # Start the Kafka consumer thread as a daemon to run in the background
-threading.Thread(target=kafka_consumer_thread, args=TOPIC_NAME, daemon=True).start()
+threading.Thread(target=kafka_consumer_thread, args=(TOPIC_NAME, ), daemon=True).start()
 
 # Start the Flask web application
 if __name__ == '__main__':
