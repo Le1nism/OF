@@ -95,4 +95,3 @@ services:
     networks:
       - trains_network  # Connects the container to the custom network
     entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python synthetic_data_generator.py"]  # Wait until Kafka is available, then start the Python script
-
