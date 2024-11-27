@@ -100,10 +100,6 @@ def kafka_consumer_thread(topic_name):
 # Start the Kafka consumer thread as a daemon to run in the background
 threading.Thread(target=kafka_consumer_thread, args=(TOPIC_NAME, ), daemon=True).start()
 
-# Start the Flask web application
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
-
 @app.route('/', methods=['GET'])
 def home():
     """
@@ -178,3 +174,7 @@ def sort_data_by_type(data_list):
         list: The sorted list of sensor data by type.
     """
     return sorted(data_list, key=lambda x: x.get(order_by_type()))
+
+# Start the Flask web application
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
