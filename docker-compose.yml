@@ -64,9 +64,9 @@ services:
   # Flask application as Kafka consumer
   flask_app_kafka_consumer:
     build:
-      context: ./kafka_consumer  # Path to the consumer's Dockerfile
+      context: ./kafka_flask_consumer  # Path to the consumer's Dockerfile
       dockerfile: Dockerfile  # Specify Dockerfile for building the image
-    container_name: kafka_consumer  # Container name for easier identification
+    container_name: kafka_flask_consumer  # Container name for easier identification
     hostname: consumer  # Hostname for internal communication
     environment:
       KAFKA_BROKER: 'kafka:9092'  # Kafka broker address for the consumer to connect to
