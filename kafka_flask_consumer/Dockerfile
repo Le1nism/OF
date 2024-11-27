@@ -19,6 +19,7 @@ ENV FLASK_RUN_PORT=5000
 # TOPIC_NAME: The name of the Kafka topic that the consumer will listen to.
 ENV KAFKA_BROKER="kafka:9092"
 ENV TOPIC_NAME="train-sensor-data"
+#ENV VEHICLE_NAME="e700_4801"
 
 # Install required build tools and libraries for native dependencies and librdkafka
 # These packages ensure that Python modules with C/C++ extensions compile and run properly.
@@ -40,6 +41,8 @@ RUN pip install --no-cache-dir --upgrade pip
 # Install the dependencies specified in the requirements file
 # The requirements file should list all Python packages needed for the Flask app and Kafka consumer.
 RUN pip install --no-cache-dir -r requirements_consumer.txt
+# Ensure numpy is explicitly installed
+RUN pip install --no-cache-dir scipy pandas numpy copulas
 
 # Expose port 5000 to allow external access to the Flask app
 # This makes the port accessible outside the container.

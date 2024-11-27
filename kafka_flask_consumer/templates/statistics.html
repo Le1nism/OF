@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script>
+        // Function to refresh web page every 10 secondi
+        setTimeout(function() {
+            window.location.reload();
+        }, 3000); // 10000 millisecondi = 10 secondi
+    </script>
+    <title>StatisticsDataVisualizationOfTrainSensors</title>
+</head>
+<body>
+    <div class="containerForGroup">
+        <h1>STATISTICS TRAINS SENSORS DATA VISUALIZATION</h1>
+        <nav>
+            <a href="/all-statistics">ALL STATISTICS</a><br>
+            <a href="/anomalies-statistics">ANOMALIES STATISTICS</a><br>
+            <a href="/normal-statistics">NORMAL STATISTICS</a><br>
+        </nav>
+    </div>
+</body>
+</html>

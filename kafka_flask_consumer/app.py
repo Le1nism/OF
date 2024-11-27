@@ -16,6 +16,7 @@ app = Flask(__name__)
 # Read Kafka configuration from environment variables
 KAFKA_BROKER = os.getenv('KAFKA_BROKER', 'kafka:9092')  # Kafka broker URL
 TOPIC_NAME = os.getenv('TOPIC_NAME', 'train-sensor-data')  # Kafka topic name
+VEHICLE_NAME=os.getenv('VEHICLE_NAME', 'e700_4801')
 
 
 # Validate that KAFKA_BROKER and TOPIC_NAME are set
@@ -23,11 +24,21 @@ if not KAFKA_BROKER:
     raise ValueError("Environment variable KAFKA_BROKER is missing.")
 if not TOPIC_NAME:
     raise ValueError("Environment variable TOPIC_NAME is missing.")
+if not VEHICLE_NAME:
+    raise ValueError("Environment variable VEHICLE_NAME is missing.")
 
 # List to store received messages and a constant for the maximum number of stored messages
 simulate_msg_list = []  # Stores simulated sensor messages
 real_msg_list = []  # Stores real sensor messages
+anomalies_msg_list = []
+normal_msg_list = []
+
 MAX_MESSAGES = 100  # Limit for the number of stored messages
+
+recived_all_real_msg = 0
+recived_anomalies_msg = 0
+recived_normal_msg = 0
+
 
 # Kafka consumer configuration
 conf_cons = {
@@ -54,7 +65,7 @@ def deserialize_message(msg):
         logging.error(f"Error deserializing message: {e}")
         return None
 
-def kafka_consumer_thread(topic_name):
+def kafka_consumer_thread():
     """
     Kafka consumer thread function that reads and processes messages from the Kafka topic.
 
@@ -62,8 +73,8 @@ def kafka_consumer_thread(topic_name):
     and appends them to the global simulate_msg_list or real_msg_list based on the message structure.
     """
     consumer = Consumer(conf_cons)
-    consumer.subscribe([topic_name])
-    global simulate_msg_list, real_msg_list
+    consumer.subscribe([TOPIC_NAME, f"{VEHICLE_NAME}_anomalies", f"{VEHICLE_NAME}_normal_data"])
+    global simulate_msg_list, real_msg_list, anomalies_msg_list, normal_msg_list, recived_all_real_msg, recived_anomalies_msg, recived_normal_msg
     try:
         while True:
             msg = consumer.poll(1.0)  # Poll for messages with a timeout of 1 second
@@ -79,8 +90,27 @@ def kafka_consumer_thread(topic_name):
             # Deserialize the JSON value of the message
             deserialized_data = deserialize_message(msg)
             if deserialized_data:
-                num_keys = len(deserialized_data.keys())
-                if num_keys == 5:
+                if msg.topic() == f"{VEHICLE_NAME}_anomalies":
+                    logging.info(f"ANOMALIES - Deserialized message: {deserialized_data}")
+                    anomalies_msg_list.append(deserialized_data)
+                    anomalies_msg_list = anomalies_msg_list[-MAX_MESSAGES:]  # Keep only the last MAX_MESSAGES
+                    real_msg_list.append(deserialized_data)
+                    real_msg_list = real_msg_list[-MAX_MESSAGES:]  # Keep only the last MAX_MESSAGES
+
+                    recived_all_real_msg += 1
+                    recived_anomalies_msg += 1
+
+                elif msg.topic() == f"{VEHICLE_NAME}_normal_data":
+                    logging.info(f"NORMAL DATA - Deserialized message: {deserialized_data}")
+                    normal_msg_list.append(deserialized_data)
+                    normal_msg_list = normal_msg_list[-MAX_MESSAGES:]  # Keep only the last MAX_MESSAGES
+                    real_msg_list.append(deserialized_data)
+                    real_msg_list = real_msg_list[-MAX_MESSAGES:]  # Keep only the last MAX_MESSAGES
+
+                    recived_all_real_msg += 1
+                    recived_normal_msg += 1
+
+                elif len(deserialized_data.keys()) == 5:
                     # If the message has 5 keys, treat it as simulated data
                     logging.info(f"5K - Deserialized message: {deserialized_data}")
                     simulate_msg_list.append(deserialized_data)
@@ -98,7 +128,7 @@ def kafka_consumer_thread(topic_name):
         consumer.close()  # Close the Kafka consumer gracefully
 
 # Start the Kafka consumer thread as a daemon to run in the background
-threading.Thread(target=kafka_consumer_thread, args=(TOPIC_NAME, ), daemon=True).start()
+threading.Thread(target=kafka_consumer_thread, daemon=True).start()
 
 @app.route('/', methods=['GET'])
 def home():
@@ -132,7 +162,7 @@ def get_data_by_type():
     return render_template('trainsensordatavisualization.html', messages=sorted_data_by_type)
 
 @app.route('/real-all-data')
-def get_real_data():
+def get_all_real_data():
     """
     Render the data visualization page for real sensor data.
 
@@ -140,6 +170,43 @@ def get_real_data():
         str: The rendered template with the last 100 real sensor messages.
     """
     return render_template('realdatavisualization.html', messages=real_msg_list[-100:])
+
+@app.route('/real-anomalies-data')
+def get_anomalies_real_data():
+    """
+    Render the data visualization page for real sensor data.
+
+    Returns:
+        str: The rendered template with the last 100 real sensor messages.
+    """
+    return render_template('realdatavisualization.html', messages=anomalies_msg_list[-100:])
+
+@app.route('/real-normal-data')
+def get_normal_real_data():
+    """
+    Render the data visualization page for real sensor data.
+
+    Returns:
+        str: The rendered template with the last 100 real sensor messages.
+    """
+    return render_template('realdatavisualization.html', messages=normal_msg_list[-100:])
+
+@app.route('/statistics')
+def get_statistics():
+    return render_template('statistics.html')
+
+@app.route('/all-statistics')
+def get_all_statistics():
+    return render_template('allstatistics.html', messages=real_msg_list, nr=len(real_msg_list))
+
+@app.route('/anomalies-statistics')
+def get_anomalies_statistics():
+    return render_template('allstatistics.html', messages=anomalies_msg_list, nr=len(anomalies_msg_list))
+
+@app.route('/normal-statistics')
+def get_normal_statistics():
+    return render_template('allstatistics.html', messages=normal_msg_list, nr=len(normal_msg_list))
+
 
 def order_by(param_name, default_value):
     """

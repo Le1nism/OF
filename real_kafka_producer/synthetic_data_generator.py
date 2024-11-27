@@ -20,13 +20,15 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Environment variables for Kafka broker and topic name
 KAFKA_BROKER = os.getenv('KAFKA_BROKER', 'kafka:9092')
-TOPIC_NAME = os.getenv('TOPIC_NAME', 'train-sensor-data')
+VEHICLE_NAME=os.getenv('VEHICLE_NAME', 'e700_4801')
+
 
 # Validate that KAFKA_BROKER and TOPIC_NAME are set
 if not KAFKA_BROKER:
     raise ValueError("Environment variable KAFKA_BROKER is missing.")
-if not TOPIC_NAME:
-    raise ValueError("Environment variable TOPIC_NAME is missing.")
+if not VEHICLE_NAME:
+    raise ValueError("Environment variable VEHICLE_NAME is missing.")
+
 
 # Kafka producer configuration
 conf_prod = {
@@ -36,8 +38,14 @@ conf_prod = {
 }
 producer = SerializingProducer(conf_prod)
 
-# Constants:
+# load the copula objects later:
+with open('copula_anomalie.pkl', 'rb') as f:
+    copula_anomalie = pickle.load(f)
 
+with open('copula_normali.pkl', 'rb') as f:
+    copula_normali = pickle.load(f)
+
+# Constants:
 columns_to_generate = [
     'Durata', 'CabEnabled_M1', 'CabEnabled_M8', 'ERTMS_PiastraSts', 'HMI_ACPntSts_T2', 'HMI_ACPntSts_T7',
     'HMI_DCPntSts_T2', 'HMI_DCPntSts_T7', 'HMI_Iline', 'HMI_Irsts_T2', 'HMI_Irsts_T7', 'HMI_VBatt_T2',
@@ -53,12 +61,6 @@ all_columns = [
     'Posizione', 'Sistema', 'Componente', 'Latitudine', 'Longitudine', 'Contemporaneo', 'Timestamp segnale'
 ] + columns_to_generate + ['Tipo_Evento', 'Tipo_Evento_Classificato']
 
-# load the copula objects later:
-with open('copula_anomalie.pkl', 'rb') as f:
-    copula_anomalie = pickle.load(f)
-
-with open('copula_normali.pkl', 'rb') as f:
-    copula_normali = pickle.load(f)
 
 def produce_message(data, topic_name):
     """
@@ -82,14 +84,14 @@ def thread_anomalie(args):
   sigma_anomalie = 1 * args.beta
   lognormal_anomalie = lognorm(s=sigma_anomalie, scale=np.exp(np.log(media_durata_anomalie)))
 
-  #topic_name = args.vehicle_name + '_anomalies'
+  topic_name = args.vehicle_name + '_anomalies'
 
   while True:
     synthetic_anomalie = copula_anomalie.sample(1)
     durata_anomalia = lognormal_anomalie.rvs(size=1)
     synthetic_anomalie['Durata'] = durata_anomalia
     synthetic_anomalie['Flotta'] = 'ETR700'
-    synthetic_anomalie['Veicolo'] = 'e700_4801'
+    synthetic_anomalie['Veicolo'] = args.vehicle_name
     synthetic_anomalie['Test'] = 'N'
     synthetic_anomalie['Timestamp'] = pd.Timestamp.now()
     synthetic_anomalie['Timestamp chiusura'] = synthetic_anomalie['Timestamp'] + pd.to_timedelta(synthetic_anomalie['Durata'], unit='s')
@@ -109,7 +111,7 @@ def thread_anomalie(args):
     data_to_send = synthetic_anomalie.iloc[0].to_dict()
     data_to_send['Timestamp'] = str(data_to_send['Timestamp'])
     data_to_send['Timestamp chiusura'] = str(data_to_send['Timestamp chiusura'])
-    produce_message(data_to_send, TOPIC_NAME)
+    produce_message(data_to_send, topic_name)
     time.sleep(durata_anomalia[0])
 
 
@@ -118,14 +120,14 @@ def thread_normali(args):
   sigma_normali = 1 * args.beta
   lognormal_normali = lognorm(s=sigma_normali, scale=np.exp(np.log(media_durata_normali)))
 
-  #topic_name = args.vehicle_name + '_normal_data'
+  topic_name = args.vehicle_name + '_normal_data'
 
   while True:
     synthetic_normali = copula_normali.sample(1)
     durata_normale = lognormal_normali.rvs(size=1)
     synthetic_normali['Durata'] = durata_normale
     synthetic_normali['Flotta'] = 'ETR700'
-    synthetic_normali['Veicolo'] = 'e700_4801'
+    synthetic_normali['Veicolo'] = args.vehicle_name
     synthetic_normali['Test'] = 'N'
     synthetic_normali['Timestamp'] = pd.Timestamp.now()
     synthetic_normali['Timestamp chiusura'] = synthetic_normali['Timestamp'] + pd.to_timedelta(synthetic_normali['Durata'], unit='s')
@@ -145,7 +147,7 @@ def thread_normali(args):
     data_to_send = synthetic_normali.iloc[0].to_dict()
     data_to_send['Timestamp'] = str(data_to_send['Timestamp'])
     data_to_send['Timestamp chiusura'] = str(data_to_send['Timestamp chiusura'])
-    produce_message(data_to_send, TOPIC_NAME)
+    produce_message(data_to_send, topic_name)
     time.sleep(durata_normale[0])
 
 

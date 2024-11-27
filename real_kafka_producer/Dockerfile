@@ -9,7 +9,7 @@ WORKDIR /synthetic_data_sensor_generator_kafka_producer
 # KAFKA_BROKER: Address of the Kafka broker
 # TOPIC_NAME: Kafka topic to which the synthetic data will be published
 ENV KAFKA_BROKER="kafka:9092"
-ENV TOPIC_NAME="train-sensor-data"
+ENV VEHICLE_NAME="e700_4801"
 
 # Install required build tools and libraries for native dependencies and librdkafka
 # This includes compilers and development libraries to allow Python packages with C/C++ extensions to compile properly
@@ -33,7 +33,6 @@ RUN chmod +x /synthetic_data_sensor_generator_kafka_producer/synthetic_data_gene
 
 # Upgrade pip to the latest version
 RUN pip install --no-cache-dir --upgrade pip
-
 
 # Install the dependencies specified in the requirements file and other required libraries
 # The requirements file should contain the project's core dependencies

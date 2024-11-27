@@ -71,6 +71,7 @@ services:
     environment:
       KAFKA_BROKER: 'kafka:9092'  # Kafka broker address for the consumer to connect to
       TOPIC_NAME: 'train-sensor-data'  # Name of the Kafka topic to consume data from
+      #VEHICLE_NAME: 'e700_4801'
     ports:
       - "5000:5000"  # Expose port 5000 for external access to the Flask app
     depends_on:
@@ -88,9 +89,10 @@ services:
     hostname: real_producer  # Hostname for internal communication
     environment:
       KAFKA_BROKER: 'kafka:9092'  # Kafka broker address for the producer to connect to
-      TOPIC_NAME: "train-sensor-data"  # Name of the Kafka topic to publish synthetic data to
+      VEHICLE_NAME: 'e700_4801'
     depends_on:
       - kafka  # Ensure the producer starts after Kafka is running
     networks:
       - trains_network  # Connects the container to the custom network
     entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python synthetic_data_generator.py"]  # Wait until Kafka is available, then start the Python script
+
