@@ -20,7 +20,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Environment variables for Kafka broker and topic name
 KAFKA_BROKER = os.getenv('KAFKA_BROKER', 'kafka:9092')
-VEHICLE_NAME=os.getenv('VEHICLE_NAME', 'e700_4801')
+VEHICLE_NAME=os.getenv('VEHICLE_NAME', '')
+
 
 
 # Validate that KAFKA_BROKER and TOPIC_NAME are set
@@ -28,7 +29,6 @@ if not KAFKA_BROKER:
     raise ValueError("Environment variable KAFKA_BROKER is missing.")
 if not VEHICLE_NAME:
     raise ValueError("Environment variable VEHICLE_NAME is missing.")
-
 
 # Kafka producer configuration
 conf_prod = {
@@ -158,24 +158,39 @@ def main():
     parser.add_argument('--mu_normal', type=float, default=115, help='Mu parameter (mean of the mean interarrival times of normal data)')
     parser.add_argument('--alpha', type=float, default=0.2, help='Alpha parameter (scaling factor of the mean interarrival times of both anomalies and normal data)')
     parser.add_argument('--beta', type=float, default=1.9, help='Beta parameter (std dev of interarrival times of both anomalies and normal data)')
-    parser.add_argument('--vehicle_name', type=str, default='e700_4801', help='Name of the vehicle')
+    parser.add_argument('--vehicle_name', type=str, default='e700_4801', help='Comma-separated list of vehicle names')
 
     args = parser.parse_args()
 
-    thread1 = threading.Thread(target=thread_anomalie, args=(args,))
-    thread2 = threading.Thread(target=thread_normali, args=(args,))
+    vehicle_names=args.vehicle_name.split(',')
 
-    # Set daemon to True
-    thread1.daemon = True
-    thread2.daemon = True
+    threads=[]
 
-    # Start the threads
-    thread1.start()
-    thread2.start()
+    for vehicle_name in vehicle_names:
+        vehicle_args=argparse.Namespace(
+            mu_anomalies=args.mu_anomalies,
+            mu_normal=args.mu_normal,
+            alpha=args.alpha,
+            beta=args.beta,
+            vehicle_name=vehicle_name
+        )
+
+        thread1 = threading.Thread(target=thread_anomalie, args=(args,))
+        thread2 = threading.Thread(target=thread_normali, args=(args,))
+
+        # Set daemon to True
+        thread1.daemon = True
+        thread2.daemon = True
+
+        threads.extend([thread1,thread2])
+
+        # Start the threads
+        thread1.start()
+        thread2.start()
 
     # Wait for the threads to finish
-    thread1.join()
-    thread2.join()
+    for thread in threads:
+        thread.join()
 
 
 if __name__ == '__main__':

@@ -95,3 +95,18 @@ services:
     networks:
       - trains_network  # Connects the container to the custom network
     entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python synthetic_data_generator.py"]  # Wait until Kafka is available, then start the Python script
+
+  real_data_kafka_consumer:
+    build:
+      context: ./real_kafka_consumer
+      dockerfile: Dockerfile
+    container_name: real_kafka_consumer
+    hostname: real_consumer
+    environment:
+      KAFKA_BROKER: 'kafka:9092'  # Kafka broker address for the producer to connect to
+      VEHICLE_NAME: 'e700_4801'
+    depends_on:
+      - kafka
+    networks:
+      - trains_network
+    entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python consumer_synthetic_data.py"]  # Wait until Kafka is available, then start the consumer

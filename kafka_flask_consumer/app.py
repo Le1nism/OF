@@ -35,9 +35,9 @@ normal_msg_list = []
 
 MAX_MESSAGES = 100  # Limit for the number of stored messages
 
-recived_all_real_msg = 0
-recived_anomalies_msg = 0
-recived_normal_msg = 0
+received_all_real_msg = 0
+received_anomalies_msg = 0
+received_normal_msg = 0
 
 
 # Kafka consumer configuration
@@ -75,7 +75,7 @@ def kafka_consumer_thread():
     """
     consumer = Consumer(conf_cons)
     consumer.subscribe([TOPIC_NAME, f"{VEHICLE_NAME}_anomalies", f"{VEHICLE_NAME}_normal_data"])
-    global simulate_msg_list, real_msg_list, anomalies_msg_list, normal_msg_list, recived_all_real_msg, recived_anomalies_msg, recived_normal_msg
+    global simulate_msg_list, real_msg_list, anomalies_msg_list, normal_msg_list, received_all_real_msg, received_anomalies_msg, received_normal_msg
     try:
         while True:
             msg = consumer.poll(1.0)  # Poll for messages with a timeout of 1 second
@@ -99,8 +99,10 @@ def kafka_consumer_thread():
                     real_msg_list.append(deserialized_data)
                     real_msg_list = real_msg_list[-MAX_MESSAGES:]  # Keep only the last MAX_MESSAGES
 
-                    recived_all_real_msg += 1
-                    recived_anomalies_msg += 1
+                    received_all_real_msg += 1
+                    received_anomalies_msg += 1
+
+                    print(f"DATA - {deserialized_data}")
 
                 elif msg.topic() == f"{VEHICLE_NAME}_normal_data":
                     logging.info(f"NORMAL DATA - Deserialized message: {deserialized_data}")
@@ -109,8 +111,10 @@ def kafka_consumer_thread():
                     real_msg_list.append(deserialized_data)
                     real_msg_list = real_msg_list[-MAX_MESSAGES:]  # Keep only the last MAX_MESSAGES
 
-                    recived_all_real_msg += 1
-                    recived_normal_msg += 1
+                    received_all_real_msg += 1
+                    received_normal_msg += 1
+
+                    print(f"DATA - {deserialized_data}")
 
                 elif len(deserialized_data.keys()) == 5:
                     # If the message has 5 keys, treat it as simulated data
