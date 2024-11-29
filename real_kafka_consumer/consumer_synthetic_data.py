@@ -82,7 +82,7 @@ def deserialize_message(msg):
     try:
         # Decode the message and deserialize it into a Python dictionary
         message_value = json.loads(msg.value().decode('utf-8'))
-        logging.info(f"Received message from topic {msg.topic()}: {message_value}")
+        logging.info(f"Received message from topic [{msg.topic()}]")
         return message_value
     except json.JSONDecodeError as e:
         logging.error(f"Error deserializing message: {e}")
@@ -94,13 +94,13 @@ def process_message(topic, msg):
     """
     global received_all_real_msg, received_anomalies_msg, received_normal_msg
 
-    logging.info(f"Processing message from topic {topic}: {msg}")
+    logging.info(f"Processing message from topic [{topic}]")
     if topic.endswith("_anomalies"):
-        logging.info(f"ANOMALIES - Processing message: {msg}")
+        logging.info(f"ANOMALIES - Processing message")
         anomalies_msg_list.append(msg)
         received_anomalies_msg += 1
     elif topic.endswith("_normal_data"):
-        logging.info(f"NORMAL DATA - Processing message: {msg}")
+        logging.info(f"NORMAL DATA - Processing message")
         normal_msg_list.append(msg)
         received_normal_msg += 1
 
@@ -139,6 +139,8 @@ def consume_vehicle_data():
             deserialized_data = deserialize_message(msg)
             if deserialized_data:
                 process_message(msg.topic(), deserialized_data)
+    except KeyboardInterrupt:
+        logging.info("Consumer interrupted by user.")
     except Exception as e:
         logging.error(f"Error in consumer for {VEHICLE_NAME}: {e}")
     finally:

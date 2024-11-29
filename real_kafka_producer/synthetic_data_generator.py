@@ -149,7 +149,6 @@ def thread_normali(args):
     time.sleep(durata_normale[0])
 
 
-
 def main():
     parser = argparse.ArgumentParser(description='Kafka Producer for Synthetic Vehicle Data')
     parser.add_argument('--mu_anomalies', type=float, default=157, help='Mu parameter (mean of the mean interarrival times of anomalies)')
