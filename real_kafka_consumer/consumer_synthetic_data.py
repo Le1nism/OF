@@ -6,19 +6,23 @@ import json
 import time
 from lib2to3.pgen2.parse import Parser
 
-from confluent_kafka import Consumer, KafkaError
+from confluent_kafka import Consumer, KafkaError, KafkaException
+from confluent_kafka.admin import AdminClient, NewTopic
 
 # Configure logging for detailed output
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Read Kafka configuration from environment variables
 KAFKA_BROKER = os.getenv('KAFKA_BROKER', 'kafka:9092')  # Kafka broker URL
-VEHICLE_NAME=os.getenv('VEHICLE_NAME', 'e700')
-active_consumers={}
+VEHICLE_NAME=os.getenv('VEHICLE_NAME')
 
 # Validate that KAFKA_BROKER and TOPIC_NAME are set
 if not KAFKA_BROKER:
     raise ValueError("Environment variable KAFKA_BROKER is missing.")
+if not VEHICLE_NAME:
+    raise ValueError("Environment variable VEHICLE_NAME is missing.")
+
+logging.info(f"Starting consumer system for vehicle: {VEHICLE_NAME}")
 
 # List to store received messages and a constant for the maximum number of stored messages
 real_msg_list = []  # Stores real sensor messages
@@ -29,17 +33,40 @@ received_all_real_msg = 0
 received_anomalies_msg = 0
 received_normal_msg = 0
 
-
-logging.info(f"Starting consumer system for vehicle: {VEHICLE_NAME}")
-
-def create_consumer(vehicle_name):
+def create_consumer():
     # Kafka consumer configuration
     conf_cons = {
         'bootstrap.servers': KAFKA_BROKER,  # Kafka broker URL
-        'group.id': f'{vehicle_name}-consumer-group',  # Consumer group ID for message offset tracking
+        'group.id': f'{VEHICLE_NAME}-consumer-group',  # Consumer group ID for message offset tracking
         'auto.offset.reset': 'earliest'  # Start reading from the earliest message if no offset is present
     }
     return Consumer(conf_cons)
+
+def check_and_create_topics(topic_list):
+    """
+    Check if the specified topics exist in Kafka, and create them if missing.
+
+    Args:
+        topic_list (list): List of topic names to check/create.
+    """
+    admin_client = AdminClient({'bootstrap.servers': KAFKA_BROKER})
+    existing_topics = admin_client.list_topics(timeout=10).topics.keys()
+
+    topics_to_create = [
+        NewTopic(topic, num_partitions=1, replication_factor=1)
+        for topic in topic_list if topic not in existing_topics
+    ]
+
+    if topics_to_create:
+        logging.info(f"Creating missing topics: {[topic.topic for topic in topics_to_create]}")
+        result = admin_client.create_topics(topics_to_create)
+
+        for topic, future in result.items():
+            try:
+                future.result()
+                logging.info(f"Topic '{topic}' created successfully.")
+            except KafkaException as e:
+                logging.error(f"Failed to create topic '{topic}': {e}")
 
 
 def deserialize_message(msg):
@@ -61,15 +88,41 @@ def deserialize_message(msg):
         logging.error(f"Error deserializing message: {e}")
         return None
 
+def process_message(topic, msg):
+    """
+        Process the deserialized message based on its topic.
+    """
+    global received_all_real_msg, received_anomalies_msg, received_normal_msg
 
-def consume_vehicle_data(vehicle_name):
-    global real_msg_list, anomalies_msg_list, normal_msg_list, received_all_real_msg, received_anomalies_msg, received_normal_msg
-    consumer = create_consumer(vehicle_name)
-    topic_anomalies = f"{vehicle_name}_anomalies"
-    topic_normal_data = f"{vehicle_name}_normal_data"
+    logging.info(f"Processing message from topic {topic}: {msg}")
+    if topic.endswith("_anomalies"):
+        logging.info(f"ANOMALIES - Processing message: {msg}")
+        anomalies_msg_list.append(msg)
+        received_anomalies_msg += 1
+    elif topic.endswith("_normal_data"):
+        logging.info(f"NORMAL DATA - Processing message: {msg}")
+        normal_msg_list.append(msg)
+        received_normal_msg += 1
+
+    real_msg_list.append(msg)
+    received_all_real_msg += 1
+    print(f"DATA ({topic}) - {msg}")
+
+
+def consume_vehicle_data():
+    """
+        Consume messages for a specific vehicle from Kafka topics.
+    """
+    topic_anomalies = f"{VEHICLE_NAME}_anomalies"
+    topic_normal_data = f"{VEHICLE_NAME}_normal_data"
+
+    check_and_create_topics([topic_anomalies,topic_normal_data])
+
+    consumer = create_consumer()
 
     consumer.subscribe([topic_anomalies, topic_normal_data])
-    logging.info(f"Started consumer for [{vehicle_name}] ...")
+    logging.info(f"Started consumer for [{VEHICLE_NAME}] ...")
+    logging.info(f"Subscribed to topics: {topic_anomalies}, {topic_normal_data}")
 
     try:
         while True:
@@ -85,79 +138,23 @@ def consume_vehicle_data(vehicle_name):
 
             deserialized_data = deserialize_message(msg)
             if deserialized_data:
-                logging.info(f"Processing message from topic {msg.topic()}: {deserialized_data}")
-                if msg.topic() == topic_anomalies:
-                    logging.info(f"ANOMALIES - Deserialized message: {deserialized_data}")
-                    anomalies_msg_list.append(deserialized_data)
-                    real_msg_list.append(deserialized_data)
-
-                    received_all_real_msg += 1
-                    received_anomalies_msg += 1
-
-                    print(f"DATA - {deserialized_data}")
-
-                elif msg.topic() == topic_normal_data:
-                    logging.info(f"NORMAL DATA - Deserialized message: {deserialized_data}")
-                    normal_msg_list.append(deserialized_data)
-                    real_msg_list.append(deserialized_data)
-
-                    received_all_real_msg += 1
-                    received_normal_msg += 1
-
-                    print(f"DATA - {deserialized_data}")
-
+                process_message(msg.topic(), deserialized_data)
     except Exception as e:
-        logging.error(f"Error in consumer for {vehicle_name}: {e}")
+        logging.error(f"Error in consumer for {VEHICLE_NAME}: {e}")
     finally:
         consumer.close()
-        logging.info(f"Consumer for {vehicle_name} closed.")
+        logging.info(f"Consumer for {VEHICLE_NAME} closed.")
 
-def start_new_consumers(vehicle_name):
-    if vehicle_name in active_consumers:
-        logging.info(f"Consumer for {vehicle_name} is already running.")
-        return
-    thread_consumer = threading.Thread(target=consume_vehicle_data, args=(vehicle_name,))
-    thread_consumer.daemon=True
-    active_consumers[vehicle_name] = thread_consumer
-    thread_consumer.start()
-    logging.info(f"Consumer thread started for vehicle: {vehicle_name}")
-
-def monitor_start_consumers(vehicle_list):
-    for vehicle_name in vehicle_list:
-        if vehicle_name not in active_consumers or not active_consumers[vehicle_name].is_alive():
-            logging.info(f"Restarting consumer for {vehicle_name}")
-            start_new_consumers(vehicle_name)
-
-
-def discover_vehicle_topics():
-    from confluent_kafka.admin import AdminClient
-    try:
-        admin_client = AdminClient({'bootstrap.servers': KAFKA_BROKER})
-        topic_metadata = admin_client.list_topics(timeout=10)
-        topics = topic_metadata.topics.keys()
-    except Exception as e:
-        logging.error(f"Failed to fetch topic metadata: {e}")
-        return []
-
-    # Filtra i topic con convenzione di naming '_anomalies' o '_normal_data'
-    vehicle_list=set()
-    for topic in topics:
-        if topic.endswith('_anomalies') or topic.endswith('_normal_data'):
-            vehicle_name="_".join(topic.split('_')[:2])
-            vehicle_list.add(vehicle_name)
-
-    return list(vehicle_list)
+def main():
+    """
+        Start the consumer for the specific vehicle.
+    """
+    logging.info(f"Setting up consumer for vehicle: {VEHICLE_NAME}")
+    thread1=threading.Thread(target=consume_vehicle_data)
+    thread1.daemon=True
+    logging.info(f"Starting consumer thread for vehicle: {VEHICLE_NAME}")
+    thread1.start()
+    thread1.join()
 
 if __name__=="__main__":
-    logging.info("Starting dynamic Kafka consumer system >>> ")
-    try:
-        while True:
-            vehicle_list=discover_vehicle_topics()
-            logging.info(f"Discovered vehicles: {vehicle_list}")
-            monitor_start_consumers(vehicle_list)
-            time.sleep(10)
-    except KeyboardInterrupt:
-        logging.info("Shutting down dynamic consumer system")
-        for consumer in active_consumers.values():
-            consumer.join()
-            logging.info("All consumers have been shut down.")
+    main()

@@ -20,9 +20,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Environment variables for Kafka broker and topic name
 KAFKA_BROKER = os.getenv('KAFKA_BROKER', 'kafka:9092')
-VEHICLE_NAME=os.getenv('VEHICLE_NAME', '')
-
-
+VEHICLE_NAME=os.getenv('VEHICLE_NAME')
 
 # Validate that KAFKA_BROKER and TOPIC_NAME are set
 if not KAFKA_BROKER:
@@ -84,14 +82,14 @@ def thread_anomalie(args):
   sigma_anomalie = 1 * args.beta
   lognormal_anomalie = lognorm(s=sigma_anomalie, scale=np.exp(np.log(media_durata_anomalie)))
 
-  topic_name = args.vehicle_name + '_anomalies'
+  topic_name = f"{VEHICLE_NAME}_anomalies"
 
   while True:
     synthetic_anomalie = copula_anomalie.sample(1)
     durata_anomalia = lognormal_anomalie.rvs(size=1)
     synthetic_anomalie['Durata'] = durata_anomalia
     synthetic_anomalie['Flotta'] = 'ETR700'
-    synthetic_anomalie['Veicolo'] = args.vehicle_name
+    synthetic_anomalie['Veicolo'] = VEHICLE_NAME
     synthetic_anomalie['Test'] = 'N'
     synthetic_anomalie['Timestamp'] = pd.Timestamp.now()
     synthetic_anomalie['Timestamp chiusura'] = synthetic_anomalie['Timestamp'] + pd.to_timedelta(synthetic_anomalie['Durata'], unit='s')
@@ -120,14 +118,14 @@ def thread_normali(args):
   sigma_normali = 1 * args.beta
   lognormal_normali = lognorm(s=sigma_normali, scale=np.exp(np.log(media_durata_normali)))
 
-  topic_name = args.vehicle_name + '_normal_data'
+  topic_name = f"{VEHICLE_NAME}_normal_data"
 
   while True:
     synthetic_normali = copula_normali.sample(1)
     durata_normale = lognormal_normali.rvs(size=1)
     synthetic_normali['Durata'] = durata_normale
     synthetic_normali['Flotta'] = 'ETR700'
-    synthetic_normali['Veicolo'] = args.vehicle_name
+    synthetic_normali['Veicolo'] = VEHICLE_NAME
     synthetic_normali['Test'] = 'N'
     synthetic_normali['Timestamp'] = pd.Timestamp.now()
     synthetic_normali['Timestamp chiusura'] = synthetic_normali['Timestamp'] + pd.to_timedelta(synthetic_normali['Durata'], unit='s')
@@ -153,45 +151,45 @@ def thread_normali(args):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Your script description')
+    parser = argparse.ArgumentParser(description='Kafka Producer for Synthetic Vehicle Data')
     parser.add_argument('--mu_anomalies', type=float, default=157, help='Mu parameter (mean of the mean interarrival times of anomalies)')
     parser.add_argument('--mu_normal', type=float, default=115, help='Mu parameter (mean of the mean interarrival times of normal data)')
     parser.add_argument('--alpha', type=float, default=0.2, help='Alpha parameter (scaling factor of the mean interarrival times of both anomalies and normal data)')
     parser.add_argument('--beta', type=float, default=1.9, help='Beta parameter (std dev of interarrival times of both anomalies and normal data)')
-    parser.add_argument('--vehicle_name', type=str, default='e700_4801', help='Comma-separated list of vehicle names')
+    #parser.add_argument('--vehicle_name', type=str, default='e700_4801', help='Comma-separated list of vehicle names')
 
     args = parser.parse_args()
 
-    vehicle_names=args.vehicle_name.split(',')
+    #vehicle_names=args.vehicle_name.split(',')
 
-    threads=[]
+    #threads=[]
 
-    for vehicle_name in vehicle_names:
-        vehicle_args=argparse.Namespace(
-            mu_anomalies=args.mu_anomalies,
-            mu_normal=args.mu_normal,
-            alpha=args.alpha,
-            beta=args.beta,
-            vehicle_name=vehicle_name
-        )
+    logging.info(f"Setting up threads for vehicle: {VEHICLE_NAME}")
+    vehicle_args=argparse.Namespace(
+        mu_anomalies=args.mu_anomalies,
+        mu_normal=args.mu_normal,
+        alpha=args.alpha,
+        beta=args.beta,
+        #vehicle_name=VEHICLE_NAME
+    )
 
-        thread1 = threading.Thread(target=thread_anomalie, args=(args,))
-        thread2 = threading.Thread(target=thread_normali, args=(args,))
+    thread1 = threading.Thread(target=thread_anomalie, args=(vehicle_args,))
+    thread2 = threading.Thread(target=thread_normali, args=(vehicle_args,))
 
-        # Set daemon to True
-        thread1.daemon = True
-        thread2.daemon = True
+    # Set daemon to True
+    thread1.daemon = True
+    thread2.daemon = True
 
-        threads.extend([thread1,thread2])
+    # Add threads to the list
+    #threads.extend([thread1,thread2])
 
-        # Start the threads
-        thread1.start()
-        thread2.start()
+    # Start threads
+    logging.info(f"Starting threads for vehicle: {VEHICLE_NAME}")
+    thread1.start()
+    thread2.start()
 
-    # Wait for the threads to finish
-    for thread in threads:
-        thread.join()
-
+    thread1.join()
+    thread2.join()
 
 if __name__ == '__main__':
     main()
