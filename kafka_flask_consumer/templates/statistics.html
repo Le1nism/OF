@@ -8,18 +8,35 @@
         // Function to refresh web page every 10 secondi
         setTimeout(function() {
             window.location.reload();
-        }, 3000); // 10000 millisecondi = 10 secondi
+        }, 5000); // 10000 millisecondi = 10 secondi
     </script>
     <title>StatisticsDataVisualizationOfTrainSensors</title>
 </head>
 <body>
     <div class="containerForGroup">
         <h1>STATISTICS TRAINS SENSORS DATA VISUALIZATION</h1>
-        <nav>
-            <a href="/all-statistics">ALL STATISTICS</a><br>
-            <a href="/anomalies-statistics">ANOMALIES STATISTICS</a><br>
-            <a href="/normal-statistics">NORMAL STATISTICS</a><br>
-        </nav>
+        <div class="containerForGroup">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Vehicle</th>
+                        <th>Total Messages</th>
+                        <th>Anomalies Messages</th>
+                        <th>Normal Messages</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for vehicle_name, stats in all_stats.items() %}
+                        <tr>
+                            <td>{{ vehicle_name }}</td>
+                            <td>{{ stats.total_messages }}</td>
+                            <td>{{ stats.anomalies_messages }}</td>
+                            <td>{{ stats.normal_messages }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </body>
 </html>

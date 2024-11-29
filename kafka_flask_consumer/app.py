@@ -18,17 +18,16 @@ KAFKA_BROKER = os.getenv('KAFKA_BROKER', 'kafka:9092')  # Kafka broker URL
 TOPIC_NAME = os.getenv('TOPIC_NAME', 'train-sensor-data')  # Kafka topic name
 VEHICLE_NAME=os.getenv('VEHICLE_NAME', 'e700_4801')
 
-
 # Validate that KAFKA_BROKER and TOPIC_NAME are set
 if not KAFKA_BROKER:
     raise ValueError("Environment variable KAFKA_BROKER is missing.")
 if not TOPIC_NAME:
     raise ValueError("Environment variable TOPIC_NAME is missing.")
-if not VEHICLE_NAME:
-    raise ValueError("Environment variable VEHICLE_NAME is missing.")
+
 
 # List to store received messages and a constant for the maximum number of stored messages
 simulate_msg_list = []  # Stores simulated sensor messages
+
 real_msg_list = []  # Stores real sensor messages
 anomalies_msg_list = []
 normal_msg_list = []
@@ -38,6 +37,10 @@ MAX_MESSAGES = 100  # Limit for the number of stored messages
 received_all_real_msg = 0
 received_anomalies_msg = 0
 received_normal_msg = 0
+
+vehicle_stats_cache={}
+# Default structure for all vehicles
+default_stats = {'total_messages': 0, 'anomalies_messages': 0, 'normal_messages': 0}
 
 
 # Kafka consumer configuration
@@ -78,7 +81,7 @@ def kafka_consumer_thread():
     global simulate_msg_list, real_msg_list, anomalies_msg_list, normal_msg_list, received_all_real_msg, received_anomalies_msg, received_normal_msg
     try:
         while True:
-            msg = consumer.poll(1.0)  # Poll for messages with a timeout of 1 second
+            msg = consumer.poll(5.0)  # Poll for messages with a timeout of 1 second
             if msg is None:
                 continue
             if msg.error():
@@ -154,7 +157,7 @@ def get_data():
     Returns:
         str: The rendered template with the last 100 simulated messages.
     """
-    return render_template('trainsensordatavisualization.html', messages=simulate_msg_list[-100:])
+    return render_template('trainsensordatavisualization.html', messages=simulate_msg_list[-MAX_MESSAGES:])
 
 @app.route('/my-all-data-by-type')
 def get_data_by_type():
@@ -175,7 +178,7 @@ def get_all_real_data():
     Returns:
         str: The rendered template with the last 100 real sensor messages.
     """
-    return render_template('realdatavisualization.html', messages=real_msg_list[-100:])
+    return render_template('realdatavisualization.html', messages=real_msg_list)
 
 @app.route('/real-anomalies-data')
 def get_anomalies_real_data():
@@ -185,7 +188,7 @@ def get_anomalies_real_data():
     Returns:
         str: The rendered template with the last 100 real sensor messages.
     """
-    return render_template('realdatavisualization.html', messages=anomalies_msg_list[-100:])
+    return render_template('realdatavisualization.html', messages=anomalies_msg_list)
 
 @app.route('/real-normal-data')
 def get_normal_real_data():
@@ -195,23 +198,55 @@ def get_normal_real_data():
     Returns:
         str: The rendered template with the last 100 real sensor messages.
     """
-    return render_template('realdatavisualization.html', messages=normal_msg_list[-100:])
+    return render_template('realdatavisualization.html', messages=normal_msg_list)
 
 @app.route('/statistics')
 def get_statistics():
-    return render_template('statistics.html')
+    # Kafka consumer configuration
+    consumer_stat = Consumer({
+        'bootstrap.servers': KAFKA_BROKER,  # Kafka broker URL
+        'group.id': 'flask-statistics-consumer-group',  # Consumer group ID for message offset tracking
+        'auto.offset.reset': 'earliest'  # Start reading from the earliest message if no offset is present
+    })
+    topic_statistics = '^.*_statistics$'
+    consumer_stat.subscribe([topic_statistics])
 
-@app.route('/all-statistics')
-def get_all_statistics():
-    return render_template('allstatistics.html', messages=real_msg_list, nr=len(real_msg_list))
+    try:
+        while True:
+            msg = consumer_stat.poll(5.0)  # Poll with a timeout of 5 seconds
+            if msg is None:
+                break  # Exit loop if no messages are received
+            if msg.error():
+                if msg.error().code() == KafkaError._PARTITION_EOF:
+                    logging.info(f"End of partition reached: {msg.error()}")
+                else:
+                    logging.error(f"Consumer error: {msg.error()}")
+                continue
+            # Deserialize the message
+            deserialized_data = deserialize_message(msg)
+            if deserialized_data:
+            # Extract the vehicle name from the topic
+                vehicle_name = deserialized_data.get("vehicle_name", msg.topic().replace('_statistics', ''))
+                # Update or initialize vehicle stats in the cache
+                if vehicle_name not in vehicle_stats_cache:
+                    vehicle_stats_cache[vehicle_name] = default_stats.copy()
 
-@app.route('/anomalies-statistics')
-def get_anomalies_statistics():
-    return render_template('allstatistics.html', messages=anomalies_msg_list, nr=len(anomalies_msg_list))
+                # Increment statistics in the cache
+                for key in default_stats.keys():
+                    vehicle_stats_cache[vehicle_name][key] += deserialized_data.get(key, 0)
 
-@app.route('/normal-statistics')
-def get_normal_statistics():
-    return render_template('allstatistics.html', messages=normal_msg_list, nr=len(normal_msg_list))
+    except Exception as e:
+        logging.error(f"Error while consuming statistics: {e}")
+    finally:
+        consumer_stat.close()
+
+    all_vehicle_names=sorted(vehicle_stats_cache.keys())
+    ordered_stats = {
+        vehicle: vehicle_stats_cache[vehicle]
+        for vehicle in all_vehicle_names
+    }
+
+    return render_template('statistics.html', all_stats=ordered_stats)
 
 
 def order_by(param_name, default_value):
