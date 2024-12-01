@@ -94,7 +94,8 @@ services:
       - kafka  # Ensure this producer starts only after Kafka is running
     networks:
       - trains_network  # Connect the producer to the custom Docker network
-    entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python synthetic_data_generator.py"]  # Wait for Kafka before running the script
+    # entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python synthetic_data_generator.py"]  # Wait for Kafka before running the script
+    command: ["tail", "-f", "/dev/null"]
 
   # Consumer1
   real_data_kafka_consumer:
@@ -110,7 +111,8 @@ services:
       - kafka  # Ensure this consumer starts only after Kafka is running
     networks:
       - trains_network  # Connect the consumer to the custom Docker network
-    entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python consumer_synthetic_data.py"]  # Wait for Kafka before running the script
+    # entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python consumer_synthetic_data.py"]  # Wait for Kafka before running the script
+    command: ["tail", "-f", "/dev/null"]
 
   # Producer and Consumer pairs for second vehicles
   # Producer2
@@ -126,7 +128,8 @@ services:
       - kafka
     networks:
       - trains_network
-    entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python synthetic_data_generator.py"]
+    # entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python synthetic_data_generator.py"]
+    command: ["tail", "-f", "/dev/null"]
 
   # Consumer2
   consumer_2:
@@ -141,7 +144,8 @@ services:
       - kafka
     networks:
       - trains_network
-    entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python consumer_synthetic_data.py"]
+    # entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python consumer_synthetic_data.py"]
+    command: ["tail", "-f", "/dev/null"]
 
   # Producer and Consumer pairs for third vehicles
   # Producer3
@@ -157,7 +161,8 @@ services:
       - kafka
     networks:
       - trains_network
-    entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python synthetic_data_generator.py"]
+    # entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python synthetic_data_generator.py"]
+    command: ["tail", "-f", "/dev/null"]
 
   # Consumer3
   consumer_3:
@@ -172,4 +177,5 @@ services:
       - kafka
     networks:
       - trains_network
-    entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python consumer_synthetic_data.py"]
+    # entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python consumer_synthetic_data.py"]
+    command: ["tail", "-f", "/dev/null"]
