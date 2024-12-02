@@ -45,22 +45,6 @@ services:
       timeout: 5s  # Maximum time to wait for the health check
       retries: 5  # Retry count before reporting the container as unhealthy
 
-  # Data sensor simulator as Kafka producer
-  data_sensor_simulator_kafka_producer:
-    build:
-      context: ./kafka_producer  # Path to the producer's Dockerfile
-      dockerfile: Dockerfile  # Specify the Dockerfile for building the image
-    container_name: kafka_producer  # Container name for easier identification
-    hostname: producer  # Hostname for internal communication
-    environment:
-      KAFKA_BROKER: 'kafka:9092'  # Kafka broker address for the producer to connect to
-      TOPIC_NAME: "train-sensor-data"  # Kafka topic to publish sensor data
-    depends_on:
-      - kafka  # Ensure this producer starts only after Kafka is running
-    networks:
-      - trains_network  # Connect the producer to the custom Docker network
-    entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python data_simulator.py"]  # Wait for Kafka to start before executing the script
-
   # Flask application as Kafka consumer
   flask_app_kafka_consumer:
     build:
@@ -81,7 +65,7 @@ services:
 
   # Producer and Consumer pairs for the first vehicles
   # Producer1
-  synthetic_data_sensor_generator_kafka_producer:
+  producer_1:
     build:
       context: ./real_kafka_producer  # Path to the producer's Dockerfile
       dockerfile: Dockerfile  # Specify the Dockerfile for building the image
@@ -98,7 +82,7 @@ services:
     command: ["tail", "-f", "/dev/null"]
 
   # Consumer1
-  real_data_kafka_consumer:
+  consumer_1:
     build:
       context: ./real_kafka_consumer  # Path to the consumer's Dockerfile
       dockerfile: Dockerfile  # Specify the Dockerfile for building the image
