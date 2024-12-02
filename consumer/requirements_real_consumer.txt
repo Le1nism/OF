@@ -1,2 +1,0 @@
-# requirements_real_consumer.txt
-confluent-kafka==1.9.2
