@@ -1,0 +1,3 @@
+[submodule "producer"]
+	path = producer
+	url = https://github.com/DIETI-DISTA-IoT/Train_IoT_data_producer
