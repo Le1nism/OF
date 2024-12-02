@@ -1,3 +1,0 @@
-# requirements_all.txt
-flask==2.3.2
-confluent-kafka==1.9.2
