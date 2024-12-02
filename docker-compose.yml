@@ -46,7 +46,7 @@ services:
       retries: 5  # Retry count before reporting the container as unhealthy
 
   # Flask application as Kafka consumer
-  flask_app_kafka_consumer:
+  dashboard:
     build:
       context: ./dashboard  # Path to the consumer's Dockerfile
       dockerfile: Dockerfile  # Specify the Dockerfile for building the image
@@ -65,8 +65,7 @@ services:
     entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "flask run"]  # Wait for Kafka to start before executing the Flask server
 
   # Producer and Consumer pairs for the first vehicles
-  # Producer1
-  producer_1:
+  producer:
     build:
       context: ./producer  # Path to the producer's Dockerfile
       dockerfile: Dockerfile  # Specify the Dockerfile for building the image
@@ -74,8 +73,9 @@ services:
     hostname: producer_1  # Hostname for internal communication
     environment:
       KAFKA_BROKER: 'kafka:9092'  # Kafka broker address
-      VEHICLE_NAME: 'e700_4801'  # Name of the vehicle this producer generates data for
+      VEHICLE_NAME: ${VEHICLE_NAME}  # Pass dynamic VEHICLE_NAME
       WANDB_API_KEY: ${WANDB_API_KEY}
+
     depends_on:
       - kafka  # Ensure this producer starts only after Kafka is running
     networks:
@@ -83,8 +83,7 @@ services:
     # entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python synthetic_data_generator.py"]  # Wait for Kafka before running the script
     command: ["tail", "-f", "/dev/null"]
 
-  # Consumer1
-  consumer_1:
+  consumer:
     build:
       context: ./consumer  # Path to the consumer's Dockerfile
       dockerfile: Dockerfile  # Specify the Dockerfile for building the image
@@ -92,7 +91,7 @@ services:
     hostname: consumer_1  # Hostname for internal communication
     environment:
       KAFKA_BROKER: 'kafka:9092'  # Kafka broker address
-      VEHICLE_NAME: 'e700_4801'  # Name of the vehicle this consumer processes data for
+      VEHICLE_NAME: ${VEHICLE_NAME}
       WANDB_API_KEY: ${WANDB_API_KEY}
     depends_on:
       - kafka  # Ensure this consumer starts only after Kafka is running
@@ -101,72 +100,3 @@ services:
     # entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python consumer_synthetic_data.py"]  # Wait for Kafka before running the script
     command: ["tail", "-f", "/dev/null"]
 
-  # Producer and Consumer pairs for second vehicles
-  # Producer2
-  producer_2:
-    build:
-      context: ./producer
-    container_name: producer_2
-    hostname: producer_2
-    environment:
-      KAFKA_BROKER: 'kafka:9092'
-      VEHICLE_NAME: 'e700_4802'  # Name of the second vehicle
-      WANDB_API_KEY: ${WANDB_API_KEY}
-    depends_on:
-      - kafka
-    networks:
-      - trains_network
-    # entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python synthetic_data_generator.py"]
-    command: ["tail", "-f", "/dev/null"]
-
-  # Consumer2
-  consumer_2:
-    build:
-      context: ./consumer
-    container_name: consumer_2
-    hostname: consumer_2
-    environment:
-      KAFKA_BROKER: 'kafka:9092'
-      VEHICLE_NAME: 'e700_4802'  # Name of the second vehicle
-      WANDB_API_KEY: ${WANDB_API_KEY}
-    depends_on:
-      - kafka
-    networks:
-      - trains_network
-    # entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python consumer_synthetic_data.py"]
-    command: ["tail", "-f", "/dev/null"]
-
-  # Producer and Consumer pairs for third vehicles
-  # Producer3
-  producer_3:
-    build:
-      context: ./producer
-    container_name: producer_3
-    hostname: producer_3
-    environment:
-      KAFKA_BROKER: 'kafka:9092'
-      VEHICLE_NAME: 'e700_4803'  # Name of the second vehicle
-      WANDB_API_KEY: ${WANDB_API_KEY}
-    depends_on:
-      - kafka
-    networks:
-      - trains_network
-    # entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python synthetic_data_generator.py"]
-    command: ["tail", "-f", "/dev/null"]
-
-  # Consumer3
-  consumer_3:
-    build:
-      context: ./consumer
-    container_name: consumer_3
-    hostname: consumer_3
-    environment:
-      KAFKA_BROKER: 'kafka:9092'
-      VEHICLE_NAME: 'e700_4803'  # Name of the second vehicle
-      WANDB_API_KEY: ${WANDB_API_KEY}
-    depends_on:
-      - kafka
-    networks:
-      - trains_network
-    # entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python consumer_synthetic_data.py"]
-    command: ["tail", "-f", "/dev/null"]
