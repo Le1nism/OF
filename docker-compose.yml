@@ -55,8 +55,6 @@ services:
     environment:
       KAFKA_BROKER: 'kafka:9092'  # Kafka broker address for the consumer to connect to
       TOPIC_NAME: 'train-sensor-data'  # Kafka topic to consume sensor data
-      GIT_USERNAME: ${GIT_USERNAME}
-      GIT_TOKEN: ${GIT_TOKEN}
       WANDB_API_KEY: ${WANDB_API_KEY}
     ports:
       - "5000:5000"  # Expose Flask's port for external access
@@ -77,8 +75,6 @@ services:
     environment:
       KAFKA_BROKER: 'kafka:9092'  # Kafka broker address
       VEHICLE_NAME: 'e700_4801'  # Name of the vehicle this producer generates data for
-      GIT_USERNAME: ${GIT_USERNAME}
-      GIT_TOKEN: ${GIT_TOKEN}
       WANDB_API_KEY: ${WANDB_API_KEY}
     depends_on:
       - kafka  # Ensure this producer starts only after Kafka is running
@@ -97,8 +93,6 @@ services:
     environment:
       KAFKA_BROKER: 'kafka:9092'  # Kafka broker address
       VEHICLE_NAME: 'e700_4801'  # Name of the vehicle this consumer processes data for
-      GIT_USERNAME: ${GIT_USERNAME}
-      GIT_TOKEN: ${GIT_TOKEN}
       WANDB_API_KEY: ${WANDB_API_KEY}
     depends_on:
       - kafka  # Ensure this consumer starts only after Kafka is running
@@ -117,8 +111,6 @@ services:
     environment:
       KAFKA_BROKER: 'kafka:9092'
       VEHICLE_NAME: 'e700_4802'  # Name of the second vehicle
-      GIT_USERNAME: ${GIT_USERNAME}
-      GIT_TOKEN: ${GIT_TOKEN}
       WANDB_API_KEY: ${WANDB_API_KEY}
     depends_on:
       - kafka
@@ -136,8 +128,6 @@ services:
     environment:
       KAFKA_BROKER: 'kafka:9092'
       VEHICLE_NAME: 'e700_4802'  # Name of the second vehicle
-      GIT_USERNAME: ${GIT_USERNAME}
-      GIT_TOKEN: ${GIT_TOKEN}
       WANDB_API_KEY: ${WANDB_API_KEY}
     depends_on:
       - kafka
@@ -156,8 +146,6 @@ services:
     environment:
       KAFKA_BROKER: 'kafka:9092'
       VEHICLE_NAME: 'e700_4803'  # Name of the second vehicle
-      GIT_USERNAME: ${GIT_USERNAME}
-      GIT_TOKEN: ${GIT_TOKEN}
       WANDB_API_KEY: ${WANDB_API_KEY}
     depends_on:
       - kafka
@@ -175,8 +163,6 @@ services:
     environment:
       KAFKA_BROKER: 'kafka:9092'
       VEHICLE_NAME: 'e700_4803'  # Name of the second vehicle
-      GIT_USERNAME: ${GIT_USERNAME}
-      GIT_TOKEN: ${GIT_TOKEN}
       WANDB_API_KEY: ${WANDB_API_KEY}
     depends_on:
       - kafka

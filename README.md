@@ -10,5 +10,11 @@ Next, use `docker-compose up` to start the Kafka cluster and the consumer/produc
 
     docker-compose up -d
 
-You should have a file called .evn containing the following variables:
-GIT_USERNAME, GIT_TOKEN, WANDB_API_KEY
+For using wandb logging, you should have a file called .env containing your wandb api key under the WANDB_API_KEY voice:
+
+```env
+# .env file content:
+
+WANDB_API_KEY=your_wandb_api_key_here
+
+```
