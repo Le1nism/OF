@@ -6,10 +6,12 @@ import json
 from omegaconf import DictConfig, OmegaConf 
 import hydra
 import threading
+import importlib.util
+import sys
+
+from OpenFAIR import ProducerManager, ConsumerManager
 
 
-PRODUCER_COMMAND = "python synthetic_data_generator.py"
-CONSUMER_COMMAND = "python consume.py"
 
 def run_command_in_container(container, command):
     # Run the command in the container shell to obtain the PID
@@ -19,6 +21,7 @@ def run_command_in_container(container, command):
 
 def refresh_containers():
     global containers_dict, containers_ips, producers, consumers
+    global producer_manager, consumer_manager
     # Connect to the Docker daemon
     client = docker.from_env()
 
@@ -36,6 +39,9 @@ def refresh_containers():
         containers_dict[container_img_name] = container
         containers_ips[container_img_name] = container_ip 
     print('\n\n\n')
+
+    producer_manager = ProducerManager(producers)
+    consumer_manager = ConsumerManager(consumers)
             
 
 def print_output(container, command, thread_name):
@@ -45,29 +51,28 @@ def print_output(container, command, thread_name):
         print(thread_name+": "+line.decode().strip())  # Print the output line by line
 
 
-
 def produce_all():
-    global producers
+    # Start all producers
     for producer_name, producer_container in producers.items():
-        output_thread = threading.Thread(
-            target=print_output, 
-            args=(producer_container, PRODUCER_COMMAND, producer_name))
-        output_thread.start()
-        print(f"Started producer from {producer_name}")
-        
+        producer_manager.start_producer(producer_name, producer_container)
     return "All producers started!"
 
 
+def stop_producing_all():
+    producer_manager.stop_all_producers()
+    return "All producers stopped!"
+
 def consume_all():
-    global consumers
-    for name, container in consumers.items():
-        output_thread = threading.Thread(
-            target=print_output, 
-            args=(container, CONSUMER_COMMAND, name))
-        output_thread.start()
-        print(f"Started consumer from {name}")
-        
+    # Start all consumers
+    for consumer_name, consumer_container in consumers.items():
+        consumer_manager.start_producer(consumer_name, consumer_container)
     return "All consumers started!"
+
+
+def stop_all_consumers():
+    consumer_manager.stop_all_consumers()
+    return "All consumers stopped!"
+
 
 class MyRequestHandler(http.server.SimpleHTTPRequestHandler):
         def do_GET(self):
@@ -92,6 +97,10 @@ class MyRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(response_str.encode()) 
             elif self.path == '/stop_producing_all':
                 stop_producing_all()
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+            elif self.path == '/stop_consuming_all':
+                stop_all_consumers()
                 self.send_response(200)
                 self.send_header('Content-type', 'application/json')
             else:
@@ -122,11 +131,6 @@ def main(cfg: DictConfig) -> None:
     with ReusableTCPServer(("", cfg.container_manager_port), MyRequestHandler) as httpd:
         print(f"Serving at port {cfg.container_manager_port}")
         httpd.serve_forever()
-    
-    
-    
-    
-        
     
 
 if __name__ == "__main__":

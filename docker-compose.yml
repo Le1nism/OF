@@ -80,7 +80,7 @@ services:
       - kafka  # Ensure this producer starts only after Kafka is running
     networks:
       - trains_network  # Connect the producer to the custom Docker network
-    # entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python synthetic_data_generator.py"]  # Wait for Kafka before running the script
+    # entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python produce.py"]  # Wait for Kafka before running the script
     command: ["tail", "-f", "/dev/null"]
 
   consumer:
@@ -97,6 +97,6 @@ services:
       - kafka  # Ensure this consumer starts only after Kafka is running
     networks:
       - trains_network  # Connect the consumer to the custom Docker network
-    # entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python consumer_synthetic_data.py"]  # Wait for Kafka before running the script
+    # entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python consume.py"]  # Wait for Kafka before running the script
     command: ["tail", "-f", "/dev/null"]
 
