@@ -26,7 +26,7 @@ def refresh_containers():
         # Extract the IP address of the container from its network settings
         container_info_str = container_info['Config']['Hostname']
         container_img_name = container_info_str.split('(')[0]
-        container_ip = container_info['NetworkSettings']['Networks']['trainsensordatavisualization_trains_network']['IPAddress']
+        container_ip = container_info['NetworkSettings']['Networks']['open_fair_trains_network']['IPAddress']
         print(f'{container_img_name} is {container.name} with ip {container_ip}')
         if 'producer' in container_img_name:
             producers[container_img_name] = container
