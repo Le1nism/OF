@@ -2,10 +2,10 @@ import logging
 import os
 import threading
 import json
-import kafka
+import time
+
 from flask import Flask, jsonify, render_template, request
 from confluent_kafka import Consumer, KafkaException, KafkaError
-from pyexpat.errors import messages
 
 # Configure logging for detailed output
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -13,55 +13,58 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 # Create a Flask app instance
 app = Flask(__name__)
 
-# Read Kafka configuration from environment variables
-KAFKA_BROKER = os.getenv('KAFKA_BROKER', 'kafka:9092')  # Kafka broker URL
-TOPIC_NAME = os.getenv('TOPIC_NAME', 'train-sensor-data')  # Kafka topic name
-VEHICLE_NAME=os.getenv('VEHICLE_NAME', 'e700_4801')
+# Retrieve Kafka broker and topic information from environment variables
+KAFKA_BROKER = os.getenv('KAFKA_BROKER', 'kafka:9092')  # Default Kafka broker URL
+TOPIC_NAME = os.getenv('TOPIC_NAME', 'train-sensor-data')  # Default Kafka topic name
+VEHICLE_NAME = os.getenv('VEHICLE_NAME', 'e700_4801') # Default vehicle name
 
-# Validate that KAFKA_BROKER and TOPIC_NAME are set
+# Patterns to match different types of Kafka topics
+TOPIC_PATTERNS = {
+    "anomalies": "^.*_anomalies$",  # Topics containing anomalies
+    "normal_data": '^.*_normal_data$', # Topics with normal data
+    "statistics" : '^.*_statistics$' # Topics with statistics data
+}
+
+# Validate the required environment variables
 if not KAFKA_BROKER:
     raise ValueError("Environment variable KAFKA_BROKER is missing.")
 if not TOPIC_NAME:
     raise ValueError("Environment variable TOPIC_NAME is missing.")
 
+# Initialize caches to store incoming messages
+message_cache = {
+    "simulate" : [], # Cache for simulated messages
+    "real" : [], # Cache for real messages
+    "anomalies" : [],  # Cache for anomaly messages
+    "normal" : [] # Cache for normal messages
+}
 
-# List to store received messages and a constant for the maximum number of stored messages
-simulate_msg_list = []  # Stores simulated sensor messages
+# Initialize a cache to store vehicle statistics
+vehicle_stats_cache={}
 
-real_msg_list = []  # Stores real sensor messages
-anomalies_msg_list = []
-normal_msg_list = []
-
+# Maximum number of messages to store in the cache
 MAX_MESSAGES = 100  # Limit for the number of stored messages
 
-received_all_real_msg = 0
-received_anomalies_msg = 0
-received_normal_msg = 0
-
-vehicle_stats_cache={}
-# Default structure for all vehicles
-default_stats = {'total_messages': 0, 'anomalies_messages': 0, 'normal_messages': 0}
-
-
 # Kafka consumer configuration
-conf_cons = {
+KAFKA_CONSUMER_CONFIG = {
     'bootstrap.servers': KAFKA_BROKER,  # Kafka broker URL
-    'group.id': 'kafka-consumer-group-1',  # Consumer group ID for message offset tracking
-    'auto.offset.reset': 'earliest'  # Start reading from the earliest message if no offset is present
+    'group.id': 'kafka-consumer-group-1',  # Consumer group for offset management
+    'auto.offset.reset': 'earliest'  # Start reading messages from the beginning if no offset is present
 }
+
 
 def deserialize_message(msg):
     """
-    Deserialize the JSON-serialized data received from the Kafka Consumer.
+    Deserialize a Kafka message from JSON format.
 
     Args:
         msg (Message): The Kafka message object.
 
     Returns:
-        dict or None: The deserialized Python dictionary if successful, otherwise None.
+        dict or None: A dictionary containing the deserialized data, or None if deserialization fails.
     """
     try:
-        # Decode the message and deserialize it into a Python dictionary
+        # Decode the message value from bytes to string and parse JSON
         message_value = json.loads(msg.value().decode('utf-8'))
         logging.info(f"Received message from topic {msg.topic()}: {message_value}")
         return message_value
@@ -69,19 +72,22 @@ def deserialize_message(msg):
         logging.error(f"Error deserializing message: {e}")
         return None
 
-def kafka_consumer_thread():
+def kafka_consumer_thread(topics):
     """
-    Kafka consumer thread function that reads and processes messages from the Kafka topic.
+    Background thread to consume messages from Kafka topics.
 
-    This function continuously polls the Kafka topic for new messages, deserializes them,
-    and appends them to the global simulate_msg_list or real_msg_list based on the message structure.
+    Args:
+        topics (list): List of topics to subscribe to.
     """
-    consumer = Consumer(conf_cons)
-    consumer.subscribe([TOPIC_NAME, f"{VEHICLE_NAME}_anomalies", f"{VEHICLE_NAME}_normal_data"])
-    global simulate_msg_list, real_msg_list, anomalies_msg_list, normal_msg_list, received_all_real_msg, received_anomalies_msg, received_normal_msg
+    logging.info(f"Subscribing to topics: {topics}")
+    consumer = Consumer(KAFKA_CONSUMER_CONFIG)
+    consumer.subscribe(topics)
+
+    retry_delay = 1  # Initial delay in seconds
+
     try:
         while True:
-            msg = consumer.poll(5.0)  # Poll for messages with a timeout of 1 second
+            msg = consumer.poll(1.0)  # Poll for new messages with a timeout of 1 second
             if msg is None:
                 continue
             if msg.error():
@@ -91,53 +97,90 @@ def kafka_consumer_thread():
                     logging.error(f"Consumer error: {msg.error()}")
                 continue
 
-            # Deserialize the JSON value of the message
+            # Deserialize the message and process it
             deserialized_data = deserialize_message(msg)
             if deserialized_data:
-                logging.info(f"Received message from topic {msg.topic()}: {deserialized_data}")
-                if msg.topic() == f"{VEHICLE_NAME}_anomalies":
-                    logging.info(f"ANOMALIES - Deserialized message: {deserialized_data}")
-                    anomalies_msg_list.append(deserialized_data)
-                    anomalies_msg_list = anomalies_msg_list[-MAX_MESSAGES:]  # Keep only the last MAX_MESSAGES
-                    real_msg_list.append(deserialized_data)
-                    real_msg_list = real_msg_list[-MAX_MESSAGES:]  # Keep only the last MAX_MESSAGES
-
-                    received_all_real_msg += 1
-                    received_anomalies_msg += 1
-
-                    print(f"DATA - {deserialized_data}")
-
-                elif msg.topic() == f"{VEHICLE_NAME}_normal_data":
-                    logging.info(f"NORMAL DATA - Deserialized message: {deserialized_data}")
-                    normal_msg_list.append(deserialized_data)
-                    normal_msg_list = normal_msg_list[-MAX_MESSAGES:]  # Keep only the last MAX_MESSAGES
-                    real_msg_list.append(deserialized_data)
-                    real_msg_list = real_msg_list[-MAX_MESSAGES:]  # Keep only the last MAX_MESSAGES
-
-                    received_all_real_msg += 1
-                    received_normal_msg += 1
-
-                    print(f"DATA - {deserialized_data}")
-
-                elif len(deserialized_data.keys()) == 5:
-                    # If the message has 5 keys, treat it as simulated data
-                    logging.info(f"5K - Deserialized message: {deserialized_data}")
-                    simulate_msg_list.append(deserialized_data)
-                    simulate_msg_list = simulate_msg_list[-MAX_MESSAGES:]  # Keep only the last MAX_MESSAGES
-                else:
-                    # Otherwise, treat it as real sensor data
-                    logging.info(f"RK - Deserialized message: {deserialized_data}")
-                    real_msg_list.append(deserialized_data)
-                    real_msg_list = real_msg_list[-MAX_MESSAGES:]  # Keep only the last MAX_MESSAGES
+                logging.info(f"Processing message from topic {msg.topic()}: {deserialized_data}")
+                processing_message(msg.topic(), deserialized_data)
             else:
                 logging.warning("Deserialized message is None")
+
+            retry_delay = 1  # Reset retry delay on success
     except Exception as e:
         logging.error(f"Error while reading message: {e}")
+        logging.info(f"Retrying in {retry_delay} seconds...")
+        time.sleep(retry_delay)
+        retry_delay = min(retry_delay * 2, 60)  # Exponential backoff, max 60 seconds
     finally:
-        consumer.close()  # Close the Kafka consumer gracefully
+        consumer.close()  # Close the Kafka consumer on exit
 
-# Start the Kafka consumer thread as a daemon to run in the background
-threading.Thread(target=kafka_consumer_thread, daemon=True).start()
+def processing_message(topic, msg):
+    """
+    Process a Kafka message based on its topic type.
+
+    Args:
+        topic (str): The topic from which the message was received.
+        msg (dict): The deserialized message data.
+    """
+    try:
+        if topic.endswith("_anomalies"):
+            logging.info(f"ANOMALIES ({topic}) - Deserialized message: {msg}")
+            add_to_cache("anomalies", msg)
+            add_to_cache("real", msg)
+            logging.info(f"DATA ({topic}) - {msg}")
+        elif topic.endswith("_normal_data"):
+            logging.info(f"NORMAL DATA ({topic}) - Deserialized message: {msg}")
+            add_to_cache("normal", msg)
+            add_to_cache("real", msg)
+            logging.info(f"DATA ({topic}) - {msg}")
+        elif len(msg.keys()) == 5:
+            logging.info(f"5K ({topic}) - Deserialized message: {msg}")
+            add_to_cache("simulate", msg)
+            logging.info(f"DATA ({topic}) - {msg}")
+        elif topic.endswith("_statistics"):
+            logging.info(f"STATISTICS ({topic}) - Deserialized message: {msg}")
+            process_stat_message(msg)
+        else:
+            logging.warning(f"Uncategorized message from topic {topic}: {msg}")
+    except Exception as e:
+        logging.error(f"Error processing message from topic {topic}: {e}")
+
+def add_to_cache(cache_key, message):
+    """
+    Add a message to the appropriate cache, maintaining a maximum cache size.
+
+    Args:
+        cache_key (str): The cache key to store the message under.
+        message (dict): The message to store in the cache.
+    """
+    message_cache[cache_key].append(message)
+    # Limit the cache size to the last MAX_MESSAGES entries
+    message_cache[cache_key] = message_cache[cache_key][-MAX_MESSAGES:]
+
+def process_stat_message(msg):
+    """
+    Update vehicle statistics based on a received statistics message.
+
+    Args:
+        msg (dict): The statistics message data.
+    """
+    try:
+        vehicle_name=msg.get("vehicle_name", "unknown_vehicle")
+        logging.info(f"Processing statistics for vehicle: {vehicle_name}")
+
+        # Initialize statistics for the vehicle if not already present
+        if vehicle_name not in vehicle_stats_cache:
+            vehicle_stats_cache[vehicle_name] = {'total_messages': 0, 'anomalies_messages': 0, 'normal_messages': 0}
+
+        # Update statistics for the vehicle
+        for key in vehicle_stats_cache[vehicle_name]:
+            previous_value = vehicle_stats_cache[vehicle_name][key]
+            increment = msg.get(key, 0)
+            vehicle_stats_cache[vehicle_name][key] += increment
+            logging.info(f"Updated {key} for {vehicle_name}: {previous_value} -> {vehicle_stats_cache[vehicle_name][key]}")
+    except Exception as e:
+        logging.error(f"Error while processing statistics: {e}")
+
 
 @app.route('/', methods=['GET'])
 def home():
@@ -145,120 +188,83 @@ def home():
     Render the home page.
 
     Returns:
-        str: The rendered template for the index page.
+        str: The HTML for the home page.
     """
     return render_template('index.html')
 
 @app.route('/my-all-data')
 def get_data():
     """
-    Render the data visualization page with the last 100 messages.
+    Render the page displaying the last 100 simulated messages.
 
     Returns:
-        str: The rendered template with the last 100 simulated messages.
+        str: The HTML for the simulated data visualization page.
     """
-    return render_template('trainsensordatavisualization.html', messages=simulate_msg_list[-MAX_MESSAGES:])
+    return render_template('trainsensordatavisualization.html', messages=message_cache["simulate"])
 
 @app.route('/my-all-data-by-type')
 def get_data_by_type():
     """
-    Render the data visualization page sorted by sensor type.
+    Render the page displaying simulated messages sorted by type.
 
     Returns:
-        str: The rendered template with sorted simulated message data by type.
+        str: The HTML for the sorted simulated data visualization page.
     """
-    sorted_data_by_type = sort_data_by_type(simulate_msg_list[-100:])
+    sorted_data_by_type = sort_data_by_type(message_cache["simulate"])
     return render_template('trainsensordatavisualization.html', messages=sorted_data_by_type)
 
 @app.route('/real-all-data')
 def get_all_real_data():
     """
-    Render the data visualization page for real sensor data.
+    Render the page displaying the last 100 real messages.
 
     Returns:
-        str: The rendered template with the last 100 real sensor messages.
+        str: The HTML for the real data visualization page.
     """
-    return render_template('realdatavisualization.html', messages=real_msg_list)
+    return render_template('realdatavisualization.html', messages=message_cache["real"])
 
 @app.route('/real-anomalies-data')
 def get_anomalies_real_data():
     """
-    Render the data visualization page for real sensor data.
+    Render the page displaying the last 100 anomaly messages.
 
     Returns:
-        str: The rendered template with the last 100 real sensor messages.
+        str: The HTML for the anomaly data visualization page.
     """
-    return render_template('realdatavisualization.html', messages=anomalies_msg_list)
+    return render_template('realdatavisualization.html', messages=message_cache["anomalies"])
 
 @app.route('/real-normal-data')
 def get_normal_real_data():
     """
-    Render the data visualization page for real sensor data.
+    Render the page displaying the last 100 normal messages.
 
     Returns:
-        str: The rendered template with the last 100 real sensor messages.
+        str: The HTML for the normal data visualization page.
     """
-    return render_template('realdatavisualization.html', messages=normal_msg_list)
+    return render_template('realdatavisualization.html', messages=message_cache["normal"])
 
 @app.route('/statistics')
 def get_statistics():
-    # Kafka consumer configuration
-    consumer_stat = Consumer({
-        'bootstrap.servers': KAFKA_BROKER,  # Kafka broker URL
-        'group.id': 'flask-statistics-consumer-group',  # Consumer group ID for message offset tracking
-        'auto.offset.reset': 'earliest'  # Start reading from the earliest message if no offset is present
-    })
-    topic_statistics = '^.*_statistics$'
-    consumer_stat.subscribe([topic_statistics])
+    """
+    Render the statistics page with vehicle statistics.
 
-    try:
-        while True:
-            msg = consumer_stat.poll(5.0)  # Poll with a timeout of 5 seconds
-            if msg is None:
-                break  # Exit loop if no messages are received
-            if msg.error():
-                if msg.error().code() == KafkaError._PARTITION_EOF:
-                    logging.info(f"End of partition reached: {msg.error()}")
-                else:
-                    logging.error(f"Consumer error: {msg.error()}")
-                continue
-            # Deserialize the message
-            deserialized_data = deserialize_message(msg)
-            if deserialized_data:
-            # Extract the vehicle name from the topic
-                vehicle_name = deserialized_data.get("vehicle_name", msg.topic().replace('_statistics', ''))
-                # Update or initialize vehicle stats in the cache
-                if vehicle_name not in vehicle_stats_cache:
-                    vehicle_stats_cache[vehicle_name] = default_stats.copy()
-
-                # Increment statistics in the cache
-                for key in default_stats.keys():
-                    vehicle_stats_cache[vehicle_name][key] += deserialized_data.get(key, 0)
-
-    except Exception as e:
-        logging.error(f"Error while consuming statistics: {e}")
-    finally:
-        consumer_stat.close()
-
-    all_vehicle_names=sorted(vehicle_stats_cache.keys())
-    ordered_stats = {
-        vehicle: vehicle_stats_cache[vehicle]
-        for vehicle in all_vehicle_names
-    }
-
-    return render_template('statistics.html', all_stats=ordered_stats)
+    Returns:
+        str: The HTML for the statistics page.
+    """
+    sorted_stats = {k: vehicle_stats_cache[k] for k in sorted(vehicle_stats_cache)}
+    return render_template('statistics.html', all_stats=sorted_stats)
 
 
 def order_by(param_name, default_value):
     """
-    Retrieve the value of a specific request argument or return a default.
+    Retrieve a query parameter value from the request or use a default.
 
     Args:
-        param_name (str): The name of the request argument to retrieve.
-        default_value (str): The default value to return if the argument is not found.
+        param_name (str): The query parameter name.
+        default_value (str): The default value to use if the parameter is not provided.
 
     Returns:
-        str: The value of the argument or the default value.
+        str: The query parameter value or the default.
     """
     return request.args.get(param_name, default_value)
 
@@ -273,15 +279,18 @@ def order_by_type():
 
 def sort_data_by_type(data_list):
     """
-    Sort the given sensor data by type.
+    Sort sensor data by the specified type.
 
     Args:
-        data_list (list): The list of sensor data dictionaries to sort.
+        data_list (list): A list of sensor data dictionaries.
 
     Returns:
-        list: The sorted list of sensor data by type.
+        list: The sorted list of sensor data.
     """
     return sorted(data_list, key=lambda x: x.get(order_by_type()))
+
+# Start a background thread to consume Kafka messages
+threading.Thread(target=kafka_consumer_thread, args=([TOPIC_NAME, *TOPIC_PATTERNS.values()], ), daemon=True).start()
 
 # Start the Flask web application
 if __name__ == '__main__':
