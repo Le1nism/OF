@@ -9,10 +9,10 @@ class ConsumerManager:
         self.consumer_command = CONSUMER_COMMAND
 
 
-    def start_producer(self, consumer_name, consumer_container):
+    def start_producer(self, consumer_name, consumer_container, vehicle_name):
         def run_consumer():
             return_tuple = consumer_container.exec_run(
-                self.consumer_command, 
+                self.consumer_command + " --vehicle_name=" + vehicle_name, 
                 stream=True, 
                 tty=True, 
                 stdin=True

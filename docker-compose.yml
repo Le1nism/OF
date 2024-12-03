@@ -51,7 +51,7 @@ services:
       context: ./dashboard  # Path to the consumer's Dockerfile
       dockerfile: Dockerfile  # Specify the Dockerfile for building the image
     container_name: dashboard  # Container name for easier identification
-    hostname: consumer  # Hostname for internal communication
+    hostname: dashboard  # Hostname for internal communication
     environment:
       KAFKA_BROKER: 'kafka:9092'  # Kafka broker address for the consumer to connect to
       TOPIC_NAME: 'train-sensor-data'  # Kafka topic to consume sensor data
@@ -62,7 +62,8 @@ services:
       - kafka  # Ensure the consumer starts only after Kafka is running
     networks:
       - trains_network  # Connect the consumer to the custom Docker network
-    entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "flask run"]  # Wait for Kafka to start before executing the Flask server
+    # entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "flask run"]  # Wait for Kafka to start before executing the Flask server
+    command: ["tail", "-f", "/dev/null"]
 
   # Producer and Consumer pairs for the first vehicles
   producer:

@@ -9,10 +9,10 @@ class ProducerManager:
         self.producer_command = PRODUCER_COMMAND
 
 
-    def start_producer(self, producer_name, producer_container):
+    def start_producer(self, producer_name, producer_container, vehicle_name):
         def run_producer():
             return_tuple = producer_container.exec_run(
-                self.producer_command, 
+                self.producer_command + " --vehicle_name=" + vehicle_name,
                 stream=True, 
                 tty=True, 
                 stdin=True

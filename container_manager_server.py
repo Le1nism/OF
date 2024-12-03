@@ -53,8 +53,8 @@ def print_output(container, command, thread_name):
 
 def produce_all():
     # Start all producers
-    for producer_name, producer_container in producers.items():
-        producer_manager.start_producer(producer_name, producer_container)
+    for producer_name, vehicle_name in zip(producers.keys(), vehicle_names):
+        producer_manager.start_producer(producer_name, producers[producer_name], vehicle_name)
     return "All producers started!"
 
 
@@ -64,8 +64,8 @@ def stop_producing_all():
 
 def consume_all():
     # Start all consumers
-    for consumer_name, consumer_container in consumers.items():
-        consumer_manager.start_producer(consumer_name, consumer_container)
+    for consumer_name, vehicle_name in zip(consumers.keys(), vehicle_names):
+        consumer_manager.start_producer(consumer_name, consumers[consumer_name], vehicle_name)
     return "All consumers started!"
 
 
@@ -114,7 +114,7 @@ class ReusableTCPServer(socketserver.TCPServer):
 
 @hydra.main(config_path="config", config_name="default", version_base="1.2")
 def main(cfg: DictConfig) -> None:
-    global containers_dict, containers_ips, consumers, producers
+    global containers_dict, containers_ips, consumers, producers, vehicle_names
     print("\n________________________________________________________________\n\n"+\
           "               OPEN FAIR Container Manager \n" +\
           "________________________________________________________________\n"+\
@@ -126,6 +126,7 @@ def main(cfg: DictConfig) -> None:
     consumers = {}
     producers = {}
     containers_ips = {}
+    vehicle_names = cfg.vehicle_names
     refresh_containers() 
     
     with ReusableTCPServer(("", cfg.container_manager_port), MyRequestHandler) as httpd:

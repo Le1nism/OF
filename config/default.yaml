@@ -1,2 +1,4 @@
 foo: bar
 container_manager_port: 7777
+vehicle_names:
+  - tom
