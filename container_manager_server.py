@@ -9,6 +9,7 @@ import threading
 
 
 PRODUCER_COMMAND = "python synthetic_data_generator.py"
+CONSUMER_COMMAND = "python consume.py"
 
 def run_command_in_container(container, command):
     # Run the command in the container shell to obtain the PID
@@ -52,11 +53,21 @@ def produce_all():
             target=print_output, 
             args=(producer_container, PRODUCER_COMMAND, producer_name))
         output_thread.start()
-        print(f"Started producing from {producer_name}")
+        print(f"Started producer from {producer_name}")
         
     return "All producers started!"
 
 
+def consume_all():
+    global consumers
+    for name, container in consumers.items():
+        output_thread = threading.Thread(
+            target=print_output, 
+            args=(container, CONSUMER_COMMAND, name))
+        output_thread.start()
+        print(f"Started consumer from {name}")
+        
+    return "All consumers started!"
 
 class MyRequestHandler(http.server.SimpleHTTPRequestHandler):
         def do_GET(self):
@@ -69,6 +80,12 @@ class MyRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(json.dumps(response).encode())
             elif self.path == '/produce_all':
                 response_str = produce_all()
+                self.send_response(200)
+                self.send_header('Content-type', 'text/plain')  
+                self.end_headers()
+                self.wfile.write(response_str.encode())
+            elif self.path == '/consume_all':
+                response_str = consume_all()
                 self.send_response(200)
                 self.send_header('Content-type', 'text/plain')  
                 self.end_headers()
