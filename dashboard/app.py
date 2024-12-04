@@ -1,14 +1,12 @@
 import logging
-import threading
-import json
-import time
 from omegaconf import DictConfig, OmegaConf 
 import hydra
 from flask import Flask,  render_template
-from confluent_kafka import Consumer, KafkaError
-from cache import MessageCache
-from metrics_logger import MetricsLogger
-from consumer import MessageConsumer
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from OpenFAIR import MessageCache, MetricsLogger, MessageConsumer
+
 
 DASHBOARD_NAME = "DASH"
 
@@ -80,6 +78,11 @@ def create_app(cfg: DictConfig) -> None:
         """
         return render_template('index.html')
 
+
+    @app.route("/my-route", methods=["POST"])
+    def my_function():
+        # Code to be executed when button is pressed
+        return "Button pressed!"
 
     @app.route('/real-all-data')
     def get_all_real_data():
