@@ -66,10 +66,8 @@ def create_app(cfg: DictConfig) -> None:
     # Set the log level
     logger.setLevel(cfg.logging_level.upper())
 
-    # Start consuming Kafka messages
-    # start_consuming(cfg)
-
     message_consumer = MessageConsumer(parent=app, cfg=cfg)
+    # Start consuming Kafka messages
     message_consumer.readining_thread.start()
 
     @app.route('/', methods=['GET'])
