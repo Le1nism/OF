@@ -13,15 +13,6 @@ DASHBOARD_NAME = "DASH"
 
 
 
-TOPIC_NAME = os.getenv('TOPIC_NAME', 'train-sensor-data')  # Default Kafka topic name
-VEHICLE_NAME = os.getenv('VEHICLE_NAME', 'e700_4801') # Default vehicle name
-
-# Patterns to match different types of Kafka topics
-TOPIC_PATTERNS = {
-    "anomalies": "^.*_anomalies$",  # Topics containing anomalies
-    "normal_data": '^.*_normal_data$', # Topics with normal data
-    "statistics" : '^.*_statistics$' # Topics with statistics data
-}
 
 
 # Initialize caches to store incoming messages
@@ -59,21 +50,29 @@ def deserialize_message(msg):
         logger.error(f"Error deserializing message: {e}")
         return None
 
-def kafka_consumer_thread(cfg, topics):
+def kafka_consumer_thread(cfg):
     """
     Background thread to consume messages from Kafka topics.
 
     Args:
         topics (list): List of topics to subscribe to.
     """
-    logger.info(f"Subscribing to topics: {topics}")
+    # Patterns to match different types of Kafka topics
+    topics_dict = {
+        "anomalies": "^.*_anomalies$",  # Topics containing anomalies
+        "normal_data": '^.*_normal_data$', # Topics with normal data
+        "statistics" : '^.*_statistics$' # Topics with statistics data
+    }
+
+    
     consumer = Consumer(
                         {'bootstrap.servers': cfg.dashboard.kafka_broker_url,  # Kafka broker URL
                         'group.id': cfg.dashboard.kafka_consumer_group_id,  # Consumer group for offset management
                         'auto.offset.reset': cfg.dashboard.kafka_auto_offset_reset  # Start reading messages from the beginning if no offset is present
                         }
                         )
-    consumer.subscribe(topics)
+    consumer.subscribe(list(topics_dict.values()))
+    logger.debug(f"Started consuming messages from topics: {list(topics_dict.values())}")
 
     retry_delay = 1  # Initial delay in seconds
 
@@ -215,7 +214,7 @@ def start_consuming(cfg):
     """
     thread = threading.Thread(
         target=kafka_consumer_thread, 
-        args=(cfg,  [*TOPIC_PATTERNS.values()], ))
+        args=[cfg])
     thread.daemon = True
     thread.start()
 
@@ -223,6 +222,16 @@ def start_consuming(cfg):
 @hydra.main(config_path="../config", config_name="default", version_base="1.2")
 def create_app(cfg: DictConfig) -> None:
     global logger
+
+    if cfg.override != "":
+        try:
+            # Load the variant specified from the command line
+            config_overrides = OmegaConf.load(hydra.utils.get_original_cwd() + f'/config/overrides/{cfg.override}.yaml')
+            # Merge configurations, with the variant overriding the base config
+            cfg = OmegaConf.merge(cfg, config_overrides)
+        except:
+            print('Unsuccesfully tried to use the configuration override: ',cfg.override)
+
 
     # Create a Flask app instance
     app = Flask(__name__)
