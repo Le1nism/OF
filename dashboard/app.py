@@ -30,7 +30,6 @@ vehicle_stats_cache={}
 MAX_MESSAGES = 100  # Limit for the number of stored messages
 
 
-
 def deserialize_message(msg):
     """
     Deserialize a Kafka message from JSON format.
@@ -49,6 +48,7 @@ def deserialize_message(msg):
     except json.JSONDecodeError as e:
         logger.error(f"Error deserializing message: {e}")
         return None
+
 
 def kafka_consumer_thread(cfg):
     """
@@ -71,6 +71,7 @@ def kafka_consumer_thread(cfg):
                         'auto.offset.reset': cfg.dashboard.kafka_auto_offset_reset  # Start reading messages from the beginning if no offset is present
                         }
                         )
+    
     consumer.subscribe(list(topics_dict.values()))
     logger.debug(f"Started consuming messages from topics: {list(topics_dict.values())}")
 
@@ -104,6 +105,7 @@ def kafka_consumer_thread(cfg):
         retry_delay = min(retry_delay * 2, 60)  # Exponential backoff, max 60 seconds
     finally:
         consumer.close()  # Close the Kafka consumer on exit
+
 
 def processing_message(topic, msg):
     """
@@ -170,44 +172,6 @@ def process_stat_message(msg):
         logger.error(f"Error while processing statistics: {e}")
 
 
-
-
-def order_by(param_name, default_value):
-    """
-    Retrieve a query parameter value from the request or use a default.
-
-    Args:
-        param_name (str): The query parameter name.
-        default_value (str): The default value to use if the parameter is not provided.
-
-    Returns:
-        str: The query parameter value or the default.
-    """
-    return request.args.get(param_name, default_value)
-
-def order_by_type():
-    """
-    Get the order parameter for sensor_type.
-
-    Returns:
-        str: The order parameter for sensor_type, defaults to 'sensor_type'.
-    """
-    return order_by('order_by_type', 'sensor_type')
-
-def sort_data_by_type(data_list):
-    """
-    Sort sensor data by the specified type.
-
-    Args:
-        data_list (list): A list of sensor data dictionaries.
-
-    Returns:
-        list: The sorted list of sensor data.
-    """
-    return sorted(data_list, key=lambda x: x.get(order_by_type()))
-
-
-
 def start_consuming(cfg):
     """
     Start consuming Kafka messages in a separate thread.
@@ -253,29 +217,6 @@ def create_app(cfg: DictConfig) -> None:
             str: The HTML for the home page.
         """
         return render_template('index.html')
-
-
-    @app.route('/my-all-data')
-    def get_data():
-        """
-        Render the page displaying the last 100 simulated messages.
-
-        Returns:
-            str: The HTML for the simulated data visualization page.
-        """
-        return render_template('trainsensordatavisualization.html', messages=message_cache["simulate"])
-
-
-    @app.route('/my-all-data-by-type')
-    def get_data_by_type():
-        """
-        Render the page displaying simulated messages sorted by type.
-
-        Returns:
-            str: The HTML for the sorted simulated data visualization page.
-        """
-        sorted_data_by_type = sort_data_by_type(message_cache["simulate"])
-        return render_template('trainsensordatavisualization.html', messages=sorted_data_by_type)
 
 
     @app.route('/real-all-data')
