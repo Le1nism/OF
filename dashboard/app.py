@@ -8,85 +8,9 @@ from flask import Flask,  render_template
 from confluent_kafka import Consumer, KafkaError
 from cache import MessageCache
 from metrics_logger import MetricsLogger
+from consumer import MessageConsumer
 
 DASHBOARD_NAME = "DASH"
-
-
-def deserialize_message(msg):
-    """
-    Deserialize a Kafka message from JSON format.
-
-    Args:
-        msg (Message): The Kafka message object.
-
-    Returns:
-        dict or None: A dictionary containing the deserialized data, or None if deserialization fails.
-    """
-    try:
-        # Decode the message value from bytes to string and parse JSON
-        message_value = json.loads(msg.value().decode('utf-8'))
-        logger.info(f"Received message from topic {msg.topic()}")
-        return message_value
-    except json.JSONDecodeError as e:
-        logger.error(f"Error deserializing message: {e}")
-        return None
-
-
-def kafka_consumer_thread(cfg):
-    """
-    Background thread to consume messages from Kafka topics.
-
-    Args:
-        topics (list): List of topics to subscribe to.
-    """
-    # Patterns to match different types of Kafka topics
-    topics_dict = {
-        "anomalies": "^.*_anomalies$",  # Topics containing anomalies
-        "normal_data": '^.*_normal_data$', # Topics with normal data
-        "statistics" : '^.*_statistics$' # Topics with statistics data
-    }
-
-    
-    consumer = Consumer(
-                        {'bootstrap.servers': cfg.dashboard.kafka_broker_url,  # Kafka broker URL
-                        'group.id': cfg.dashboard.kafka_consumer_group_id,  # Consumer group for offset management
-                        'auto.offset.reset': cfg.dashboard.kafka_auto_offset_reset  # Start reading messages from the beginning if no offset is present
-                        }
-                        )
-    
-    consumer.subscribe(list(topics_dict.values()))
-    logger.debug(f"Started consuming messages from topics: {list(topics_dict.values())}")
-
-    retry_delay = 1  # Initial delay in seconds
-
-    try:
-        while True:
-            msg = consumer.poll(1.0)  # Poll for new messages with a timeout of 1 second
-            if msg is None:
-                continue
-            if msg.error():
-                if msg.error().code() == KafkaError._PARTITION_EOF:
-                    logger.info(f"End of partition reached: {msg.error()}")
-                else:
-                    logger.error(f"Consumer error: {msg.error()}")
-                continue
-
-            # Deserialize the message and process it
-            deserialized_data = deserialize_message(msg)
-            if deserialized_data:
-                logger.info(f"Processing message from topic {msg.topic()}")
-                processing_message(msg.topic(), deserialized_data)
-            else:
-                logger.warning("Deserialized message is None")
-
-            retry_delay = 1  # Reset retry delay on success
-    except Exception as e:
-        logger.error(f"Error while reading message: {e}")
-        logger.info(f"Retrying in {retry_delay} seconds...")
-        time.sleep(retry_delay)
-        retry_delay = min(retry_delay * 2, 60)  # Exponential backoff, max 60 seconds
-    finally:
-        consumer.close()  # Close the Kafka consumer on exit
 
 
 def processing_message(topic, msg):
@@ -115,16 +39,6 @@ def processing_message(topic, msg):
         logger.error(f"Error processing message from topic {topic}: {e}")
 
 
-def start_consuming(cfg):
-    """
-    Start consuming Kafka messages in a separate thread.
-    """
-    thread = threading.Thread(
-        target=kafka_consumer_thread, 
-        args=[cfg])
-    thread.daemon = True
-    thread.start()
-
 
 @hydra.main(config_path="../config", config_name="default", version_base="1.2")
 def create_app(cfg: DictConfig) -> None:
@@ -141,9 +55,11 @@ def create_app(cfg: DictConfig) -> None:
 
     msg_cache = MessageCache(cfg.dashboard.message_cache_len)
     metrics_logger = MetricsLogger(cfg)
-
+    
     # Create a Flask app instance
     app = Flask(__name__)
+    # associate processing message rountine:
+    app.process_message_routine = processing_message
 
     # Configure logging for detailed output
     logger = logging.getLogger(DASHBOARD_NAME)
@@ -151,7 +67,10 @@ def create_app(cfg: DictConfig) -> None:
     logger.setLevel(cfg.logging_level.upper())
 
     # Start consuming Kafka messages
-    start_consuming(cfg)
+    # start_consuming(cfg)
+
+    message_consumer = MessageConsumer(parent=app, cfg=cfg)
+    message_consumer.readining_thread.start()
 
     @app.route('/', methods=['GET'])
     def home():
