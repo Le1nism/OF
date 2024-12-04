@@ -1,5 +1,4 @@
 import logging
-import os
 import threading
 import json
 import time
@@ -12,9 +11,6 @@ from confluent_kafka import Consumer, KafkaError
 DASHBOARD_NAME = "DASH"
 
 
-
-
-
 # Initialize caches to store incoming messages
 message_cache = {
     "simulate" : [], # Cache for simulated messages
@@ -25,9 +21,6 @@ message_cache = {
 
 # Initialize a cache to store vehicle statistics
 vehicle_stats_cache={}
-
-# Maximum number of messages to store in the cache
-MAX_MESSAGES = 100  # Limit for the number of stored messages
 
 
 def deserialize_message(msg):
@@ -145,7 +138,7 @@ def add_to_cache(cache_key, message):
     """
     message_cache[cache_key].append(message)
     # Limit the cache size to the last MAX_MESSAGES entries
-    message_cache[cache_key] = message_cache[cache_key][-MAX_MESSAGES:]
+    message_cache[cache_key] = message_cache[cache_key][-message_cache_len:]
 
 def process_stat_message(msg):
     """
@@ -185,7 +178,7 @@ def start_consuming(cfg):
 
 @hydra.main(config_path="../config", config_name="default", version_base="1.2")
 def create_app(cfg: DictConfig) -> None:
-    global logger
+    global logger, message_cache_len
 
     if cfg.override != "":
         try:
@@ -196,6 +189,7 @@ def create_app(cfg: DictConfig) -> None:
         except:
             print('Unsuccesfully tried to use the configuration override: ',cfg.override)
 
+    message_cache_len = cfg.dashboard.message_cache_len
 
     # Create a Flask app instance
     app = Flask(__name__)
