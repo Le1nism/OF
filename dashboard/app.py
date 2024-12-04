@@ -5,7 +5,7 @@ from flask import Flask,  render_template
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from OpenFAIR import MessageCache, MetricsLogger, MessageConsumer
+from OpenFAIR import MessageCache, MetricsLogger, MessageConsumer, ContainerManager
 
 
 DASHBOARD_NAME = "DASH"
@@ -60,12 +60,15 @@ def create_app(cfg: DictConfig) -> None:
 
     # Configure logging for detailed output
     logger = logging.getLogger(DASHBOARD_NAME)
-    # Set the log level
     logger.setLevel(cfg.logging_level.upper())
 
+    # Create a ConainerManager instance
+    container_manager = ContainerManager(cfg)
+
+    # Create a MessageConsumer instance
     message_consumer = MessageConsumer(parent=app, cfg=cfg)
-    # Start consuming Kafka messages
     message_consumer.readining_thread.start()
+
 
 
     @app.route('/', methods=['GET'])
