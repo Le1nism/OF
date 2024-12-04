@@ -39,10 +39,9 @@ def processing_message(topic, msg):
         logger.error(f"Error processing message from topic {topic}: {e}")
 
 
-
 @hydra.main(config_path="../config", config_name="default", version_base="1.2")
 def create_app(cfg: DictConfig) -> None:
-    global logger, message_cache_len, msg_cache, metrics_logger
+    global logger, message_cache_len, msg_cache, metrics_logger, message_consumer
 
     if cfg.override != "":
         try:
@@ -69,6 +68,7 @@ def create_app(cfg: DictConfig) -> None:
     message_consumer = MessageConsumer(parent=app, cfg=cfg)
     # Start consuming Kafka messages
     message_consumer.readining_thread.start()
+
 
     @app.route('/', methods=['GET'])
     def home():

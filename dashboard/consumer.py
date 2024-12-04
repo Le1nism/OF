@@ -12,8 +12,6 @@ topics_dict = {
 }
 
 
-
-
 class MessageConsumer:
     def __init__(self, parent, cfg):
 
@@ -32,7 +30,6 @@ class MessageConsumer:
         self.readining_thread.daemon = True
         
 
-
     def resubscribe(self):
         self.consumer.subscribe(list(topics_dict.values()))
         self.logger.debug(f"Started consuming messages from topics: {list(topics_dict.values())}")
@@ -48,9 +45,6 @@ class MessageConsumer:
             self.logger.error(f"Error deserializing message: {e}")
             return None
     
-
-
-
 
     def read_messages(self):
         try:
