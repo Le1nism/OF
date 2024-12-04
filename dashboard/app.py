@@ -4,23 +4,12 @@ import json
 import time
 from omegaconf import DictConfig, OmegaConf 
 import hydra
-from flask import Flask,  render_template, request
+from flask import Flask,  render_template
 from confluent_kafka import Consumer, KafkaError
-
+from cache import MessageCache
+from metrics_logger import MetricsLogger
 
 DASHBOARD_NAME = "DASH"
-
-
-# Initialize caches to store incoming messages
-message_cache = {
-    "simulate" : [], # Cache for simulated messages
-    "real" : [], # Cache for real messages
-    "anomalies" : [],  # Cache for anomaly messages
-    "normal" : [] # Cache for normal messages
-}
-
-# Initialize a cache to store vehicle statistics
-vehicle_stats_cache={}
 
 
 def deserialize_message(msg):
@@ -111,58 +100,19 @@ def processing_message(topic, msg):
     try:
         if topic.endswith("_anomalies"):
             logger.debug(f"ANOMALIES ({topic})")
-            add_to_cache("anomalies", msg)
-            add_to_cache("real", msg)
+            msg_cache.add("anomalies", msg)
+            msg_cache.add("all", msg)
         elif topic.endswith("_normal_data"):
-            logger.debug(f"NORMAL DATA ({topic})")
-            add_to_cache("normal", msg)
-            add_to_cache("real", msg)
-        elif len(msg.keys()) == 5:
-            logger.debug(f"5K ({topic})")
-            add_to_cache("simulate", msg)
+            logger.debug(f"DIAGNOSTICS ({topic})")
+            msg_cache.add("diagnostics", msg)
+            msg_cache.add("all", msg)
         elif topic.endswith("_statistics"):
             logger.debug(f"STATISTICS ({topic})")
-            process_stat_message(msg)
+            metrics_logger.process_stat_message(msg)
         else:
             logger.warning(f"Uncategorized message from topic {topic}: {msg}")
     except Exception as e:
         logger.error(f"Error processing message from topic {topic}: {e}")
-
-def add_to_cache(cache_key, message):
-    """
-    Add a message to the appropriate cache, maintaining a maximum cache size.
-
-    Args:
-        cache_key (str): The cache key to store the message under.
-        message (dict): The message to store in the cache.
-    """
-    message_cache[cache_key].append(message)
-    # Limit the cache size to the last MAX_MESSAGES entries
-    message_cache[cache_key] = message_cache[cache_key][-message_cache_len:]
-
-def process_stat_message(msg):
-    """
-    Update vehicle statistics based on a received statistics message.
-
-    Args:
-        msg (dict): The statistics message data.
-    """
-    try:
-        vehicle_name=msg.get("vehicle_name", "unknown_vehicle")
-        logger.info(f"Processing statistics for vehicle: {vehicle_name}")
-
-        # Initialize statistics for the vehicle if not already present
-        if vehicle_name not in vehicle_stats_cache:
-            vehicle_stats_cache[vehicle_name] = {'total_messages': 0, 'anomalies_messages': 0, 'normal_messages': 0}
-
-        # Update statistics for the vehicle
-        for key in vehicle_stats_cache[vehicle_name]:
-            previous_value = vehicle_stats_cache[vehicle_name][key]
-            increment = msg.get(key, 0)
-            vehicle_stats_cache[vehicle_name][key] += increment
-            logger.info(f"Updated {key} for {vehicle_name}: {previous_value} -> {vehicle_stats_cache[vehicle_name][key]}")
-    except Exception as e:
-        logger.error(f"Error while processing statistics: {e}")
 
 
 def start_consuming(cfg):
@@ -178,7 +128,7 @@ def start_consuming(cfg):
 
 @hydra.main(config_path="../config", config_name="default", version_base="1.2")
 def create_app(cfg: DictConfig) -> None:
-    global logger, message_cache_len
+    global logger, message_cache_len, msg_cache, metrics_logger
 
     if cfg.override != "":
         try:
@@ -189,7 +139,8 @@ def create_app(cfg: DictConfig) -> None:
         except:
             print('Unsuccesfully tried to use the configuration override: ',cfg.override)
 
-    message_cache_len = cfg.dashboard.message_cache_len
+    msg_cache = MessageCache(cfg.dashboard.message_cache_len)
+    metrics_logger = MetricsLogger(cfg)
 
     # Create a Flask app instance
     app = Flask(__name__)
@@ -221,7 +172,7 @@ def create_app(cfg: DictConfig) -> None:
         Returns:
             str: The HTML for the real data visualization page.
         """
-        return render_template('realdatavisualization.html', messages=message_cache["real"])
+        return render_template('realdatavisualization.html', messages=msg_cache["all"])
 
 
     @app.route('/real-anomalies-data')
@@ -232,7 +183,7 @@ def create_app(cfg: DictConfig) -> None:
         Returns:
             str: The HTML for the anomaly data visualization page.
         """
-        return render_template('realdatavisualization.html', messages=message_cache["anomalies"])
+        return render_template('realdatavisualization.html', messages=msg_cache["anomalies"])
 
 
     @app.route('/real-normal-data')
@@ -243,7 +194,7 @@ def create_app(cfg: DictConfig) -> None:
         Returns:
             str: The HTML for the normal data visualization page.
         """
-        return render_template('realdatavisualization.html', messages=message_cache["normal"])
+        return render_template('realdatavisualization.html', messages=msg_cache["diagnostics"])
 
 
     @app.route('/statistics')
@@ -254,7 +205,7 @@ def create_app(cfg: DictConfig) -> None:
         Returns:
             str: The HTML for the statistics page.
         """
-        sorted_stats = {k: vehicle_stats_cache[k] for k in sorted(vehicle_stats_cache)}
+        sorted_stats = {k: metrics_logger.metrics[k] for k in sorted(metrics_logger.metrics)}
         return render_template('statistics.html', all_stats=sorted_stats)
 
     app.run(host=cfg.dashboard.host, port=cfg.dashboard.port)
