@@ -9,7 +9,7 @@ class ConsumerManager:
         self.consumer_command = CONSUMER_COMMAND
 
 
-    def start_producer(self, consumer_name, consumer_container, vehicle_name):
+    def start_consumer(self, consumer_name, consumer_container, vehicle_name):
         def run_consumer():
             return_tuple = consumer_container.exec_run(
                 self.consumer_command + " --vehicle_name=" + vehicle_name, 
@@ -43,5 +43,5 @@ class ConsumerManager:
 
 
     def stop_all_consumers(self):
-        for producer_name in self.consumers:
-            self.stop_consumer(producer_name)
+        for consumer_name in self.consumers:
+            self.stop_consumer(consumer_name)

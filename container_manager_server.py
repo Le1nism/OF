@@ -65,7 +65,7 @@ def stop_producing_all():
 def consume_all():
     # Start all consumers
     for consumer_name, vehicle_name in zip(consumers.keys(), vehicle_names):
-        consumer_manager.start_producer(consumer_name, consumers[consumer_name], vehicle_name)
+        consumer_manager.start_consumer(consumer_name, consumers[consumer_name], vehicle_name)
     return "All consumers started!"
 
 

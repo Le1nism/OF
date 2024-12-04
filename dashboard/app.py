@@ -82,9 +82,24 @@ def create_app(cfg: DictConfig) -> None:
 
 
     @app.route("/produce-all", methods=["POST"])
-    def my_function():
-        # Code to be executed when button is pressed
+    def produce_all():
         return container_manager.produce_all()
+    
+
+    @app.route("/stop-producing-all", methods=["POST"])
+    def stop_produce_all():
+        return container_manager.stop_producing_all()
+    
+
+    @app.route("/consume-all", methods=["POST"])
+    def consume_all():
+        return container_manager.consume_all()
+    
+
+    @app.route("/stop-consuming-all", methods=["POST"])
+    def stop_consuming_all():
+        return container_manager.stop_consuming_all()
+
 
     @app.route('/real-all-data')
     def get_all_real_data():

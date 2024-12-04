@@ -55,10 +55,10 @@ class ContainerManager:
     def consume_all(self):
         # Start all consumers
         for consumer_name, vehicle_name in zip(self.consumers.keys(), self.vehicle_names):
-            self.consumer_manager.start_producer(consumer_name, self.consumers[consumer_name], vehicle_name)
+            self.consumer_manager.start_consumer(consumer_name, self.consumers[consumer_name], vehicle_name)
         return "All consumers started!"
 
 
-    def stop_all_consumers(self):
+    def stop_consuming_all(self):
         self.consumer_manager.stop_all_consumers()
         return "All consumers stopped!"
