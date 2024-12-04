@@ -4,8 +4,8 @@ import threading
 import json
 import time
 
-from flask import Flask, jsonify, render_template, request
-from confluent_kafka import Consumer, KafkaException, KafkaError
+from flask import Flask,  render_template, request
+from confluent_kafka import Consumer, KafkaError
 
 # Configure logging for detailed output
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 app = Flask(__name__)
 
 # Retrieve Kafka broker and topic information from environment variables
-KAFKA_BROKER = os.getenv('KAFKA_BROKER', 'kafka:9092')  # Default Kafka broker URL
+KAFKA_BROKER = os.getenv('KAFKA_BROKER', 'localhost:19092')  # Default Kafka broker URL
 TOPIC_NAME = os.getenv('TOPIC_NAME', 'train-sensor-data')  # Default Kafka topic name
 VEHICLE_NAME = os.getenv('VEHICLE_NAME', 'e700_4801') # Default vehicle name
 

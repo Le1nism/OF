@@ -40,7 +40,7 @@ RUN pip install --no-cache-dir --upgrade pip
 
 # Install the dependencies specified in the requirements file
 # The requirements file should list all Python packages needed for the Flask app and Kafka consumer.
-RUN pip install --no-cache-dir -r requirements_consumer.txt
+RUN pip install --no-cache-dir -r requirements.txt
 # Ensure numpy is explicitly installed
 RUN pip install --no-cache-dir scipy pandas numpy copulas
 

@@ -1,4 +1,0 @@
-# requirements_consumer.txt
-confluent-kafka==1.9.2
-flask==2.3.2
-kafka-python
