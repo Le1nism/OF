@@ -1,4 +1,10 @@
-foo: bar
+
+
+logging_level: info
 container_manager_port: 7777
 vehicle_names:
   - tom
+
+dashboard:
+  port: 5000
+  host: 0.0.0.0

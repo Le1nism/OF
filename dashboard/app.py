@@ -3,15 +3,16 @@ import os
 import threading
 import json
 import time
+from omegaconf import DictConfig, OmegaConf 
+import hydra
 
 from flask import Flask,  render_template, request
 from confluent_kafka import Consumer, KafkaError
 
-# Configure logging for detailed output
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# Create a Flask app instance
-app = Flask(__name__)
+DASHBOARD = "DASH"
+
+
 
 # Retrieve Kafka broker and topic information from environment variables
 KAFKA_BROKER = os.getenv('KAFKA_BROKER', 'localhost:19092')  # Default Kafka broker URL
@@ -182,77 +183,6 @@ def process_stat_message(msg):
         logging.error(f"Error while processing statistics: {e}")
 
 
-@app.route('/', methods=['GET'])
-def home():
-    """
-    Render the home page.
-
-    Returns:
-        str: The HTML for the home page.
-    """
-    return render_template('index.html')
-
-@app.route('/my-all-data')
-def get_data():
-    """
-    Render the page displaying the last 100 simulated messages.
-
-    Returns:
-        str: The HTML for the simulated data visualization page.
-    """
-    return render_template('trainsensordatavisualization.html', messages=message_cache["simulate"])
-
-@app.route('/my-all-data-by-type')
-def get_data_by_type():
-    """
-    Render the page displaying simulated messages sorted by type.
-
-    Returns:
-        str: The HTML for the sorted simulated data visualization page.
-    """
-    sorted_data_by_type = sort_data_by_type(message_cache["simulate"])
-    return render_template('trainsensordatavisualization.html', messages=sorted_data_by_type)
-
-@app.route('/real-all-data')
-def get_all_real_data():
-    """
-    Render the page displaying the last 100 real messages.
-
-    Returns:
-        str: The HTML for the real data visualization page.
-    """
-    return render_template('realdatavisualization.html', messages=message_cache["real"])
-
-@app.route('/real-anomalies-data')
-def get_anomalies_real_data():
-    """
-    Render the page displaying the last 100 anomaly messages.
-
-    Returns:
-        str: The HTML for the anomaly data visualization page.
-    """
-    return render_template('realdatavisualization.html', messages=message_cache["anomalies"])
-
-@app.route('/real-normal-data')
-def get_normal_real_data():
-    """
-    Render the page displaying the last 100 normal messages.
-
-    Returns:
-        str: The HTML for the normal data visualization page.
-    """
-    return render_template('realdatavisualization.html', messages=message_cache["normal"])
-
-@app.route('/statistics')
-def get_statistics():
-    """
-    Render the statistics page with vehicle statistics.
-
-    Returns:
-        str: The HTML for the statistics page.
-    """
-    sorted_stats = {k: vehicle_stats_cache[k] for k in sorted(vehicle_stats_cache)}
-    return render_template('statistics.html', all_stats=sorted_stats)
 
 
 def order_by(param_name, default_value):
@@ -292,6 +222,103 @@ def sort_data_by_type(data_list):
 # Start a background thread to consume Kafka messages
 threading.Thread(target=kafka_consumer_thread, args=([TOPIC_NAME, *TOPIC_PATTERNS.values()], ), daemon=True).start()
 
-# Start the Flask web application
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+
+
+
+@hydra.main(config_path="../config", config_name="default", version_base="1.2")
+def create_app(cfg: DictConfig) -> None:
+    global logger
+
+    # Create a Flask app instance
+    app = Flask(__name__)
+
+    # Configure logging for detailed output
+    logger = logging.getLogger(DASHBOARD)
+    # Set the log level
+    logger.setLevel(cfg.logging_level.upper())
+
+    @app.route('/', methods=['GET'])
+    def home():
+        """
+        Render the home page.
+
+        Returns:
+            str: The HTML for the home page.
+        """
+        return render_template('index.html')
+
+
+    @app.route('/my-all-data')
+    def get_data():
+        """
+        Render the page displaying the last 100 simulated messages.
+
+        Returns:
+            str: The HTML for the simulated data visualization page.
+        """
+        return render_template('trainsensordatavisualization.html', messages=message_cache["simulate"])
+
+
+    @app.route('/my-all-data-by-type')
+    def get_data_by_type():
+        """
+        Render the page displaying simulated messages sorted by type.
+
+        Returns:
+            str: The HTML for the sorted simulated data visualization page.
+        """
+        sorted_data_by_type = sort_data_by_type(message_cache["simulate"])
+        return render_template('trainsensordatavisualization.html', messages=sorted_data_by_type)
+
+
+    @app.route('/real-all-data')
+    def get_all_real_data():
+        """
+        Render the page displaying the last 100 real messages.
+
+        Returns:
+            str: The HTML for the real data visualization page.
+        """
+        return render_template('realdatavisualization.html', messages=message_cache["real"])
+
+
+    @app.route('/real-anomalies-data')
+    def get_anomalies_real_data():
+        """
+        Render the page displaying the last 100 anomaly messages.
+
+        Returns:
+            str: The HTML for the anomaly data visualization page.
+        """
+        return render_template('realdatavisualization.html', messages=message_cache["anomalies"])
+
+
+    @app.route('/real-normal-data')
+    def get_normal_real_data():
+        """
+        Render the page displaying the last 100 normal messages.
+
+        Returns:
+            str: The HTML for the normal data visualization page.
+        """
+        return render_template('realdatavisualization.html', messages=message_cache["normal"])
+
+
+    @app.route('/statistics')
+    def get_statistics():
+        """
+        Render the statistics page with vehicle statistics.
+
+        Returns:
+            str: The HTML for the statistics page.
+        """
+        sorted_stats = {k: vehicle_stats_cache[k] for k in sorted(vehicle_stats_cache)}
+        return render_template('statistics.html', all_stats=sorted_stats)
+
+    app.run(host=cfg.dashboard.host, port=cfg.dashboard.port)
+
+
+
+if __name__ == "__main__":
+    create_app()
+    
