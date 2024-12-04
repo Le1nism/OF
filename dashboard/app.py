@@ -69,7 +69,7 @@ def deserialize_message(msg):
     try:
         # Decode the message value from bytes to string and parse JSON
         message_value = json.loads(msg.value().decode('utf-8'))
-        logger.info(f"Received message from topic {msg.topic()}: {message_value}")
+        logger.info(f"Received message from topic {msg.topic()}")
         return message_value
     except json.JSONDecodeError as e:
         logger.error(f"Error deserializing message: {e}")
@@ -103,7 +103,7 @@ def kafka_consumer_thread(topics):
             # Deserialize the message and process it
             deserialized_data = deserialize_message(msg)
             if deserialized_data:
-                logger.info(f"Processing message from topic {msg.topic()}: {deserialized_data}")
+                logger.info(f"Processing message from topic {msg.topic()}")
                 processing_message(msg.topic(), deserialized_data)
             else:
                 logger.warning("Deserialized message is None")
@@ -127,21 +127,18 @@ def processing_message(topic, msg):
     """
     try:
         if topic.endswith("_anomalies"):
-            logger.info(f"ANOMALIES ({topic}) - Deserialized message: {msg}")
+            logger.debug(f"ANOMALIES ({topic})")
             add_to_cache("anomalies", msg)
             add_to_cache("real", msg)
-            logger.info(f"DATA ({topic}) - {msg}")
         elif topic.endswith("_normal_data"):
-            logger.info(f"NORMAL DATA ({topic}) - Deserialized message: {msg}")
+            logger.debug(f"NORMAL DATA ({topic})")
             add_to_cache("normal", msg)
             add_to_cache("real", msg)
-            logger.info(f"DATA ({topic}) - {msg}")
         elif len(msg.keys()) == 5:
-            logger.info(f"5K ({topic}) - Deserialized message: {msg}")
+            logger.debug(f"5K ({topic})")
             add_to_cache("simulate", msg)
-            logger.info(f"DATA ({topic}) - {msg}")
         elif topic.endswith("_statistics"):
-            logger.info(f"STATISTICS ({topic}) - Deserialized message: {msg}")
+            logger.debug(f"STATISTICS ({topic})")
             process_stat_message(msg)
         else:
             logger.warning(f"Uncategorized message from topic {topic}: {msg}")
