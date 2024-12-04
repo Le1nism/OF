@@ -3,8 +3,18 @@ override: ""
 
 logging_level: info
 container_manager_port: 7777
-vehicle_names:
-  - tom
+
+default_vehicle_config:
+  kafka_broker: kafka:9092
+  mu_anomalies: 157
+  mu_normal: 117
+  alpha: 0.2
+  beta: 1.9
+
+
+vehicles:
+  - vehicle1
+
 
 dashboard:
   port: 5000

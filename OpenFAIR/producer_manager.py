@@ -1,18 +1,31 @@
 import threading
-
+import logging
 
 class ProducerManager:
 
-    def __init__(self, producers, PRODUCER_COMMAND="python produce.py"):
+    def __init__(self, cfg, producers, PRODUCER_COMMAND="python produce.py"):
+        self.logger = logging.getLogger("PRODUCER_MANAGER")
+        self.logging_level = cfg.logging_level.upper()
+        self.logger.setLevel(self.logging_level)
         self.producers = producers
         self.threads = {}
         self.producer_command = PRODUCER_COMMAND
 
 
-    def start_producer(self, producer_name, producer_container, vehicle_name):
+    def start_producer(self, producer_name, producer_container, vehicle_name, vehicle_config):
         def run_producer():
+
+            command_to_exec = self.producer_command + " --vehicle_name=" + vehicle_name + \
+                    " --container_name=" + vehicle_name + \
+                    "--kafka_broker=" + vehicle_config["kafka_broker"] + \
+                    " --mu_anomalies=" + str(vehicle_config["mu_anomalies"]) + \
+                    " --mu_normal=" + str(vehicle_config["mu_normal"]) + \
+                    " --alpha=" + str(vehicle_config["alpha"]) + \
+                    " --beta=" + str(vehicle_config["beta"]) + \
+                    " --logging_level=" + str(self.logging_level)
+            
             return_tuple = producer_container.exec_run(
-                self.producer_command + " --vehicle_name=" + vehicle_name,
+                command_to_exec,
                 stream=True, 
                 tty=True, 
                 stdin=True
