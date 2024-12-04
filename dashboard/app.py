@@ -13,8 +13,6 @@ DASHBOARD_NAME = "DASH"
 
 
 
-# Retrieve Kafka broker and topic information from environment variables
-KAFKA_BROKER = os.getenv('KAFKA_BROKER', 'localhost:19092')  # Default Kafka broker URL
 TOPIC_NAME = os.getenv('TOPIC_NAME', 'train-sensor-data')  # Default Kafka topic name
 VEHICLE_NAME = os.getenv('VEHICLE_NAME', 'e700_4801') # Default vehicle name
 
@@ -25,11 +23,6 @@ TOPIC_PATTERNS = {
     "statistics" : '^.*_statistics$' # Topics with statistics data
 }
 
-# Validate the required environment variables
-if not KAFKA_BROKER:
-    raise ValueError("Environment variable KAFKA_BROKER is missing.")
-if not TOPIC_NAME:
-    raise ValueError("Environment variable TOPIC_NAME is missing.")
 
 # Initialize caches to store incoming messages
 message_cache = {
@@ -45,12 +38,6 @@ vehicle_stats_cache={}
 # Maximum number of messages to store in the cache
 MAX_MESSAGES = 100  # Limit for the number of stored messages
 
-# Kafka consumer configuration
-KAFKA_CONSUMER_CONFIG = {
-    'bootstrap.servers': KAFKA_BROKER,  # Kafka broker URL
-    'group.id': 'kafka-consumer-group-1',  # Consumer group for offset management
-    'auto.offset.reset': 'earliest'  # Start reading messages from the beginning if no offset is present
-}
 
 
 def deserialize_message(msg):
@@ -72,7 +59,7 @@ def deserialize_message(msg):
         logger.error(f"Error deserializing message: {e}")
         return None
 
-def kafka_consumer_thread(topics):
+def kafka_consumer_thread(cfg, topics):
     """
     Background thread to consume messages from Kafka topics.
 
@@ -80,7 +67,12 @@ def kafka_consumer_thread(topics):
         topics (list): List of topics to subscribe to.
     """
     logger.info(f"Subscribing to topics: {topics}")
-    consumer = Consumer(KAFKA_CONSUMER_CONFIG)
+    consumer = Consumer(
+                        {'bootstrap.servers': cfg.dashboard.kafka_broker_url,  # Kafka broker URL
+                        'group.id': cfg.dashboard.kafka_consumer_group_id,  # Consumer group for offset management
+                        'auto.offset.reset': cfg.dashboard.kafka_auto_offset_reset  # Start reading messages from the beginning if no offset is present
+                        }
+                        )
     consumer.subscribe(topics)
 
     retry_delay = 1  # Initial delay in seconds
@@ -217,11 +209,13 @@ def sort_data_by_type(data_list):
 
 
 
-def start_consuming():
+def start_consuming(cfg):
     """
     Start consuming Kafka messages in a separate thread.
     """
-    thread = threading.Thread(target=kafka_consumer_thread, args=([TOPIC_NAME, *TOPIC_PATTERNS.values()], ))
+    thread = threading.Thread(
+        target=kafka_consumer_thread, 
+        args=(cfg,  [*TOPIC_PATTERNS.values()], ))
     thread.daemon = True
     thread.start()
 
@@ -239,7 +233,7 @@ def create_app(cfg: DictConfig) -> None:
     logger.setLevel(cfg.logging_level.upper())
 
     # Start consuming Kafka messages
-    start_consuming()
+    start_consuming(cfg)
 
     @app.route('/', methods=['GET'])
     def home():
