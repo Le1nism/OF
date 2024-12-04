@@ -10,7 +10,9 @@ from flask import Flask,  render_template, request
 from confluent_kafka import Consumer, KafkaError
 
 
-DASHBOARD = "DASH"
+global logger
+
+DASHBOARD_NAME = "DASH"
 
 
 
@@ -67,10 +69,10 @@ def deserialize_message(msg):
     try:
         # Decode the message value from bytes to string and parse JSON
         message_value = json.loads(msg.value().decode('utf-8'))
-        logging.info(f"Received message from topic {msg.topic()}: {message_value}")
+        logger.info(f"Received message from topic {msg.topic()}: {message_value}")
         return message_value
     except json.JSONDecodeError as e:
-        logging.error(f"Error deserializing message: {e}")
+        logger.error(f"Error deserializing message: {e}")
         return None
 
 def kafka_consumer_thread(topics):
@@ -80,7 +82,7 @@ def kafka_consumer_thread(topics):
     Args:
         topics (list): List of topics to subscribe to.
     """
-    logging.info(f"Subscribing to topics: {topics}")
+    logger.info(f"Subscribing to topics: {topics}")
     consumer = Consumer(KAFKA_CONSUMER_CONFIG)
     consumer.subscribe(topics)
 
@@ -93,23 +95,23 @@ def kafka_consumer_thread(topics):
                 continue
             if msg.error():
                 if msg.error().code() == KafkaError._PARTITION_EOF:
-                    logging.info(f"End of partition reached: {msg.error()}")
+                    logger.info(f"End of partition reached: {msg.error()}")
                 else:
-                    logging.error(f"Consumer error: {msg.error()}")
+                    logger.error(f"Consumer error: {msg.error()}")
                 continue
 
             # Deserialize the message and process it
             deserialized_data = deserialize_message(msg)
             if deserialized_data:
-                logging.info(f"Processing message from topic {msg.topic()}: {deserialized_data}")
+                logger.info(f"Processing message from topic {msg.topic()}: {deserialized_data}")
                 processing_message(msg.topic(), deserialized_data)
             else:
-                logging.warning("Deserialized message is None")
+                logger.warning("Deserialized message is None")
 
             retry_delay = 1  # Reset retry delay on success
     except Exception as e:
-        logging.error(f"Error while reading message: {e}")
-        logging.info(f"Retrying in {retry_delay} seconds...")
+        logger.error(f"Error while reading message: {e}")
+        logger.info(f"Retrying in {retry_delay} seconds...")
         time.sleep(retry_delay)
         retry_delay = min(retry_delay * 2, 60)  # Exponential backoff, max 60 seconds
     finally:
@@ -125,26 +127,26 @@ def processing_message(topic, msg):
     """
     try:
         if topic.endswith("_anomalies"):
-            logging.info(f"ANOMALIES ({topic}) - Deserialized message: {msg}")
+            logger.info(f"ANOMALIES ({topic}) - Deserialized message: {msg}")
             add_to_cache("anomalies", msg)
             add_to_cache("real", msg)
-            logging.info(f"DATA ({topic}) - {msg}")
+            logger.info(f"DATA ({topic}) - {msg}")
         elif topic.endswith("_normal_data"):
-            logging.info(f"NORMAL DATA ({topic}) - Deserialized message: {msg}")
+            logger.info(f"NORMAL DATA ({topic}) - Deserialized message: {msg}")
             add_to_cache("normal", msg)
             add_to_cache("real", msg)
-            logging.info(f"DATA ({topic}) - {msg}")
+            logger.info(f"DATA ({topic}) - {msg}")
         elif len(msg.keys()) == 5:
-            logging.info(f"5K ({topic}) - Deserialized message: {msg}")
+            logger.info(f"5K ({topic}) - Deserialized message: {msg}")
             add_to_cache("simulate", msg)
-            logging.info(f"DATA ({topic}) - {msg}")
+            logger.info(f"DATA ({topic}) - {msg}")
         elif topic.endswith("_statistics"):
-            logging.info(f"STATISTICS ({topic}) - Deserialized message: {msg}")
+            logger.info(f"STATISTICS ({topic}) - Deserialized message: {msg}")
             process_stat_message(msg)
         else:
-            logging.warning(f"Uncategorized message from topic {topic}: {msg}")
+            logger.warning(f"Uncategorized message from topic {topic}: {msg}")
     except Exception as e:
-        logging.error(f"Error processing message from topic {topic}: {e}")
+        logger.error(f"Error processing message from topic {topic}: {e}")
 
 def add_to_cache(cache_key, message):
     """
@@ -167,7 +169,7 @@ def process_stat_message(msg):
     """
     try:
         vehicle_name=msg.get("vehicle_name", "unknown_vehicle")
-        logging.info(f"Processing statistics for vehicle: {vehicle_name}")
+        logger.info(f"Processing statistics for vehicle: {vehicle_name}")
 
         # Initialize statistics for the vehicle if not already present
         if vehicle_name not in vehicle_stats_cache:
@@ -178,9 +180,9 @@ def process_stat_message(msg):
             previous_value = vehicle_stats_cache[vehicle_name][key]
             increment = msg.get(key, 0)
             vehicle_stats_cache[vehicle_name][key] += increment
-            logging.info(f"Updated {key} for {vehicle_name}: {previous_value} -> {vehicle_stats_cache[vehicle_name][key]}")
+            logger.info(f"Updated {key} for {vehicle_name}: {previous_value} -> {vehicle_stats_cache[vehicle_name][key]}")
     except Exception as e:
-        logging.error(f"Error while processing statistics: {e}")
+        logger.error(f"Error while processing statistics: {e}")
 
 
 
@@ -219,10 +221,15 @@ def sort_data_by_type(data_list):
     """
     return sorted(data_list, key=lambda x: x.get(order_by_type()))
 
-# Start a background thread to consume Kafka messages
-threading.Thread(target=kafka_consumer_thread, args=([TOPIC_NAME, *TOPIC_PATTERNS.values()], ), daemon=True).start()
 
 
+def start_consuming():
+    """
+    Start consuming Kafka messages in a separate thread.
+    """
+    thread = threading.Thread(target=kafka_consumer_thread, args=([TOPIC_NAME, *TOPIC_PATTERNS.values()], ))
+    thread.daemon = True
+    thread.start()
 
 
 @hydra.main(config_path="../config", config_name="default", version_base="1.2")
@@ -233,9 +240,12 @@ def create_app(cfg: DictConfig) -> None:
     app = Flask(__name__)
 
     # Configure logging for detailed output
-    logger = logging.getLogger(DASHBOARD)
+    logger = logging.getLogger(DASHBOARD_NAME)
     # Set the log level
     logger.setLevel(cfg.logging_level.upper())
+
+    # Start consuming Kafka messages
+    start_consuming()
 
     @app.route('/', methods=['GET'])
     def home():
