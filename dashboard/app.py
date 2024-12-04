@@ -5,12 +5,9 @@ import json
 import time
 from omegaconf import DictConfig, OmegaConf 
 import hydra
-
 from flask import Flask,  render_template, request
 from confluent_kafka import Consumer, KafkaError
 
-
-global logger
 
 DASHBOARD_NAME = "DASH"
 
