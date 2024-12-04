@@ -4,18 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <title>DataVisualizationOfTrainSensors</title>
+    <script src="{{ url_for('static', filename='/js/dashboard.js') }}"></script>
+    
+    <title>Open-FAIR Dashboard</title>
 </head>
 <body>
     <div class="containerForGroup">
-        <h1>TRAINS SENSORS DATA VISUALIZATION</h1>
+        <h1>Open-FAIR</h1>
         <nav>
-            <a href="/my-all-data">ALL DATA</a><br>
-            <a href="/my-all-data-by-type">SENSORS DATA DY TYPE</a><br>
-            <a href="/real-all-data">REAL ALL DATA</a><br>
-            <a href="/real-anomalies-data">REAL ANOMALIES DATA</a><br>
-            <a href="/real-normal-data">REAL NORMAL DATA</a><br>
-            <a href="/statistics">STATISTICS DATA</a><br>
+            <button id="produce-all">Start producers</button>
+        </nav>
+        <nav>
+            <a href="/real-all-data">Show latest messages</a><br>
+            <a href="/real-anomalies-data">Show latets anomaly messages</a><br>
+            <a href="/real-normal-data">Show latest diagnostics messages</a><br>
+            <a href="/statistics">Show latest training statistics</a><br>
         </nav>
     </div>
 </body>

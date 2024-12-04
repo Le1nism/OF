@@ -70,7 +70,6 @@ def create_app(cfg: DictConfig) -> None:
     message_consumer.readining_thread.start()
 
 
-
     @app.route('/', methods=['GET'])
     def home():
         """
@@ -82,10 +81,10 @@ def create_app(cfg: DictConfig) -> None:
         return render_template('index.html')
 
 
-    @app.route("/my-route", methods=["POST"])
+    @app.route("/produce-all", methods=["POST"])
     def my_function():
         # Code to be executed when button is pressed
-        return "Button pressed!"
+        return container_manager.produce_all()
 
     @app.route('/real-all-data')
     def get_all_real_data():
@@ -95,7 +94,7 @@ def create_app(cfg: DictConfig) -> None:
         Returns:
             str: The HTML for the real data visualization page.
         """
-        return render_template('realdatavisualization.html', messages=msg_cache["all"])
+        return render_template('realdatavisualization.html', messages=msg_cache.cache["all"])
 
 
     @app.route('/real-anomalies-data')
@@ -106,7 +105,7 @@ def create_app(cfg: DictConfig) -> None:
         Returns:
             str: The HTML for the anomaly data visualization page.
         """
-        return render_template('realdatavisualization.html', messages=msg_cache["anomalies"])
+        return render_template('realdatavisualization.html', messages=msg_cache.cache["anomalies"])
 
 
     @app.route('/real-normal-data')
@@ -117,7 +116,7 @@ def create_app(cfg: DictConfig) -> None:
         Returns:
             str: The HTML for the normal data visualization page.
         """
-        return render_template('realdatavisualization.html', messages=msg_cache["diagnostics"])
+        return render_template('realdatavisualization.html', messages=msg_cache.cache["diagnostics"])
 
 
     @app.route('/statistics')

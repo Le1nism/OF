@@ -8,7 +8,7 @@ class ContainerManager:
     def __init__(self, cfg):
         self.logger = logging.getLogger("CONTAINER_MANAGER")
         self.logger.setLevel(cfg.logging_level.upper())
-        
+        self.vehicle_names = cfg.vehicle_names
         # Connect to the Docker daemon
         self.client = docker.from_env()
         self.containers_dict = {}
@@ -39,3 +39,26 @@ class ContainerManager:
         self.producer_manager = ProducerManager(self.producers)
         self.consumer_manager = ConsumerManager(self.consumers)
             
+    
+    def produce_all(self):
+        # Start all producers
+        for producer_name, vehicle_name in zip(self.producers.keys(), self.vehicle_names):
+            self.producer_manager.start_producer(producer_name, self.producers[producer_name], vehicle_name)
+        return "All producers started!"
+
+
+    def stop_producing_all(self):
+        self.producer_manager.stop_all_producers()
+        return "All producers stopped!"
+
+
+    def consume_all(self):
+        # Start all consumers
+        for consumer_name, vehicle_name in zip(self.consumers.keys(), self.vehicle_names):
+            self.consumer_manager.start_producer(consumer_name, self.consumers[consumer_name], vehicle_name)
+        return "All consumers started!"
+
+
+    def stop_all_consumers(self):
+        self.consumer_manager.stop_all_consumers()
+        return "All consumers stopped!"
