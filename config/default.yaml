@@ -22,8 +22,9 @@ default_vehicle_config:
 
 
 vehicles:
-  - alice
-
+  - angela
+  - bob
+  - claude
 
 default_consumer_config:
   buffer_size: 100
