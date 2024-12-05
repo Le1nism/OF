@@ -3,6 +3,7 @@ override: ""
 
 logging_level: info
 container_manager_port: 7777
+kafka_topic_update_interval_secs: 30
 
 default_vehicle_config:
   kafka_broker: kafka:9092
@@ -30,4 +31,3 @@ dashboard:
   kafka_consumer_group_id: kafka-consumer-group-1
   kafka_auto_offset_reset: earliest
   message_cache_len: 100
-  kafka_resubscribe_interval_secs: 30

@@ -32,7 +32,7 @@ class KafkaMessageConsumer:
         self.consuming_thread.daemon = True
         
         # Thread for periodic resubscription
-        self.resubscribe_interval_seconds = cfg.dashboard.kafka_resubscribe_interval_secs
+        self.resubscribe_interval_seconds = cfg.kafka_topic_update_interval_secs
         self.resubscription_thread = threading.Thread(target=self._periodic_topic_update)
         self.resubscription_thread.daemon = True
 
