@@ -5,22 +5,11 @@ from OpenFAIR.consumer_manager import ConsumerManager
 from omegaconf import DictConfig
 
 
-class VehicleManager:
-    def __init__(self, cfg):
-        self.logger = logging.getLogger("VEHICLE_MANAGER")
-        self.logger.setLevel(cfg.logging_level.upper())
-        self.default_vehicle_config = cfg.default_vehicle_config
-        self.vehicle_names = cfg.vehicles
-        self.vehicle_configs = {}
-        for vehicle_name in self.vehicle_names:
-            self.vehicle_configs[vehicle_name] = self.default_vehicle_config
-
 class ContainerManager:
     
     def __init__(self, cfg):
         self.logger = logging.getLogger("CONTAINER_MANAGER")
         self.logger.setLevel(cfg.logging_level.upper())
-        self.vehicle_manager = VehicleManager(cfg)
         # Connect to the Docker daemon
         self.client = docker.from_env()
         self.containers_dict = {}
@@ -54,14 +43,7 @@ class ContainerManager:
             
     
     def produce_all(self):
-        # Start all producers
-        for producer_name, vehicle_name in zip(self.producers.keys(), self.vehicle_manager.vehicle_names):
-            self.producer_manager.start_producer(
-                producer_name,
-                self.producers[producer_name],
-                vehicle_name,
-                self.vehicle_manager.vehicle_configs[vehicle_name])
-        return "All producers started!"
+        return self.producer_manager.start_all_producers()
 
 
     def stop_producing_all(self):

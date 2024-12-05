@@ -10,8 +10,25 @@ class ProducerManager:
         self.producers = producers
         self.threads = {}
         self.producer_command = PRODUCER_COMMAND
+        self.default_vehicle_config = cfg.default_vehicle_config
+        self.vehicle_names = cfg.vehicles
+        self.vehicle_configs = {}
+        assert len(self.vehicle_names) == len(self.producers)
+        for vehicle_name in self.vehicle_names:
+            self.vehicle_configs[vehicle_name] = self.default_vehicle_config
 
 
+    def start_all_producers(self):
+        # Start all producers
+        for producer_name, vehicle_name in zip(self.producers.keys(), self.vehicle_names):
+            self.start_producer(
+                producer_name,
+                self.producers[producer_name],
+                vehicle_name,
+                self.vehicle_configs[vehicle_name])
+        return "All producers started!"
+    
+    
     def start_producer(self, producer_name, producer_container, vehicle_name, vehicle_config):
         def run_producer():
 
