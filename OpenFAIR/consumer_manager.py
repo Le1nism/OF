@@ -26,7 +26,7 @@ class ConsumerManager:
                 vehicle_name)
         return "All consumers started!"
     
-    
+
     def start_consumer(self, consumer_name, consumer_container, vehicle_name):
         def run_consumer():
 
@@ -34,7 +34,7 @@ class ConsumerManager:
 
             command_to_exec = self.consumer_command + " --vehicle_name=" + vehicle_name + \
                 " --container_name=" + vehicle_name + \
-                "--kafka_broker=" + consumer_config["kafka_broker"] + \
+                " --kafka_broker=" + consumer_config["kafka_broker"] + \
                 " --buffer_size=" + str(consumer_config["buffer_size"]) + \
                 " --batch_size=" + str(consumer_config["batch_size"]) + \
                 " --logging_level=" + str(self.logging_level)
