@@ -13,10 +13,20 @@ class ConsumerManager:
         self.default_consumer_config = cfg.default_consumer_config
         self.vehicle_names = cfg.vehicles
         self.consumer_configs = {}
+        assert len(self.vehicle_names) == len(self.consumers)
         for vehicle_name in self.vehicle_names:
             self.consumer_configs[vehicle_name] = self.default_consumer_config
 
-
+    def start_all_consumers(self):
+        # Start all consumers
+        for consumer_name, vehicle_name in zip(self.consumers.keys(), self.vehicle_names):
+            self.start_consumer(
+                consumer_name, 
+                self.consumers[consumer_name], 
+                vehicle_name)
+        return "All consumers started!"
+    
+    
     def start_consumer(self, consumer_name, consumer_container, vehicle_name):
         def run_consumer():
 
