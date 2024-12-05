@@ -5,6 +5,14 @@ logging_level: info
 container_manager_port: 7777
 kafka_topic_update_interval_secs: 30
 
+wandb:
+  online: true
+  project_name: OPEN_FAIR
+  run_name: My_awesomre_FAIR_run
+  kafka_broker_url: kafka:9092
+  kafka_consumer_group_id: WANDBER
+  kafka_auto_offset_reset: earliest
+
 default_vehicle_config:
   kafka_broker: kafka:9092
   mu_anomalies: 157

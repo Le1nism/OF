@@ -4,6 +4,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
   const consumeAllButton = document.getElementById("consume-all");
   const stopProduceAllButton = document.getElementById("stop-producing-all");
   const stopConsumeAllButton = document.getElementById("stop-consuming-all");
+  const startWandbButton = document.getElementById("start-wandb");
 
 
 
@@ -27,6 +28,12 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
   stopConsumeAllButton.addEventListener("click", function() {
       fetch("/stop-consuming-all", {method: "POST"})
+        .then(response => response.text())
+        .then(data => console.log(data));
+  });
+
+  startWandbButton.addEventListener("click", function() {
+      fetch("/start-wandb", {method: "POST"})
         .then(response => response.text())
         .then(data => console.log(data));
   });

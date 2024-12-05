@@ -3,6 +3,7 @@ import logging
 from OpenFAIR.producer_manager import ProducerManager
 from OpenFAIR.consumer_manager import ConsumerManager
 from omegaconf import DictConfig
+import threading
 
 
 class ContainerManager:
@@ -13,6 +14,9 @@ class ContainerManager:
         # Connect to the Docker daemon
         self.client = docker.from_env()
         self.containers_dict = {}
+        self.wandber = {
+            'container': None,
+            'thread': None}
         self.producers = {}
         self.consumers = {}
         self.containers_ips = {}
@@ -34,6 +38,8 @@ class ContainerManager:
                 self.producers[container_img_name] = container
             elif 'consumer' in container_img_name:
                 self.consumers[container_img_name] = container
+            elif 'wandber' in container_img_name:
+                self.wandber['container'] = container
             self.containers_dict[container_img_name] = container
             self.containers_ips[container_img_name] = container_ip 
         
@@ -58,3 +64,32 @@ class ContainerManager:
     def stop_consuming_all(self):
         self.consumer_manager.stop_all_consumers()
         return "All consumers stopped!"
+
+
+    def start_wandb(self, cfg):
+
+        start_command = f"python wandber.py " + \
+            f" --logging_level={cfg.logging_level} " + \
+            f" --project_name={cfg.wandb.project_name} " + \
+            f" --run_name={cfg.wandb.run_name} " + \
+            f" --kafka_broker_url={cfg.wandb.kafka_broker_url} " + \
+            f" --kafka_consumer_group_id={cfg.wandb.kafka_consumer_group_id} " + \
+            f" --kafka_auto_offset_reset={cfg.wandb.kafka_auto_offset_reset} " + \
+            f" --kafka_topic_update_interval_secs={cfg.kafka_topic_update_interval_secs}"
+                
+        if cfg.wandb.online:
+            start_command += " --online"
+        
+        def run_wandber(self):
+            return_tuple = self.wandber['container'].exec_run(
+                 start_command,
+                 tty=True,
+                 stream=True,
+                 stdin=True)
+            for line in return_tuple[1]:
+                print(line.decode().strip())
+        
+        thread = threading.Thread(target=run_wandber, args=(self,))
+        thread.start()
+        self.wandber['thread'] = thread
+        return "Wandber consumer started!"

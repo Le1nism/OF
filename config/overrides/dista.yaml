@@ -2,4 +2,4 @@ logging_level: debug
 kafka_topic_update_interval_secs: 10
 
 default_consumer_config:
-  batch_size: 2  
+  batch_size: 2

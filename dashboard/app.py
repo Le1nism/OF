@@ -100,6 +100,11 @@ def create_app(cfg: DictConfig) -> None:
         return container_manager.stop_consuming_all()
 
 
+    @app.route('/start-wandb', methods=['POST'])
+    def start_wandb():
+        return container_manager.start_wandb(cfg)
+
+
     @app.route('/real-all-data')
     def get_all_real_data():
         """
@@ -144,8 +149,9 @@ def create_app(cfg: DictConfig) -> None:
         sorted_stats = {k: metrics_logger.metrics[k] for k in sorted(metrics_logger.metrics)}
         return render_template('statistics.html', all_stats=sorted_stats)
 
-    app.run(host=cfg.dashboard.host, port=cfg.dashboard.port)
 
+    # Run the Flask app
+    app.run(host=cfg.dashboard.host, port=cfg.dashboard.port)
 
 
 if __name__ == "__main__":
