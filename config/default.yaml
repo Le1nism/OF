@@ -16,6 +16,13 @@ vehicles:
   - vehicle1
 
 
+default_consumer_config:
+  buffer_size: 100
+  batch_size: 32
+  kafka_broker: kafka:9092
+  kafka_auto_offset_reset: earliest
+
+
 dashboard:
   port: 5000
   host: 0.0.0.0

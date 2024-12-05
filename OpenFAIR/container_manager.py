@@ -50,7 +50,7 @@ class ContainerManager:
         
 
         self.producer_manager = ProducerManager(self.cfg, self.producers)
-        self.consumer_manager = ConsumerManager(self.consumers)
+        self.consumer_manager = ConsumerManager(self.cfg, self.consumers)
             
     
     def produce_all(self):
@@ -72,7 +72,10 @@ class ContainerManager:
     def consume_all(self):
         # Start all consumers
         for consumer_name, vehicle_name in zip(self.consumers.keys(), self.vehicle_manager.vehicle_names):
-            self.consumer_manager.start_consumer(consumer_name, self.consumers[consumer_name], vehicle_name)
+            self.consumer_manager.start_consumer(
+                consumer_name, 
+                self.consumers[consumer_name], 
+                vehicle_name)
         return "All consumers started!"
 
 

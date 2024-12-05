@@ -1,16 +1,34 @@
 import threading
-
+import logging
 
 class ConsumerManager:
 
-    def __init__(self, consumers, CONSUMER_COMMAND="python consume.py"):
+    def __init__(self, cfg, consumers, CONSUMER_COMMAND="python consume.py"):
         self.consumers = consumers
         self.threads = {}
         self.consumer_command = CONSUMER_COMMAND
+        self.logger = logging.getLogger("CONSUMER_MANAGER")
+        self.logging_level = cfg.logging_level.upper()
+        self.logger.setLevel(self.logging_level)
+        self.default_consumer_config = cfg.default_consumer_config
+        self.vehicle_names = cfg.vehicles
+        self.consumer_configs = {}
+        for vehicle_name in self.vehicle_names:
+            self.consumer_configs[vehicle_name] = self.default_consumer_config
 
 
     def start_consumer(self, consumer_name, consumer_container, vehicle_name):
         def run_consumer():
+
+            consumer_config = self.consumer_configs[vehicle_name]
+
+            command_to_exec = self.consumer_command + " --vehicle_name=" + vehicle_name + \
+                " --container_name=" + vehicle_name + \
+                "--kafka_broker=" + consumer_config["kafka_broker"] + \
+                " --buffer_size=" + str(consumer_config["buffer_size"]) + \
+                " --batch_size=" + str(consumer_config["batch_size"]) + \
+                " --logging_level=" + str(self.logging_level)
+
             return_tuple = consumer_container.exec_run(
                 self.consumer_command + " --vehicle_name=" + vehicle_name, 
                 stream=True, 
@@ -23,7 +41,7 @@ class ConsumerManager:
         thread = threading.Thread(target=run_consumer, name=consumer_name)
         thread.start()
         self.threads[consumer_name] = thread
-        print(f"Started consumer from {consumer_name}")
+        self.logger.debug(f"Started consumer from {consumer_name}")
 
 
     def stop_consumer(self, consumer_name):

@@ -36,7 +36,7 @@ class ProducerManager:
         thread = threading.Thread(target=run_producer, name=producer_name)
         thread.start()
         self.threads[producer_name] = thread
-        print(f"Started producer from {producer_name}")
+        self.logger.debug(f"Started producer from {producer_name}")
 
 
     def stop_producer(self, producer_name):
