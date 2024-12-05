@@ -1,4 +1,3 @@
-import logging
 from omegaconf import DictConfig, OmegaConf 
 import hydra
 from flask import Flask,  render_template
@@ -104,6 +103,10 @@ def create_app(cfg: DictConfig) -> None:
     def start_wandb():
         return container_manager.start_wandb(cfg)
 
+
+    @app.route('/stop-wandb', methods=['POST'])
+    def stop_wandb():
+        return container_manager.stop_wandb()
 
     @app.route('/real-all-data')
     def get_all_real_data():

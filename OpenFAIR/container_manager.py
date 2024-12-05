@@ -6,6 +6,7 @@ from omegaconf import DictConfig
 import threading
 
 
+WANDBER_COMMAND = "python wandber.py"
 class ContainerManager:
     
     def __init__(self, cfg):
@@ -65,6 +66,24 @@ class ContainerManager:
         self.consumer_manager.stop_all_consumers()
         return "All consumers stopped!"
 
+
+    def stop_wandb(self):
+        self.wandber['container']
+        try:
+            # Try to find and kill the process
+            pid_result = self.wandber['container'].exec_run(f"pgrep -f '{WANDBER_COMMAND}'")
+            pid = pid_result[1].decode().strip()
+            
+            if pid:
+                self.wandber['container'].exec_run(f"kill -SIGINT {pid}")
+                self.logger.info(f"Stopped wandber")
+                return "Wandber stopped!"
+            else:
+                self.logger.info(f"No running process found for wandber")
+                return "No running process found for wandber"
+        except Exception as e:
+            self.logger.error(f"Error stopping wandber: {e}")
+            return "Error stopping wandber"
 
     def start_wandb(self, cfg):
 

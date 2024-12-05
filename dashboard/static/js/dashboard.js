@@ -5,7 +5,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
   const stopProduceAllButton = document.getElementById("stop-producing-all");
   const stopConsumeAllButton = document.getElementById("stop-consuming-all");
   const startWandbButton = document.getElementById("start-wandb");
-
+  const stopWandbButton = document.getElementById("stop-wandb");
 
 
   produceAllButton.addEventListener("click", function() {
@@ -34,6 +34,12 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
   startWandbButton.addEventListener("click", function() {
       fetch("/start-wandb", {method: "POST"})
+        .then(response => response.text())
+        .then(data => console.log(data));
+  });
+
+  stopWandbButton.addEventListener("click", function() {
+      fetch("/stop-wandb", {method: "POST"})
         .then(response => response.text())
         .then(data => console.log(data));
   });
