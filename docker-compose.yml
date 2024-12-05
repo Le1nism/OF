@@ -46,26 +46,6 @@ services:
       retries: 5  # Retry count before reporting the container as unhealthy
 
   
-  # Flask application as Kafka consumer
-  # dashboard:
-  #   build:
-  #     context: ./dashboard  # Path to the consumer's Dockerfile
-  #     dockerfile: Dockerfile  # Specify the Dockerfile for building the image
-  #   container_name: dashboard  # Container name for easier identification
-  #   hostname: dashboard  # Hostname for internal communication
-  #   environment:
-  #     KAFKA_BROKER: 'kafka:9092'  # Kafka broker address for the consumer to connect to
-  #     TOPIC_NAME: 'train-sensor-data'  # Kafka topic to consume sensor data
-  #     WANDB_API_KEY: ${WANDB_API_KEY}
-  #   ports:
-  #     - "5000:5000"  # Expose Flask's port for external access
-  #   depends_on:
-  #     - kafka  # Ensure the consumer starts only after Kafka is running
-  #   networks:
-  #     - trains_network  # Connect the consumer to the custom Docker network
-  #   # entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "flask run"]  # Wait for Kafka to start before executing the Flask server
-  #   command: ["tail", "-f", "/dev/null"]
-
   # Producer and Consumer pairs for the first vehicles
   producer:
     build:
@@ -73,8 +53,6 @@ services:
       dockerfile: Dockerfile  # Specify the Dockerfile for building the image
     container_name: producer  # Container name for easier identification
     hostname: producer  # Hostname for internal communication
-    environment:
-      WANDB_API_KEY: ${WANDB_API_KEY}
     depends_on:
       - kafka  # Ensure this producer starts only after Kafka is running
     networks:
@@ -105,10 +83,6 @@ services:
       dockerfile: Dockerfile  # Specify the Dockerfile for building the image
     container_name: consumer  # Container name for easier identification
     hostname: consumer  # Hostname for internal communication
-    environment:
-      KAFKA_BROKER: 'kafka:9092'  # Kafka broker address
-      VEHICLE_NAME: ${VEHICLE_NAME}
-      WANDB_API_KEY: ${WANDB_API_KEY}
     depends_on:
       - kafka  # Ensure this consumer starts only after Kafka is running
     networks:
