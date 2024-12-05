@@ -4,3 +4,6 @@
 [submodule "consumer"]
 	path = consumer
 	url = https://github.com/DIETI-DISTA-IoT/Train_IoT_local_anomaly_detection
+[submodule "wandber"]
+	path = wandber
+	url = https://github.com/DIETI-DISTA-IoT/Wandber
