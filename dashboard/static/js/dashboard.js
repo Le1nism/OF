@@ -6,6 +6,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
   const stopConsumeAllButton = document.getElementById("stop-consuming-all");
   const startWandbButton = document.getElementById("start-wandb");
   const stopWandbButton = document.getElementById("stop-wandb");
+  const createVehiclesButton = document.getElementById("create-vehicles");
+  const deleteVehiclesButton = document.getElementById("delete-vehicles");
 
 
   produceAllButton.addEventListener("click", function() {
@@ -40,6 +42,18 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
   stopWandbButton.addEventListener("click", function() {
       fetch("/stop-wandb", {method: "POST"})
+        .then(response => response.text())
+        .then(data => console.log(data));
+  });
+
+  createVehiclesButton.addEventListener("click", function() {
+      fetch("/create-vehicles", {method: "POST"})
+        .then(response => response.text())
+        .then(data => console.log(data));
+  });
+
+  deleteVehiclesButton.addEventListener("click", function() {
+      fetch("/delete-vehicles", {method: "POST"})
         .then(response => response.text())
         .then(data => console.log(data));
   });

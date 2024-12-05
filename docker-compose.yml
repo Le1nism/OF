@@ -45,21 +45,6 @@ services:
       timeout: 5s  # Maximum time to wait for the health check
       retries: 5  # Retry count before reporting the container as unhealthy
 
-  
-  # Producer and Consumer pairs for the first vehicles
-  producer:
-    build:
-      context: ./producer  # Path to the producer's Dockerfile
-      dockerfile: Dockerfile  # Specify the Dockerfile for building the image
-    container_name: producer  # Container name for easier identification
-    hostname: producer  # Hostname for internal communication
-    depends_on:
-      - kafka  # Ensure this producer starts only after Kafka is running
-    networks:
-      - trains_network  # Connect the producer to the custom Docker network
-    # entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python produce.py"]  # Wait for Kafka before running the script
-    command: ["tail", "-f", "/dev/null"]
-
 
   wandber:
     build:
@@ -77,16 +62,30 @@ services:
     command: ["tail", "-f", "/dev/null"]
 
 
-  consumer:
-    build:
-      context: ./consumer  # Path to the consumer's Dockerfile
-      dockerfile: Dockerfile  # Specify the Dockerfile for building the image
-    container_name: consumer  # Container name for easier identification
-    hostname: consumer  # Hostname for internal communication
-    depends_on:
-      - kafka  # Ensure this consumer starts only after Kafka is running
-    networks:
-      - trains_network  # Connect the consumer to the custom Docker network
-    # entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python consume.py"]  # Wait for Kafka before running the script
-    command: ["tail", "-f", "/dev/null"]
+  # producer:
+  #   build:
+  #     context: ./producer  # Path to the producer's Dockerfile
+  #     dockerfile: Dockerfile  # Specify the Dockerfile for building the image
+  #   container_name: producer  # Container name for easier identification
+  #   hostname: producer  # Hostname for internal communication
+  #   depends_on:
+  #     - kafka  # Ensure this producer starts only after Kafka is running
+  #   networks:
+  #     - trains_network  # Connect the producer to the custom Docker network
+  #   # entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python produce.py"]  # Wait for Kafka before running the script
+  #   command: ["tail", "-f", "/dev/null"]
+
+
+  # consumer:
+  #   build:
+  #     context: ./consumer  # Path to the consumer's Dockerfile
+  #     dockerfile: Dockerfile  # Specify the Dockerfile for building the image
+  #   container_name: consumer  # Container name for easier identification
+  #   hostname: consumer  # Hostname for internal communication
+  #   depends_on:
+  #     - kafka  # Ensure this consumer starts only after Kafka is running
+  #   networks:
+  #     - trains_network  # Connect the consumer to the custom Docker network
+  #   # entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python consume.py"]  # Wait for Kafka before running the script
+  #   command: ["tail", "-f", "/dev/null"]
 

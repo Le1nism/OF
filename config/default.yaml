@@ -22,7 +22,7 @@ default_vehicle_config:
 
 
 vehicles:
-  - vehicle1
+  - alice
 
 
 default_consumer_config:

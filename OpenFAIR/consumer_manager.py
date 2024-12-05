@@ -13,7 +13,6 @@ class ConsumerManager:
         self.default_consumer_config = cfg.default_consumer_config
         self.vehicle_names = cfg.vehicles
         self.consumer_configs = {}
-        assert len(self.vehicle_names) == len(self.consumers)
         for vehicle_name in self.vehicle_names:
             self.consumer_configs[vehicle_name] = self.default_consumer_config
 

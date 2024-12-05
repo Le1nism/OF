@@ -13,7 +13,6 @@ class ProducerManager:
         self.default_vehicle_config = cfg.default_vehicle_config
         self.vehicle_names = cfg.vehicles
         self.vehicle_configs = {}
-        assert len(self.vehicle_names) == len(self.producers)
         for vehicle_name in self.vehicle_names:
             self.vehicle_configs[vehicle_name] = self.default_vehicle_config
 

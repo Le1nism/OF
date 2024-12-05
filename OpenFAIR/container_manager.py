@@ -4,6 +4,7 @@ from OpenFAIR.producer_manager import ProducerManager
 from OpenFAIR.consumer_manager import ConsumerManager
 from omegaconf import DictConfig
 import threading
+import subprocess
 
 
 WANDBER_COMMAND = "python wandber.py"
@@ -14,7 +15,6 @@ class ContainerManager:
         self.logger.setLevel(cfg.logging_level.upper())
         # Connect to the Docker daemon
         self.client = docker.from_env()
-        self.containers_dict = {}
         self.wandber = {
             'container': None,
             'thread': None}
@@ -26,23 +26,66 @@ class ContainerManager:
         self.refresh_containers()
 
 
+    def create_vehicles(self):
+
+        for vehicle_name in self.cfg.vehicles:
+            self.launch_producer(vehicle_name)
+            self.launch_consumer(vehicle_name)
+
+        self.refresh_containers()
+        return "Vehicles created!"
+
+
+    def delete_vehicles(self):
+        for producer in self.producers.values():
+            producer.stop()
+            producer.remove()
+        for consumer in self.consumers.values():
+            consumer.stop()
+            consumer.remove()
+        return "Vehicles deleted!"
+
+
+    def launch_producer(self, vehicle_name):
+        container_name = f"{vehicle_name}_producer"
+        cmd = [
+            "docker", "run", "-d",
+            "--name", container_name,
+            "--network", "open_fair_trains_network",
+            "open_fair-producer",
+            "tail", "-f", "/dev/null"
+        ]
+        subprocess.run(cmd)
+        
+
+
+    def launch_consumer(self, vehicle_name):
+        container_name = f"{vehicle_name}_consumer"
+        cmd = [
+            "docker", "run", "-d",
+            "--name", container_name,
+            "--network", "open_fair_trains_network",
+            "open_fair-consumer",
+            "tail", "-f", "/dev/null"
+        ]
+        subprocess.run(cmd)
+
+
     def refresh_containers(self):     
 
         for container in self.client.containers.list():
             container_info = self.client.api.inspect_container(container.id)
             # Extract the IP address of the container from its network settings
-            container_info_str = container_info['Config']['Hostname']
-            container_img_name = container_info_str.split('(')[0]
+            container_img_name = container_info['Config']['Image']
             container_ip = container_info['NetworkSettings']['Networks']['open_fair_trains_network']['IPAddress']
-            self.logger.info(f'{container_img_name} is {container.name} with ip {container_ip}')
+            self.logger.info(f'Found {container.name} container with ip {container_ip}')
             if 'producer' in container_img_name:
-                self.producers[container_img_name] = container
-            elif 'consumer' in container_img_name:
-                self.consumers[container_img_name] = container
-            elif 'wandber' in container_img_name:
+                self.producers[container.name] = container
+            elif 'consumer' in container.name:
+                self.consumers[container.name] = container
+            elif 'wandber' in container.name:
                 self.wandber['container'] = container
-            self.containers_dict[container_img_name] = container
-            self.containers_ips[container_img_name] = container_ip 
+            self.containers_ips[container.name] = container_ip 
         
 
         self.producer_manager = ProducerManager(self.cfg, self.producers)

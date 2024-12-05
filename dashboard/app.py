@@ -104,6 +104,16 @@ def create_app(cfg: DictConfig) -> None:
         return container_manager.start_wandb(cfg)
 
 
+    @app.route('/create-vehicles', methods=['POST'])
+    def create_vehicles():
+        return container_manager.create_vehicles()
+    
+
+    @app.route('/delete-vehicles', methods=['POST'])
+    def delete_vehicles():
+        return container_manager.delete_vehicles()
+    
+
     @app.route('/stop-wandb', methods=['POST'])
     def stop_wandb():
         return container_manager.stop_wandb()
