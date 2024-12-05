@@ -2,3 +2,6 @@ logging_level: debug
 
 default_consumer_config:
   batch_size: 2
+
+dashboard:
+  kafka_resubscribe_interval_secs: 10

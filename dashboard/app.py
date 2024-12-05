@@ -66,7 +66,7 @@ def create_app(cfg: DictConfig) -> None:
 
     # Create a MessageConsumer instance
     message_consumer = KafkaMessageConsumer(parent=app, cfg=cfg)
-    message_consumer.readining_thread.start()
+    message_consumer.start()
 
 
     @app.route('/', methods=['GET'])

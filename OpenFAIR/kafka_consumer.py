@@ -13,24 +13,75 @@ topics_dict = {
 
 class KafkaMessageConsumer:
     def __init__(self, parent, cfg):
-
+        
+        # controls the resubscription thread
+        self.is_running = True
+        self.current_topics = set()
         self.parent = parent
         self.retry_delay = 1
 
         configs = {'bootstrap.servers': cfg.dashboard.kafka_broker_url,  # Kafka broker URL
                         'group.id': cfg.dashboard.kafka_consumer_group_id,  # Consumer group for offset management
-                        'auto.offset.reset': cfg.dashboard.kafka_auto_offset_reset  # Start reading messages from the beginning if no offset is present
+                        'auto.offset.reset': cfg.dashboard.kafka_auto_offset_reset,  # Start reading messages from the beginning if no offset is present
+                        'allow.auto.create.topics': 'true'
                         }
         self.consumer = Consumer(configs)
-        self.resubscribe()
-        self.readining_thread = threading.Thread(target=self.read_messages)
-        self.readining_thread.daemon = True
+        self.subscribe()
+        self.topic_update()
+        self.consuming_thread = threading.Thread(target=self.read_messages)
+        self.consuming_thread.daemon = True
         
+        # Thread for periodic resubscription
+        self.resubscribe_interval_seconds = cfg.dashboard.kafka_resubscribe_interval_secs
+        self.resubscription_thread = threading.Thread(target=self._periodic_topic_update)
+        self.resubscription_thread.daemon = True
 
-    def resubscribe(self):
+
+    def start(self):
+        """
+        Start both reading and resubscription threads
+        """
+        self.consuming_thread.start()
+        self.resubscription_thread.start()
+
+
+
+    def stop(self):
+        """
+        Gracefully stop the consumer and its threads
+        """
+        self.is_running = False
+        self.consumer.close()
+        
+        # Wait for threads to finish
+        self.consuming_thread.join()
+        self.resubscription_thread.join()
+
+
+    def _periodic_topic_update(self):
+        """
+        Periodically Kafka topics update.
+        This method runs in a separate thread.
+        """
+        while self.is_running:
+            try:
+                # Wait for a certain interval before resubscribing
+                time.sleep(self.resubscribe_interval_seconds)
+                self.topic_update()
+            except Exception as e:
+                self.parent.logger.error(f"Error in periodic resubscription: {e}")
+
+
+    def subscribe(self):
         self.consumer.subscribe(list(topics_dict.values()))
-        self.parent.logger.debug(f"Started consuming messages from topics: {list(topics_dict.values())}")
-
+        self.parent.logger.debug(f"(Re)Started consuming messages from topics: {list(topics_dict.values())}")
+        
+        
+    def topic_update(self):
+        available_topics = set(self.consumer.list_topics().topics.keys())
+        new_topics = available_topics - self.current_topics
+        self.current_topics = available_topics
+        self.parent.logger.debug(f"New topics: {list(new_topics)}; Number of available topics: {len(self.current_topics)}")
 
     def deserialize_message(self, msg):
         try:
