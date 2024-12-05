@@ -23,7 +23,7 @@ class KafkaMessageConsumer:
         configs = {'bootstrap.servers': cfg.dashboard.kafka_broker_url,  # Kafka broker URL
                         'group.id': cfg.dashboard.kafka_consumer_group_id,  # Consumer group for offset management
                         'auto.offset.reset': cfg.dashboard.kafka_auto_offset_reset,  # Start reading messages from the beginning if no offset is present
-                        'allow.auto.create.topics': 'true'
+                        'allow.auto.create.topics': 'true'  # crucial for topic updating
                         }
         self.consumer = Consumer(configs)
         self.subscribe()
@@ -43,7 +43,6 @@ class KafkaMessageConsumer:
         """
         self.consuming_thread.start()
         self.resubscription_thread.start()
-
 
 
     def stop(self):
