@@ -5,7 +5,7 @@ from flask import Flask,  render_template
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from OpenFAIR import MessageCache, MetricsLogger, MessageConsumer, ContainerManager
+from OpenFAIR import MessageCache, MetricsLogger, KafkaMessageConsumer, ContainerManager
 
 
 DASHBOARD_NAME = "DASH"
@@ -21,25 +21,25 @@ def processing_message(topic, msg):
     """
     try:
         if topic.endswith("_anomalies"):
-            logger.debug(f"ANOMALIES ({topic})")
+            app.logger.debug(f"ANOMALIES ({topic})")
             msg_cache.add("anomalies", msg)
             msg_cache.add("all", msg)
         elif topic.endswith("_normal_data"):
-            logger.debug(f"DIAGNOSTICS ({topic})")
+            app.logger.debug(f"DIAGNOSTICS ({topic})")
             msg_cache.add("diagnostics", msg)
             msg_cache.add("all", msg)
         elif topic.endswith("_statistics"):
-            logger.debug(f"STATISTICS ({topic})")
+            app.logger.debug(f"STATISTICS ({topic})")
             metrics_logger.process_stat_message(msg)
         else:
-            logger.warning(f"Uncategorized message from topic {topic}: {msg}")
+            app.logger.warning(f"Uncategorized message from topic {topic}: {msg}")
     except Exception as e:
-        logger.error(f"Error processing message from topic {topic}: {e}")
+        app.logger.error(f"Error processing message from topic {topic}: {e}")
 
 
 @hydra.main(config_path="../config", config_name="default", version_base="1.2")
 def create_app(cfg: DictConfig) -> None:
-    global logger, message_cache_len, msg_cache, metrics_logger, message_consumer
+    global app, msg_cache, metrics_logger
 
     if cfg.override != "":
         try:
@@ -52,21 +52,20 @@ def create_app(cfg: DictConfig) -> None:
 
     msg_cache = MessageCache(cfg.dashboard.message_cache_len)
     metrics_logger = MetricsLogger(cfg)
-    
-    # Create a Flask app instance
-    app = Flask(__name__)
-    # associate processing message rountine:
-    app.process_message_routine = processing_message
 
-    # Configure logging for detailed output
-    logger = logging.getLogger(DASHBOARD_NAME)
-    logger.setLevel(cfg.logging_level.upper())
+    # Create a Flask app instance
+    # associate processing message routine and logger:
+    app = Flask(__name__)
+    app.process_message_routine = processing_message
+    app.logger.name = DASHBOARD_NAME
+    app.logger.setLevel(cfg.logging_level.upper())
+
 
     # Create a ConainerManager instance
     container_manager = ContainerManager(cfg)
 
     # Create a MessageConsumer instance
-    message_consumer = MessageConsumer(parent=app, cfg=cfg)
+    message_consumer = KafkaMessageConsumer(parent=app, cfg=cfg)
     message_consumer.readining_thread.start()
 
 
