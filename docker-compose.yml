@@ -71,13 +71,10 @@ services:
     build:
       context: ./producer  # Path to the producer's Dockerfile
       dockerfile: Dockerfile  # Specify the Dockerfile for building the image
-    container_name: producer_1  # Container name for easier identification
-    hostname: producer_1  # Hostname for internal communication
+    container_name: producer  # Container name for easier identification
+    hostname: producer  # Hostname for internal communication
     environment:
-      KAFKA_BROKER: 'kafka:9092'  # Kafka broker address
-      VEHICLE_NAME: ${VEHICLE_NAME}  # Pass dynamic VEHICLE_NAME
       WANDB_API_KEY: ${WANDB_API_KEY}
-
     depends_on:
       - kafka  # Ensure this producer starts only after Kafka is running
     networks:
@@ -85,12 +82,29 @@ services:
     # entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python produce.py"]  # Wait for Kafka before running the script
     command: ["tail", "-f", "/dev/null"]
 
+
+  wandber:
+    build:
+      context: ./wandber  # Path to the producer's Dockerfile
+      dockerfile: Dockerfile  # Specify the Dockerfile for building the image
+    container_name: wandber  # Container name for easier identification
+    hostname: wandber  # Hostname for internal communication
+    environment:
+      WANDB_API_KEY: ${WANDB_API_KEY}
+    depends_on:
+      - kafka  # Ensure this producer starts only after Kafka is running
+    networks:
+      - trains_network  # Connect the producer to the custom Docker network
+    # entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python produce.py"]  # Wait for Kafka before running the script
+    command: ["tail", "-f", "/dev/null"]
+
+
   consumer:
     build:
       context: ./consumer  # Path to the consumer's Dockerfile
       dockerfile: Dockerfile  # Specify the Dockerfile for building the image
-    container_name: consumer_1  # Container name for easier identification
-    hostname: consumer_1  # Hostname for internal communication
+    container_name: consumer  # Container name for easier identification
+    hostname: consumer  # Hostname for internal communication
     environment:
       KAFKA_BROKER: 'kafka:9092'  # Kafka broker address
       VEHICLE_NAME: ${VEHICLE_NAME}
