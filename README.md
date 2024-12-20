@@ -37,7 +37,7 @@ You may want to create a virtual environment before installing python libraries:
 
 
    ```bash
-   python3 -m venv .venv
+   python3 -m venv <name-of-the-venv>
    ```
 
 Activate the virtual environment. The command to activate the virtual environment depends on your operating system:
@@ -60,11 +60,11 @@ Once the virtual environment is activated, you can install packages and run Pyth
 
 ### Launching:
 
-If you are using just one consumer and producer, then use `docker compose up` to start the whole cluster. Otherwise, start launching only the kafka and zookeeper
+Use `docker compose up` to start the whole cluster. Otherwise, start launching only the kafka and zookeeper
 
-    docker-compose up -d zookeeper kafka dashboard
+    docker-compose up -d
 
-For using the wandb logging dashboard, you should have a file called .env in the project's root folder containing your wandb api key under the WANDB_API_KEY voice:
+**IMPORTANT** For using the wandb logging dashboard, you should have a file called .env in the project's root folder containing your wandb api key under the WANDB_API_KEY voice:
 
 ```.env file
 # .env file content:
