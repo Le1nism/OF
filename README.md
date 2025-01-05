@@ -58,6 +58,10 @@ Once the virtual environment is activated, you can install packages and run Pyth
 
     pip install -r requirements.txt
 
+## Building vehicle images and dashboard:
+
+Use `make all` to build the producer, consumer and dashboard docker images. 
+
 ### Launching:
 
 Use `docker compose up` to start the whole cluster. Otherwise, start launching only the kafka and zookeeper
