@@ -22,13 +22,17 @@ class ContainerManager:
         self.consumers = {}
         self.containers_ips = {}
         self.cfg = cfg
+        self.vehicle_names = []
+        for vehicle in cfg.vehicles:
+            vehicle_name = list(vehicle.keys())[0]
+            self.vehicle_names.append(vehicle_name) 
 
         self.refresh_containers()
 
 
     def create_vehicles(self):
 
-        for vehicle_name in self.cfg.vehicles:
+        for vehicle_name in self.vehicle_names:
             self.launch_producer(vehicle_name)
             self.launch_consumer(vehicle_name)
 

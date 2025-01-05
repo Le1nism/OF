@@ -19,12 +19,50 @@ default_vehicle_config:
   mu_normal: 117
   alpha: 0.2
   beta: 1.9
+  anomaly_classes: all
+  diagnostics_classes: all
 
 
 vehicles:
-  - angela
-  - bob
-  - claude
+  - angela:
+      anomaly_classes: 
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+      diagnostics_classes:
+        - 0
+        - 1 
+        - 2
+        - 3
+        - 4
+  - bob:
+      anomaly_classes:
+        - 5
+        - 6
+        - 7
+        - 8
+        - 9
+      diagnostics_classes:
+        - 5
+        - 6
+        - 7
+        - 8
+        - 9
+  - claude:
+      anomaly_classes:
+        - 10
+        - 11
+        - 12
+        - 13
+        - 14
+      diagnostics_classes:
+        - 10
+        - 11
+        - 12
+        - 13
+        - 14
 
 default_consumer_config:
   buffer_size: 100

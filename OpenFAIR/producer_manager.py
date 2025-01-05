@@ -11,10 +11,17 @@ class ProducerManager:
         self.threads = {}
         self.producer_command = PRODUCER_COMMAND
         self.default_vehicle_config = cfg.default_vehicle_config
-        self.vehicle_names = cfg.vehicles
+        self.vehicle_names = []
         self.vehicle_configs = {}
-        for vehicle_name in self.vehicle_names:
-            self.vehicle_configs[vehicle_name] = self.default_vehicle_config
+        for vehicle in cfg.vehicles:
+            vehicle_name = list(vehicle.keys())[0]
+            self.vehicle_names.append(vehicle_name)    
+            self.vehicle_configs[vehicle_name] = self.default_vehicle_config.copy()
+            self.vehicle_configs[vehicle_name].update(vehicle[vehicle_name])
+            if self.vehicle_configs[vehicle_name]["anomaly_classes"] == "all":
+                self.vehicle_configs[vehicle_name]["anomaly_classes"] = list(range(1, 15))
+            if self.vehicle_configs[vehicle_name]["diagnostics_classes"] == "all":
+                self.vehicle_configs[vehicle_name]["diagnostics_classes"] = list(range(1, 15))
 
 
     def start_all_producers(self):
@@ -38,7 +45,9 @@ class ProducerManager:
                     " --mu_normal=" + str(vehicle_config["mu_normal"]) + \
                     " --alpha=" + str(vehicle_config["alpha"]) + \
                     " --beta=" + str(vehicle_config["beta"]) + \
-                    " --logging_level=" + str(self.logging_level)
+                    " --logging_level=" + str(self.logging_level) + \
+                    " --anomaly_classes=" + ",".join(map(str,vehicle_config["anomaly_classes"])) + \
+                    " --diagnostics_classes=" + ",".join(map(str,vehicle_config["diagnostics_classes"]))
             
             return_tuple = producer_container.exec_run(
                 command_to_exec,
