@@ -4,12 +4,8 @@
 
 all: build-dashboard build-consumer build-producer
 
-
-build-dashboard:
-	docker build -t dashboard -f dashboard/Dockerfile dashboard/.
-
 build-producer:
-	docker build -t producer -f producer/Dockerfile producer/.
+	docker build -t open_fair-producer -f producer/Dockerfile producer/.
 
 build-consumer:
-	docker build -t consumer -f consumer/Dockerfile consumer/.
+	docker build -t open_fair-consumer -f consumer/Dockerfile consumer/.
