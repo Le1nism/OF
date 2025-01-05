@@ -11,10 +11,18 @@ class ConsumerManager:
         self.logging_level = cfg.logging_level.upper()
         self.logger.setLevel(self.logging_level)
         self.default_consumer_config = cfg.default_consumer_config
-        self.vehicle_names = cfg.vehicles
+        self.vehicle_names = []
         self.consumer_configs = {}
-        for vehicle_name in self.vehicle_names:
-            self.consumer_configs[vehicle_name] = self.default_consumer_config
+        for vehicle in cfg.vehicles:
+            vehicle_name = list(vehicle.keys())[0]
+            self.vehicle_names.append(vehicle_name)
+            self.consumer_configs[vehicle_name] = self.default_consumer_config.copy()
+            self.consumer_configs[vehicle_name].update(vehicle[vehicle_name])
+            if self.consumer_configs[vehicle_name]["anomaly_classes"] == "all":
+                self.consumer_configs[vehicle_name]["anomaly_classes"] = list(range(1, 15))
+            if self.consumer_configs[vehicle_name]["diagnostics_classes"] == "all":
+                self.consumer_configs[vehicle_name]["diagnostics_classes"] = list(range(1, 15))
+
 
     def start_all_consumers(self):
         # Start all consumers
