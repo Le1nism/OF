@@ -3,3 +3,4 @@ kafka_topic_update_interval_secs: 10
 
 default_consumer_config:
   batch_size: 2
+  weights_push_freq_seconds: 5

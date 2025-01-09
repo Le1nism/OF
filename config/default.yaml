@@ -71,6 +71,7 @@ default_consumer_config:
   kafka_auto_offset_reset: earliest
   anomaly_classes: all
   diagnostics_classes: all
+  weights_push_freq_seconds: 180
 
 dashboard:
   port: 5000
