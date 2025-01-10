@@ -18,6 +18,10 @@ class ContainerManager:
         self.wandber = {
             'container': None,
             'thread': None}
+        self.federated_learner = {
+            'container': None,
+            'thread': None
+        }
         self.producers = {}
         self.consumers = {}
         self.containers_ips = {}
@@ -89,6 +93,8 @@ class ContainerManager:
                 self.consumers[container.name] = container
             elif 'wandber' in container.name:
                 self.wandber['container'] = container
+                self.federated_learner['container'] = container
+
             self.containers_ips[container.name] = container_ip 
         
 
@@ -132,6 +138,7 @@ class ContainerManager:
             self.logger.error(f"Error stopping wandber: {e}")
             return "Error stopping wandber"
 
+
     def start_wandb(self, cfg):
 
         start_command = f"python wandber.py " + \
@@ -159,3 +166,53 @@ class ContainerManager:
         thread.start()
         self.wandber['thread'] = thread
         return "Wandber consumer started!"
+
+
+    def start_federated_learning(self, cfg):
+
+        start_command = f"python federated_learning.py " + \
+            f" --logging_level={cfg.logging_level} " + \
+            f" --project_name={cfg.wandb.project_name} " + \
+            f" --run_name={cfg.wandb.run_name} " + \
+            f" --kafka_broker_url={cfg.wandb.kafka_broker_url} " + \
+            f" --kafka_consumer_group_id={cfg.wandb.kafka_consumer_group_id} " + \
+            f" --kafka_auto_offset_reset={cfg.wandb.kafka_auto_offset_reset} " + \
+            f" --kafka_topic_update_interval_secs={cfg.kafka_topic_update_interval_secs}"
+                
+        if cfg.wandb.online:
+            start_command += " --online"
+        
+        def run_federated_learning(self):
+            return_tuple = self.wandber['container'].exec_run(
+                 start_command,
+                 tty=True,
+                 stream=True,
+                 stdin=True)
+            for line in return_tuple[1]:
+                print(line.decode().strip())
+        
+        thread = threading.Thread(target=run_federated_learning, args=(self,))
+        thread.start()
+        self.wandber['thread'] = thread
+        return "Federated learning started!"
+    
+
+    def stop_federated_learning(self):
+        try:
+            # Try to find and kill the process
+            pid_result = self.federated_learner['container'].exec_run(f"pgrep -f '{WANDBER_COMMAND}'")
+            pid = pid_result[1].decode().strip()
+            
+            if pid:
+                self.federated_learner['container'].exec_run(f"kill -SIGINT {pid}")
+                m = "Federated Learning stopped!"
+                self.logger.info(m)
+                return m
+            else:
+                m = "No running process found for federated learning"
+                self.logger.info(m)
+                return m
+        except Exception as e:
+            m = f"Error stopping federated learning: {e}"
+            self.logger.error(m)
+            return m

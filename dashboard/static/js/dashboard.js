@@ -8,6 +8,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
   const stopWandbButton = document.getElementById("stop-wandb");
   const createVehiclesButton = document.getElementById("create-vehicles");
   const deleteVehiclesButton = document.getElementById("delete-vehicles");
+  const startFederatedLearningButton = document.getElementById("start-federated-learning");
+  const stopFederatedLearningButton = document.getElementById("stop-federated-learning");
 
 
   produceAllButton.addEventListener("click", function() {
@@ -58,4 +60,15 @@ window.addEventListener('DOMContentLoaded', (event) => {
         .then(data => console.log(data));
   });
 
+  startFederatedLearningButton.addEventListener("click", function() {
+      fetch("/start-federated-learning", {method: "POST"})
+        .then(response => response.text())
+        .then(data => console.log(data));
+  });
+
+  stopFederatedLearningButton.addEventListener("click", function() {
+      fetch("/stop-federated-learning", {method: "POST"})
+        .then(response => response.text())
+        .then(data => console.log(data));
+  });
 });

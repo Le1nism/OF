@@ -99,6 +99,14 @@ def create_app(cfg: DictConfig) -> None:
         return container_manager.stop_consuming_all()
 
 
+    @app.route('/start-federated-learning', methods=['POST'])
+    def start_federated_learning():
+        return container_manager.start_federated_learning(cfg)
+    
+    @app.route('/stop-federated-learning', methods=['POST'])
+    def stop_federated_learning():
+        return container_manager.stop_federated_learning()
+
     @app.route('/start-wandb', methods=['POST'])
     def start_wandb():
         return container_manager.start_wandb(cfg)
