@@ -8,6 +8,7 @@ import subprocess
 
 
 WANDBER_COMMAND = "python wandber.py"
+FL_COMMAND = "python federated_learning.py"
 class ContainerManager:
     
     def __init__(self, cfg):
@@ -170,7 +171,7 @@ class ContainerManager:
 
     def start_federated_learning(self, cfg):
 
-        start_command = f"python federated_learning.py " + \
+        start_command = FL_COMMAND + \
             f" --logging_level={cfg.logging_level} " + \
             f" --project_name={cfg.wandb.project_name} " + \
             f" --run_name={cfg.wandb.run_name} " + \
@@ -204,7 +205,7 @@ class ContainerManager:
     def stop_federated_learning(self):
         try:
             # Try to find and kill the process
-            pid_result = self.federated_learner['container'].exec_run(f"pgrep -f '{WANDBER_COMMAND}'")
+            pid_result = self.federated_learner['container'].exec_run(f"pgrep -f '{FL_COMMAND}'")
             pid = pid_result[1].decode().strip()
             
             if pid:
