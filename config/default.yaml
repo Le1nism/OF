@@ -78,7 +78,9 @@ default_consumer_config:
   anomaly_classes: all
   diagnostics_classes: all
   weights_push_freq_seconds: 180
+  weights_pull_freq_seconds: 180
 
+  
 dashboard:
   port: 5000
   host: 0.0.0.0

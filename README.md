@@ -60,7 +60,9 @@ Once the virtual environment is activated, you can install packages and run Pyth
 
 ## Building vehicle images and dashboard:
 
-Use `make all` to build the producer and consumer docker images. 
+Use `make all` to build the producer and consumer docker images:
+
+    make all
 
 ### Launching:
 
