@@ -44,16 +44,17 @@ class ConsumerManager:
                 " --kafka_broker=" + consumer_config["kafka_broker"] + \
                 " --buffer_size=" + str(consumer_config["buffer_size"]) + \
                 " --batch_size=" + str(consumer_config["batch_size"]) + \
-                " --logging_level=" + str(self.logging_level)
+                " --logging_level=" + str(self.logging_level) + \
+                " --weights_push_freq_seconds=" + str(consumer_config["weights_push_freq_seconds"])
 
             return_tuple = consumer_container.exec_run(
-                self.consumer_command + " --vehicle_name=" + vehicle_name, 
+                command_to_exec,
                 stream=True, 
                 tty=True, 
                 stdin=True
             )
             for line in return_tuple[1]:
-                print(f"{consumer_name}: {line.decode().strip()}")
+                print(line.decode().strip())
 
         thread = threading.Thread(target=run_consumer, name=consumer_name)
         thread.start()

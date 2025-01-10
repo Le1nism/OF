@@ -56,7 +56,7 @@ class ProducerManager:
                 stdin=True
             )
             for line in return_tuple[1]:
-                print(f"{producer_name}: {line.decode().strip()}")
+                print(line.decode().strip())
 
         thread = threading.Thread(target=run_producer, name=producer_name)
         thread.start()
