@@ -23,7 +23,7 @@ class MetricsLogger:
         """
         try:
             vehicle_name=msg.get("vehicle_name", "unknown_vehicle")
-            self.logger.info(f"Processing statistics for vehicle: {vehicle_name}")
+            self.logger.debug(f"Processing statistics for vehicle: {vehicle_name}")
 
             # Initialize statistics for the vehicle if not already present
             if vehicle_name not in self.metrics:
@@ -34,6 +34,7 @@ class MetricsLogger:
                 previous_value = self.metrics[vehicle_name][key]
                 increment = msg.get(key, 0)
                 self.metrics[vehicle_name][key] += increment
-                self.logger.info(f"Updated {key} for {vehicle_name}: {previous_value} -> {self.metrics[vehicle_name][key]}")
+                self.logger.debug(f"Updated {key} for {vehicle_name}: {previous_value} -> {self.metrics[vehicle_name][key]}")
+
         except Exception as e:
             self.logger.error(f"Error while processing statistics: {e}")

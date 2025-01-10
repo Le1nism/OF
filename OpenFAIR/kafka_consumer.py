@@ -86,7 +86,7 @@ class KafkaMessageConsumer:
         try:
             # Decode the message value from bytes to string and parse JSON
             message_value = json.loads(msg.value().decode('utf-8'))
-            self.parent.logger.info(f"Received message from topic {msg.topic()}")
+            self.parent.logger.debug(f"Received message from topic {msg.topic()}")
             return message_value
         except json.JSONDecodeError as e:
             self.parent.logger.error(f"Error deserializing message: {e}")
@@ -109,7 +109,7 @@ class KafkaMessageConsumer:
                 # Deserialize the message and process it
                 deserialized_data = self.deserialize_message(msg)
                 if deserialized_data:
-                    self.parent.logger.info(f"Processing message from topic {msg.topic()}")
+                    self.parent.logger.debug(f"Processing message from topic {msg.topic()}")
                     self.parent.process_message_routine(msg.topic(), deserialized_data)
                 else:
                     self.parent.logger.warning("Deserialized message is None")
