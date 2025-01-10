@@ -4,3 +4,8 @@ kafka_topic_update_interval_secs: 10
 default_consumer_config:
   batch_size: 2
   weights_push_freq_seconds: 5
+
+federated_learning:
+  aggregation_strategy: fedyogi
+  aggregation_interval_secs: 7
+  weights_buffer_size: 2

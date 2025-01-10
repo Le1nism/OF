@@ -177,7 +177,11 @@ class ContainerManager:
             f" --kafka_broker_url={cfg.wandb.kafka_broker_url} " + \
             f" --kafka_consumer_group_id={cfg.wandb.kafka_consumer_group_id} " + \
             f" --kafka_auto_offset_reset={cfg.wandb.kafka_auto_offset_reset} " + \
-            f" --kafka_topic_update_interval_secs={cfg.kafka_topic_update_interval_secs}"
+            f" --kafka_topic_update_interval_secs={cfg.kafka_topic_update_interval_secs}" +\
+            f" --aggregation_strategy={cfg.federated_learning.aggregation_strategy}" +\
+            f" --initialization_strategy={cfg.federated_learning.initialization_strategy}" +\
+            f" --aggregation_interval_secs={cfg.federated_learning.aggregation_interval_secs}" +\
+            f" --weights_buffer_size={cfg.federated_learning.weights_buffer_size}"
                 
         if cfg.wandb.online:
             start_command += " --online"

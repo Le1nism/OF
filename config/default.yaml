@@ -13,6 +13,12 @@ wandb:
   kafka_consumer_group_id: WANDBER
   kafka_auto_offset_reset: earliest
 
+federated_learning:
+  aggregation_strategy: fedavg    # fedavg, fedyogi
+  initialization_strategy: xavier   # xavier, he, normal
+  aggregation_interval_secs: 30     
+  weights_buffer_size: 5
+
 default_vehicle_config:
   kafka_broker: kafka:9092
   mu_anomalies: 157
