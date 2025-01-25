@@ -64,11 +64,8 @@ Use `make all` to build the producer and consumer docker images:
 
     make all
 
+
 ### Launching:
-
-Use `docker compose up` to start the whole cluster. Otherwise, start launching only the kafka and zookeeper
-
-    docker compose up -d
 
 **IMPORTANT** For using the wandb logging dashboard, you should have a file called .env in the project's root folder containing your wandb api key under the WANDB_API_KEY voice:
 
@@ -78,6 +75,11 @@ Use `docker compose up` to start the whole cluster. Otherwise, start launching o
 WANDB_API_KEY=your_wandb_api_key_here
 
 ```
+
+Use `docker compose up` to start the whole cluster. Otherwise, start launching only the kafka and zookeeper
+
+    docker compose up -d
+
 Run the container manager script:
 
     python dashboard/app.py
