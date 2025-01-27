@@ -109,8 +109,9 @@ class KafkaMessageConsumer:
                 if msg.error():
                     if msg.error().code() == KafkaError._PARTITION_EOF:
                         self.parent.logger.info(f"End of partition reached: {msg.error()}")
-                    elif msg.error().code() == KafkaError.UNKNOWN_TOPIC_OR_PART:
-                        self.parent.logger.info(f"No avilable vehicles yet. Please create some vehicles...")
+                    elif (msg.error().code() == KafkaError.UNKNOWN_TOPIC_OR_PART) and \
+                        (msg.error().str().split(': ')[1] in list(topics_dict.values())):
+                            self.parent.logger.info(f"No avilable vehicles yet. Please create some vehicles...")
                     else:
                         self.parent.logger.error(f"Consumer error: {msg.error()}")
                     continue
