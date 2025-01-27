@@ -1,9 +1,13 @@
 kafka_topic_update_interval_secs: 10
 logging_level: debug
 
+wandb:
+  run_name: "debug"
+  
 default_vehicle_config:
-  mu_anomalies: 5
-  mu_normal: 3
+  # The rate of information (i.e., time) is multiplied x 100 for the sake of speeding up the simulation
+  mu_anomalies: 1.57
+  mu_normal: 1.17
 
 
 default_consumer_config:
