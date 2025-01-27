@@ -1,0 +1,10 @@
+wandb:
+  run_name: fed_YOGI
+
+default_vehicle_config:
+  # The rate of information (i.e., time) is multiplied x 100 for the sake of speeding up the simulation
+  mu_anomalies: 1.57
+  mu_normal: 1.17
+
+federated_learning:
+  aggregation_strategy: fedyogi
