@@ -2,7 +2,7 @@ kafka_topic_update_interval_secs: 10
 logging_level: debug
 
 wandb:
-  run_name: "debug"
+  run_name: debug
   
 default_vehicle_config:
   # The rate of information (i.e., time) is multiplied x 100 for the sake of speeding up the simulation
