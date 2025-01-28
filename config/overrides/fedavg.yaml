@@ -12,6 +12,6 @@ federated_learning:
 
 
 default_consumer_config:
-  weights_push_freq_seconds: 15
-  weights_pull_freq_seconds: 15
+  weights_push_freq_seconds: 120
+  weights_pull_freq_seconds: 120
   learning_rate: 0.002
