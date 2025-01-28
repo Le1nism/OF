@@ -83,7 +83,7 @@ vehicles:
         - 14
 
 default_consumer_config:
-  buffer_size: 100
+  buffer_size: 5000
   batch_size: 32
   kafka_broker: kafka:9092
   kafka_auto_offset_reset: earliest
@@ -91,7 +91,7 @@ default_consumer_config:
   diagnostics_classes: all
   weights_push_freq_seconds: 180
   weights_pull_freq_seconds: 180
-
+  learning_rate: 0.001
   
 dashboard:
   port: 5000
@@ -99,4 +99,4 @@ dashboard:
   kafka_broker_url: localhost:19092
   kafka_consumer_group_id: kafka-consumer-group-1
   kafka_auto_offset_reset: earliest
-  message_cache_len: 100
+  message_cache_len: 20
