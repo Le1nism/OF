@@ -34,7 +34,7 @@ class MetricsLogger:
                 previous_value = self.metrics[vehicle_name][key]
                 increment = msg.get(key, 0)
                 self.metrics[vehicle_name][key] += increment
-                self.logger.debug(f"Updated {key} for {vehicle_name}: {previous_value} -> {self.metrics[vehicle_name][key]}")
+                # self.logger.debug(f"Updated {key} for {vehicle_name}: {previous_value} -> {self.metrics[vehicle_name][key]}")
 
         except Exception as e:
             self.logger.error(f"Error while processing statistics: {e}")

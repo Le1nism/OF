@@ -20,15 +20,15 @@ def processing_message(topic, msg):
     """
     try:
         if topic.endswith("_anomalies"):
-            app.logger.debug(f"ANOMALIES ({topic})")
+            # app.logger.debug(f"ANOMALIES ({topic})")
             msg_cache.add("anomalies", msg)
             msg_cache.add("all", msg)
         elif topic.endswith("_normal_data"):
-            app.logger.debug(f"DIAGNOSTICS ({topic})")
+            # app.logger.debug(f"DIAGNOSTICS ({topic})")
             msg_cache.add("diagnostics", msg)
             msg_cache.add("all", msg)
         elif topic.endswith("_statistics"):
-            app.logger.debug(f"STATISTICS ({topic})")
+            # app.logger.debug(f"STATISTICS ({topic})")
             metrics_logger.process_stat_message(msg)
         else:
             app.logger.warning(f"Uncategorized message from topic {topic}: {msg}")
