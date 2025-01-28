@@ -1,4 +1,3 @@
-logging_level: debug
 wandb:
   run_name: fed_YOGI
 
