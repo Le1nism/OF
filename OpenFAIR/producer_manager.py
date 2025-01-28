@@ -73,7 +73,7 @@ class ProducerManager:
             
             if pid:
                 container.exec_run(f"kill -SIGINT {pid}")
-                print(f"Stopped producer from {producer_name}")
+                print(f"Sent SIGINT to {producer_name}")
             else:
                 print(f"No running process found for {producer_name}")
         except Exception as e:

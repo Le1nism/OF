@@ -74,7 +74,7 @@ class ConsumerManager:
             
             if pid:
                 container.exec_run(f"kill -SIGINT {pid}")
-                print(f"Stopped consumer from {consumer_name}")
+                print(f"Sent SIGINT to {consumer_name}")
             else:
                 print(f"No running process found for {consumer_name}")
         except Exception as e:

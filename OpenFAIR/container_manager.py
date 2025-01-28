@@ -46,6 +46,7 @@ class ContainerManager:
 
 
     def delete_vehicles(self):
+        self.logger.info("Deleting vehicles")
         for producer in self.producers.values():
             producer.stop()
             producer.remove()
@@ -210,7 +211,7 @@ class ContainerManager:
             
             if pid:
                 self.federated_learner['container'].exec_run(f"kill -SIGINT {pid}")
-                m = "Federated Learning stopped!"
+                m = "Stopping FL..."
                 self.logger.info(m)
                 return m
             else:
