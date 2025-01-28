@@ -47,6 +47,7 @@ class ConsumerManager:
                 " --batch_size=" + str(consumer_config["batch_size"]) + \
                 " --logging_level=" + str(self.logging_level) + \
                 " --weights_push_freq_seconds=" + str(consumer_config["weights_push_freq_seconds"]) + \
+                " --weights_pull_freq_seconds=" + str(consumer_config["weights_pull_freq_seconds"]) + \
                 " --kafka_topic_update_interval_secs=" + str(consumer_config["kafka_topic_update_interval_secs"]) + \
                 " --learning_rate=" + str(consumer_config["learning_rate"])
 

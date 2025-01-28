@@ -61,7 +61,7 @@ class ContainerManager:
         cmd = [
             "docker", "run", "-d",
             "--name", container_name,
-            "--network", "open_fair_trains_network",
+            "--network", "of_trains_network",
             "open_fair-producer",
             "tail", "-f", "/dev/null"
         ]
@@ -74,7 +74,7 @@ class ContainerManager:
         cmd = [
             "docker", "run", "-d",
             "--name", container_name,
-            "--network", "open_fair_trains_network",
+            "--network", "of_trains_network",
             "open_fair-consumer",
             "tail", "-f", "/dev/null"
         ]
@@ -87,7 +87,7 @@ class ContainerManager:
             container_info = self.client.api.inspect_container(container.id)
             # Extract the IP address of the container from its network settings
             container_img_name = container_info['Config']['Image']
-            container_ip = container_info['NetworkSettings']['Networks']['open_fair_trains_network']['IPAddress']
+            container_ip = container_info['NetworkSettings']['Networks']['of_trains_network']['IPAddress']
             self.logger.info(f'Found {container.name} container with ip {container_ip}')
             if 'producer' in container_img_name:
                 self.producers[container.name] = container
