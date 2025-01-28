@@ -10,7 +10,8 @@ class ConsumerManager:
         self.logger = logging.getLogger("CONSUMER_MANAGER")
         self.logging_level = cfg.logging_level.upper()
         self.logger.setLevel(self.logging_level)
-        self.default_consumer_config = cfg.default_consumer_config
+        self.default_consumer_config = dict(cfg.default_consumer_config)
+        self.default_consumer_config["kafka_topic_update_interval_secs"] = cfg.kafka_topic_update_interval_secs
         self.vehicle_names = []
         self.consumer_configs = {}
         for vehicle in cfg.vehicles:
@@ -45,7 +46,8 @@ class ConsumerManager:
                 " --buffer_size=" + str(consumer_config["buffer_size"]) + \
                 " --batch_size=" + str(consumer_config["batch_size"]) + \
                 " --logging_level=" + str(self.logging_level) + \
-                " --weights_push_freq_seconds=" + str(consumer_config["weights_push_freq_seconds"])
+                " --weights_push_freq_seconds=" + str(consumer_config["weights_push_freq_seconds"]) + \
+                " --kafka_topic_update_interval_secs=" + str(consumer_config["kafka_topic_update_interval_secs"])
 
             return_tuple = consumer_container.exec_run(
                 command_to_exec,

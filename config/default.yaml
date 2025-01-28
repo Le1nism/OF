@@ -37,33 +37,45 @@ vehicles:
         - 2
         - 3
         - 4
+        - 5
+        - 6
       diagnostics_classes:
         - 0
         - 1 
         - 2
         - 3
         - 4
+        - 5
+        - 6
   - bob:
       anomaly_classes:
+        - 4
         - 5
         - 6
         - 7
         - 8
         - 9
+        - 10
       diagnostics_classes:
+        - 4
         - 5
         - 6
         - 7
         - 8
         - 9
+        - 10
   - claude:
       anomaly_classes:
+        - 8
+        - 9
         - 10
         - 11
         - 12
         - 13
         - 14
       diagnostics_classes:
+        - 8
+        - 9
         - 10
         - 11
         - 12
