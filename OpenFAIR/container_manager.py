@@ -131,8 +131,8 @@ class ContainerManager:
             
             if pid:
                 self.wandber['container'].exec_run(f"kill -SIGINT {pid}")
-                self.logger.info(f"Stopped wandber")
-                return "Wandber stopped!"
+                self.logger.info(f"Stopping wandber...")
+                return "Stopping wandber..."
             else:
                 self.logger.info(f"No running process found for wandber")
                 return "No running process found for wandber"
