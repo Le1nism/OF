@@ -28,53 +28,106 @@ default_vehicle_config:
   anomaly_classes: all
   diagnostics_classes: all
 
+# We have 19 (from 0 to 18) anomaly clusters and 15 diagnostics clusters (from 0 to 40)
+# Each vehicle can have different anomaly and diagnostics that prioritises when generating data.
+# IF not "all" then, the explicit anomaly_classes and diagnostics_classes overwritten for each vehicle
+# will be generated at 80%, while the rest will divide the remaining 20%.
+# These percentages will normalise or contidion the prior probabilies of each class in the original dataset, which are the following:
+  # For anomalies:
+  # cluster  probability
+  # 0      0.464989   ***
+  # 1      0.019147   *
+  # 2      0.037746   *
+  # 3      0.028993   *
+  # 4      0.274617   **
+  # 5      0.028993   *
+  # 6      0.021882   *
+  # 7      0.025711   *
+  # 8      0.005470
+  # 9      0.008753
+  # 10     0.003282
+  # 11     0.004376
+  # 12     0.006565
+  # 13     0.018600
+  # 14     0.008206
+  # 15     0.012035   *
+  # 16     0.006565
+  # 17     0.007112
+  # 18     0.016958   *
 
+  # For diagnostics:
+  # cluster  probability
+  # cluster  probability
+  # 0      0.176524  ***
+  # 1      0.055505 *
+  # 2      0.014104 *
+  # 3      0.015014 *
+  # 4      0.006824
+  # 5      0.179254 ***
+  # 6      0.047771
+  # 7      0.156051 ***
+  # 8      0.120564 ***
+  # 9      0.148317 ***
+  # 10     0.011829 *
+  # 11     0.014104 *
+  # 12     0.014559 *
+  # 13     0.037307 *
+  # 14     0.002275
 vehicles:
   - angela:
       anomaly_classes: 
         - 0
-        - 1
-        - 2
-        - 3
         - 4
+        - 1
         - 5
-        - 6
-        - 7
         - 8
+        - 9
+        - 10
+        - 11
+        - 12
+        - 13
+        - 14
+        - 16
+        - 17
       diagnostics_classes:
         - 0
-        - 1 
-        - 2
-        - 3
-        - 4
         - 5
-        - 6
         - 7
-        - 8
+        - 1
+        - 2
+        - 4
+        - 6
+        - 14
   - bob:
       anomaly_classes:
-        - 3 
+        - 0 
         - 4
-        - 5
+        - 2
         - 6
-        - 7
         - 8
         - 9
         - 10
         - 11
+        - 12
+        - 13
+        - 14
+        - 16
+        - 17
       diagnostics_classes:
-        - 3
-        - 4
+        - 0
         - 5
-        - 6
-        - 7
         - 8
-        - 9
+        - 3
         - 10
-        - 11
+        - 4
+        - 6
+        - 14
   - claude:
       anomaly_classes:
-        - 6
+        - 0
+        - 15
+        - 18
+        - 3
         - 7
         - 8
         - 9
@@ -83,15 +136,17 @@ vehicles:
         - 12
         - 13
         - 14
+        - 16
+        - 17
       diagnostics_classes:
-        - 6
-        - 7
-        - 8
+        - 0
+        - 5
         - 9
-        - 10
         - 11
         - 12
         - 13
+        - 4
+        - 6
         - 14
 
 default_consumer_config:
