@@ -49,7 +49,9 @@ class ConsumerManager:
                 " --weights_push_freq_seconds=" + str(consumer_config["weights_push_freq_seconds"]) + \
                 " --weights_pull_freq_seconds=" + str(consumer_config["weights_pull_freq_seconds"]) + \
                 " --kafka_topic_update_interval_secs=" + str(consumer_config["kafka_topic_update_interval_secs"]) + \
-                " --learning_rate=" + str(consumer_config["learning_rate"])
+                " --learning_rate=" + str(consumer_config["learning_rate"]) + \
+                " --epoch_size=" + str(consumer_config["epoch_size"]) + \
+                " --training_freq_seconds=" + str(consumer_config["training_freq_seconds"])
 
             return_tuple = consumer_container.exec_run(
                 command_to_exec,
