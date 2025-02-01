@@ -12,32 +12,31 @@ class ConsumerManager:
         self.logger.setLevel(self.logging_level)
         self.default_consumer_config = dict(cfg.default_consumer_config)
         self.default_consumer_config["kafka_topic_update_interval_secs"] = cfg.kafka_topic_update_interval_secs
-        self.vehicle_names = []
         self.consumer_configs = {}
         for vehicle in cfg.vehicles:
             vehicle_name = list(vehicle.keys())[0]
-            self.vehicle_names.append(vehicle_name)
             self.consumer_configs[vehicle_name] = self.default_consumer_config.copy()
             self.consumer_configs[vehicle_name].update(vehicle[vehicle_name])
             if self.consumer_configs[vehicle_name]["anomaly_classes"] == "all":
-                self.consumer_configs[vehicle_name]["anomaly_classes"] = list(range(1, 15))
+                self.consumer_configs[vehicle_name]["anomaly_classes"] = list(range(1, 19))
             if self.consumer_configs[vehicle_name]["diagnostics_classes"] == "all":
                 self.consumer_configs[vehicle_name]["diagnostics_classes"] = list(range(1, 15))
 
 
     def start_all_consumers(self):
         # Start all consumers
-        for consumer_name, vehicle_name in zip(self.consumers.keys(), self.vehicle_names):
+        for consumer_name, consumer in self.consumers.items():
             self.start_consumer(
                 consumer_name, 
-                self.consumers[consumer_name], 
-                vehicle_name)
+                consumer)
         return "All consumers started!"
     
 
-    def start_consumer(self, consumer_name, consumer_container, vehicle_name):
+    def start_consumer(self, consumer_name, consumer_container):
         def run_consumer():
 
+            vehicle_name = consumer_name.split("_")[0]
+            
             consumer_config = self.consumer_configs[vehicle_name]
 
             command_to_exec = self.consumer_command + " --vehicle_name=" + vehicle_name + \
