@@ -2,7 +2,6 @@ import docker
 import logging
 from OpenFAIR.producer_manager import ProducerManager
 from OpenFAIR.consumer_manager import ConsumerManager
-from omegaconf import DictConfig
 import threading
 import subprocess
 
@@ -38,8 +37,8 @@ class ContainerManager:
     def create_vehicles(self):
 
         for vehicle_name in self.vehicle_names:
-            self.launch_producer(vehicle_name)
-            self.launch_consumer(vehicle_name)
+            self.create_producer(vehicle_name)
+            self.create_consumer(vehicle_name)
 
         self.refresh_containers()
         return "Vehicles created!"
@@ -56,7 +55,7 @@ class ContainerManager:
         return "Vehicles deleted!"
 
 
-    def launch_producer(self, vehicle_name):
+    def create_producer(self, vehicle_name):
         container_name = f"{vehicle_name}_producer"
         cmd = [
             "docker", "run", "-d",
@@ -69,7 +68,7 @@ class ContainerManager:
         
 
 
-    def launch_consumer(self, vehicle_name):
+    def create_consumer(self, vehicle_name):
         container_name = f"{vehicle_name}_consumer"
         cmd = [
             "docker", "run", "-d",
@@ -166,7 +165,6 @@ class ContainerManager:
         
         thread = threading.Thread(target=run_wandber, args=(self,))
         thread.start()
-        self.wandber['thread'] = thread
         return "Wandber consumer started!"
 
 
@@ -199,7 +197,6 @@ class ContainerManager:
         
         thread = threading.Thread(target=run_federated_learning, args=(self,))
         thread.start()
-        self.wandber['thread'] = thread
         return "Federated learning started!"
     
 
