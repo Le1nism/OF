@@ -6,14 +6,15 @@ wandb:
   
 default_vehicle_config:
   # The rate of information (i.e., time) is multiplied x 100 for the sake of speeding up the simulation
-  mu_anomalies: 1.57
-  mu_normal: 1.17
+  mu_anomalies: 0.157
+  mu_normal: 0.117
 
 
 default_consumer_config:
-  batch_size: 2
-  weights_push_freq_seconds: 5
-  weights_pull_freq_seconds: 5
+  weights_push_freq_seconds: 15
+  weights_pull_freq_seconds: 15
+  epoch_size: 2
+  save_model_freq_epochs: 2
 
 federated_learning:
   aggregation_strategy: fedyogi

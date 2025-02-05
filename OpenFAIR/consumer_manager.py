@@ -13,6 +13,7 @@ class ConsumerManager:
         self.default_consumer_config = dict(cfg.default_consumer_config)
         self.default_consumer_config["kafka_topic_update_interval_secs"] = cfg.kafka_topic_update_interval_secs
         self.consumer_configs = {}
+        self.override = cfg.override
         for vehicle in cfg.vehicles:
             vehicle_name = list(vehicle.keys())[0]
             self.consumer_configs[vehicle_name] = self.default_consumer_config.copy()
@@ -50,7 +51,9 @@ class ConsumerManager:
                 " --kafka_topic_update_interval_secs=" + str(consumer_config["kafka_topic_update_interval_secs"]) + \
                 " --learning_rate=" + str(consumer_config["learning_rate"]) + \
                 " --epoch_size=" + str(consumer_config["epoch_size"]) + \
-                " --training_freq_seconds=" + str(consumer_config["training_freq_seconds"])
+                " --training_freq_seconds=" + str(consumer_config["training_freq_seconds"]) + \
+                " --save_model_freq_epochs=" + str(consumer_config["save_model_freq_epochs"]) + \
+                " --model_saving_path=" + vehicle_name + '_' + self.override + '_model.pth'
 
             return_tuple = consumer_container.exec_run(
                 command_to_exec,
