@@ -2,4 +2,5 @@
 .vscode
 outputs
 .env
+data
 **/__pycache__
