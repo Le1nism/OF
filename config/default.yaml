@@ -160,7 +160,7 @@ default_consumer_config:
   weights_push_freq_seconds: 180
   weights_pull_freq_seconds: 180
   learning_rate: 0.001
-  training_freq_seconds: 0.02
+  training_freq_seconds: 0.5
   epoch_size: 20
   save_model_freq_epochs: 5
 
