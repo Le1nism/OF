@@ -48,6 +48,8 @@ class ProducerManager:
                     " --logging_level=" + str(self.logging_level) + \
                     " --anomaly_classes=" + ",".join(map(str,vehicle_config["anomaly_classes"])) + \
                     " --diagnostics_classes=" + ",".join(map(str,vehicle_config["diagnostics_classes"]))
+            if vehicle_config["time_emulation"]:
+                command_to_exec += " --time_emulation" 
             
             return_tuple = producer_container.exec_run(
                 command_to_exec,
