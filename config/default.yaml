@@ -27,6 +27,7 @@ default_vehicle_config:
   beta: 1.9
   anomaly_classes: all
   diagnostics_classes: all
+  time_emulation: True
 
 # We have 19 (from 0 to 18) anomaly clusters and 15 diagnostics clusters (from 0 to 40)
 # Each vehicle can have different anomaly and diagnostics that prioritises when generating data.
