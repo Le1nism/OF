@@ -15,9 +15,13 @@ class ConsumerManager:
         self.consumer_configs = {}
         self.override = cfg.override
         for vehicle in cfg.vehicles:
-            vehicle_name = list(vehicle.keys())[0]
+            if type(vehicle) == str:
+                vehicle_name = vehicle
+            else:
+                vehicle_name = list(vehicle.keys())[0]
             self.consumer_configs[vehicle_name] = self.default_consumer_config.copy()
-            self.consumer_configs[vehicle_name].update(vehicle[vehicle_name])
+            if type(vehicle) == dict:
+                self.consumer_configs[vehicle_name].update(vehicle[vehicle_name])
             if self.consumer_configs[vehicle_name]["anomaly_classes"] == "all":
                 self.consumer_configs[vehicle_name]["anomaly_classes"] = list(range(1, 19))
             if self.consumer_configs[vehicle_name]["diagnostics_classes"] == "all":

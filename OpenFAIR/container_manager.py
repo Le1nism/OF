@@ -28,7 +28,10 @@ class ContainerManager:
         self.cfg = cfg
         self.vehicle_names = []
         for vehicle in cfg.vehicles:
-            vehicle_name = list(vehicle.keys())[0]
+            if type(vehicle) == str:
+                self.vehicle_names.append(vehicle)
+            else:
+                vehicle_name = list(vehicle.keys())[0]
             self.vehicle_names.append(vehicle_name) 
 
         self.refresh_containers()

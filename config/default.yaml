@@ -149,6 +149,9 @@ vehicles:
         - 4
         - 6
         - 14
+  - daniel
+  - emily
+  - frank
 
 default_consumer_config:
   buffer_size: 5000
