@@ -8,6 +8,8 @@ import subprocess
 
 WANDBER_COMMAND = "python wandber.py"
 FL_COMMAND = "python federated_learning.py"
+SM_COMMAND = "python security_manager.py"
+
 class ContainerManager:
     
     def __init__(self, cfg):
@@ -222,3 +224,34 @@ class ContainerManager:
             m = f"Error stopping federated learning: {e}"
             self.logger.error(m)
             return m
+
+        
+    def start_security_manager(self, cfg):
+
+        start_command = SM_COMMAND + \
+            f" --logging_level={cfg.logging_level} " + \
+            f" --kafka_broker_url={cfg.wandb.kafka_broker_url} " + \
+            f" --kafka_consumer_group_id={cfg.wandb.kafka_consumer_group_id} " + \
+            f" --kafka_auto_offset_reset={cfg.wandb.kafka_auto_offset_reset} " + \
+            f" --kafka_topic_update_interval_secs={cfg.kafka_topic_update_interval_secs}" +\
+            f" --initialization_strategy={cfg.security_manager.initialization_strategy}" +\
+            f" --buffer_size={cfg.security_manager.buffer_size}" +\
+            f" --batch_size={cfg.security_manager.batch_size}" +\
+            f" --learning_rate={cfg.security_manager.learning_rate}" +\
+            f" --epoch_size={cfg.security_manager.epoch_size}" +\
+            f" --training_freq_seconds={cfg.security_manager.training_freq_seconds}" +\
+            f" --save_model_freq_epochs={cfg.security_manager.save_model_freq_epochs}" +\
+            f" --model_saving_path={cfg.security_manager.model_saving_path}"
+        
+        def run_security_manager(self):
+            return_tuple = self.wandber['container'].exec_run(
+                 start_command,
+                 tty=True,
+                 stream=True,
+                 stdin=True)
+            for line in return_tuple[1]:
+                print(line.decode().strip())
+        
+        thread = threading.Thread(target=run_security_manager, args=(self,))
+        thread.start()
+        return "Federated learning started!"

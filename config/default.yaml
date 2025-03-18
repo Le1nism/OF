@@ -19,6 +19,15 @@ federated_learning:
   aggregation_interval_secs: 30     
   weights_buffer_size: 5
 
+security_manager:
+  buffer_size: 5000
+  batch_size: 32
+  learning_rate: 0.001
+  epoch_size: 20
+  save_model_freq_epochs: 5
+  model_saving_path: sm_model.pth
+  training_freq_seconds: 0.5
+
 default_vehicle_config:
   kafka_broker: kafka:9092
   mu_anomalies: 157

@@ -103,14 +103,23 @@ def create_app(cfg: DictConfig) -> None:
     def start_federated_learning():
         return container_manager.start_federated_learning(cfg)
     
+
     @app.route('/stop-federated-learning', methods=['POST'])
     def stop_federated_learning():
         return container_manager.stop_federated_learning()
+
 
     @app.route('/start-wandb', methods=['POST'])
     def start_wandb():
         return container_manager.start_wandb(cfg)
 
+    @app.route('/start-security-manager', methods=['POST'])
+    def start_security_manager():
+        return container_manager.start_security_manager()
+    
+    @app.route('/stop-security-manager', methods=['POST'])
+    def stop_security_manager():
+        return container_manager.stop_security_manager()
 
     @app.route('/create-vehicles', methods=['POST'])
     def create_vehicles():

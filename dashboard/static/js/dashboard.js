@@ -10,7 +10,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
   const deleteVehiclesButton = document.getElementById("delete-vehicles");
   const startFederatedLearningButton = document.getElementById("start-federated-learning");
   const stopFederatedLearningButton = document.getElementById("stop-federated-learning");
-
+  const startSecurityManagerButton = document.getElementById("start-security-manager");
+  const stopSecurityManagerButton = document.getElementById("stop-security-manager");
 
   produceAllButton.addEventListener("click", function() {
       fetch("/produce-all", {method: "POST"})
@@ -68,6 +69,18 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
   stopFederatedLearningButton.addEventListener("click", function() {
       fetch("/stop-federated-learning", {method: "POST"})
+        .then(response => response.text())
+        .then(data => console.log(data));
+  });
+
+  startSecurityManagerButton.addEventListener("click", function() {
+      fetch("/start-security-manager", {method: "POST"})
+        .then(response => response.text())
+        .then(data => console.log(data));
+  });
+
+  stopSecurityManagerButton.addEventListener("click", function() {
+      fetch("/stop-security-manager", {method: "POST"})
         .then(response => response.text())
         .then(data => console.log(data));
   });
