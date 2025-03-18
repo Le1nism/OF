@@ -95,6 +95,18 @@ button {
     transition: background-color 0.3s, box-shadow 0.3s;
 }
 
+button.disabled {
+    background-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+button.attack {
+    background-color: #e22d2d;
+    color: #faf7f7;
+}
+
 a:hover {
     background-color: #0056b3;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);

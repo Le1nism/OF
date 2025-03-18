@@ -68,6 +68,16 @@ def create_app(cfg: DictConfig) -> None:
     message_consumer.start()
 
 
+    def prepare_botmaster_buttons(cfg):
+        vehicle_names = []
+        for vehicle in cfg.vehicles:
+            if type(vehicle) == str:
+                vehicle_names.append(vehicle)
+            else: 
+                vehicle_names.append(list(vehicle.keys())[0])
+        return vehicle_names
+    
+
     @app.route('/', methods=['GET'])
     def home():
         """
@@ -76,7 +86,11 @@ def create_app(cfg: DictConfig) -> None:
         Returns:
             str: The HTML for the home page.
         """
-        return render_template('index.html')
+        rendering_params = {
+            "botmaster_buttons" : prepare_botmaster_buttons(cfg)
+        }
+
+        return render_template('index.html', rendering_params=rendering_params)
 
 
     @app.route("/produce-all", methods=["POST"])
@@ -134,6 +148,7 @@ def create_app(cfg: DictConfig) -> None:
     @app.route('/stop-wandb', methods=['POST'])
     def stop_wandb():
         return container_manager.stop_wandb()
+
 
     @app.route('/real-all-data')
     def get_all_real_data():
