@@ -29,7 +29,7 @@ class ContainerManager:
         self.vehicle_names = []
         for vehicle in cfg.vehicles:
             if type(vehicle) == str:
-                self.vehicle_names.append(vehicle)
+                vehicle_name = vehicle
             else:
                 vehicle_name = list(vehicle.keys())[0]
             self.vehicle_names.append(vehicle_name) 
