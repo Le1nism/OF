@@ -270,7 +270,8 @@ class ContainerManager:
             
             if pid:
                 self.security_manager['container'].exec_run(f"kill -SIGINT {pid}")
-                self.logger.info("Stopping SM...")
+                m = "Stopping SM..."
+                self.logger.info(m)
                 return m
             else:
                 m = "No running process found for security manager"
