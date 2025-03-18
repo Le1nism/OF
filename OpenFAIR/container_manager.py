@@ -24,6 +24,10 @@ class ContainerManager:
             'container': None,
             'thread': None
         }
+        self.security_manager = {
+            'container': None,
+            'thread': None
+        }
         self.producers = {}
         self.consumers = {}
         self.containers_ips = {}
@@ -100,6 +104,7 @@ class ContainerManager:
             elif 'wandber' in container.name:
                 self.wandber['container'] = container
                 self.federated_learner['container'] = container
+                self.security_manager['container'] = container
 
             self.containers_ips[container.name] = container_ip 
         
@@ -255,3 +260,23 @@ class ContainerManager:
         thread = threading.Thread(target=run_security_manager, args=(self,))
         thread.start()
         return "Federated learning started!"
+    
+
+    def stop_security_manager(self):
+        try:
+            # Try to find and kill the process
+            pid_result = self.security_manager['container'].exec_run(f"pgrep -f '{SM_COMMAND}'")
+            pid = pid_result[1].decode().strip()
+            
+            if pid:
+                self.security_manager['container'].exec_run(f"kill -SIGINT {pid}")
+                self.logger.info("Stopping SM...")
+                return m
+            else:
+                m = "No running process found for security manager"
+                self.logger.info(m)
+                return m
+        except Exception as e:
+            m = f"Error stopping security manager: {e}"
+            self.logger.error(m)
+            return m

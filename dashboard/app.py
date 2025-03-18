@@ -115,7 +115,7 @@ def create_app(cfg: DictConfig) -> None:
 
     @app.route('/start-security-manager', methods=['POST'])
     def start_security_manager():
-        return container_manager.start_security_manager()
+        return container_manager.start_security_manager(cfg)
     
     @app.route('/stop-security-manager', methods=['POST'])
     def stop_security_manager():

@@ -18,7 +18,7 @@ federated_learning:
   initialization_strategy: xavier   # xavier, he, normal
   aggregation_interval_secs: 30     
   weights_buffer_size: 5
-
+  
 security_manager:
   buffer_size: 5000
   batch_size: 32
@@ -27,7 +27,15 @@ security_manager:
   save_model_freq_epochs: 5
   model_saving_path: sm_model.pth
   training_freq_seconds: 0.5
+  initialization_strategy: xavier   # xavier, he, normal
+  input_dim: 5
+  hidden_dim: 30
+  output_dim: 1
+  num_layers: 2
+  dropout: 0.5
+  optimizer: Adam
 
+  
 default_vehicle_config:
   kafka_broker: kafka:9092
   mu_anomalies: 157
