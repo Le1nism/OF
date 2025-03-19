@@ -194,7 +194,7 @@ dashboard:
 
 attack:
   target_port: 80
-  duration: 60
+  duration: 0  # duration is in seconds. 0 means forever...
   packet_size: 1024
   delay: 0.001
   victim_container: zookeeper # be careful what you wish for...

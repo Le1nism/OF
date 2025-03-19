@@ -234,6 +234,12 @@ class ContainerManager:
         
     def start_security_manager(self, cfg):
 
+        assert len(self.vehicle_names) > 0, "No vehicles found. Please create vehicles first."
+        vehicle_param_str = self.vehicle_names[0]
+        for vehicle in self.vehicle_names[1:]:
+            vehicle_param_str += f"\ {vehicle}"
+
+
         start_command = SM_COMMAND + \
             f" --logging_level={cfg.logging_level} " + \
             f" --kafka_broker_url={cfg.wandb.kafka_broker_url} " + \
@@ -247,7 +253,15 @@ class ContainerManager:
             f" --epoch_size={cfg.security_manager.epoch_size}" +\
             f" --training_freq_seconds={cfg.security_manager.training_freq_seconds}" +\
             f" --save_model_freq_epochs={cfg.security_manager.save_model_freq_epochs}" +\
-            f" --model_saving_path={cfg.security_manager.model_saving_path}"
+            f" --model_saving_path={cfg.security_manager.model_saving_path}" + \
+            f" --vehicle_names={vehicle_param_str}"
+
+        if len(cfg.attack.preconf_attacking_vehicles) > 0:
+            preconf_attackers_str_param = cfg.attack.preconf_attacking_vehicles[0]
+            for vehicle in cfg.attack.preconf_attacking_vehicles:
+                preconf_attackers_str_param += f"\ {vehicle}"
+            start_command += \
+            f" --preconf_attacking_vehicles={preconf_attackers_str_param}"
         
         def run_security_manager(self):
             return_tuple = self.wandber['container'].exec_run(
@@ -355,7 +369,7 @@ class ContainerManager:
             self.start_attack_from_vehicle(cfg, attacking_vehicle_name)
         return "Preconfigured attack started!"
     
-    
+
     def stop_preconf_attack(self, cfg):
         for attacking_vehicle_name in cfg.attack.preconf_attacking_vehicles:
             self.stop_attack_from_vehicle(attacking_vehicle_name)
