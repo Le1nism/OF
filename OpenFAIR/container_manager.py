@@ -286,6 +286,8 @@ class ContainerManager:
     
     def start_attack_from_vehicle(self, cfg, vehicle_name):
 
+        assert f"{vehicle_name}_producer" in self.producers
+
         attacking_container = self.producers[f"{vehicle_name}_producer"]
 
         assert cfg.attack.victim_container in self.containers_ips
@@ -320,3 +322,29 @@ class ContainerManager:
         thread = threading.Thread(target=run_attack, args=(self,))
         thread.start()
         return f"Starting attack from {vehicle_name}"
+
+
+    def stop_attack_from_vehicle(self, vehicle_name):
+
+        assert f"{vehicle_name}_producer" in self.producers
+
+        attacking_container = self.producers[f"{vehicle_name}_producer"]
+
+        try:
+            # Try to find and kill the process
+            pid_result = attacking_container.exec_run(f"pgrep -f '{ATTACK_COMMAND}'")
+            pid = pid_result[1].decode().strip()
+            
+            if pid:
+                attacking_container.exec_run(f"kill -SIGINT {pid}")
+                m = f"Stopping attack from {vehicle_name}..."
+                self.logger.info(m)
+                return m
+            else:
+                m = f"No attacking process found in {vehicle_name}"
+                self.logger.info(m)
+                return m
+        except Exception as e:
+            m = f"Error stopping attack from {vehicle_name}: {e}"
+            self.logger.error(m)
+            return m

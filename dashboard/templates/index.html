@@ -46,7 +46,7 @@
         {% for button in rendering_params.botmaster_buttons %}
             <nav>
                 <button id="{{ button }}_start_attack" class="attack">attack from {{ button }}</button>
-                <button id="{{ button }}_end_attack"  disabled="True" class="disabled">stop attacking from {{ button }}</button>
+                <button id="{{ button }}_end_attack"  >stop attacking from {{ button }}</button>
             </nav>
         {% endfor %}
         

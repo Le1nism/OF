@@ -102,4 +102,18 @@ window.addEventListener('DOMContentLoaded', (event) => {
       });
   });
 
+  stopAttackButtons.forEach(button => {
+      button.addEventListener("click", function() {
+          fetch("/stop-attack", {
+              method: "POST",
+              headers: {
+                  'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ pressed_button_id: button.id })
+          })
+          .then(response => response.text())
+          .then(data => console.log(data));
+      });
+  });
+
 });
