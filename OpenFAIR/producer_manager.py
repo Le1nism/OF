@@ -34,16 +34,14 @@ class ProducerManager:
             self.start_producer(
                 producer_name,
                 self.producers[producer_name],
-                vehicle_name,
                 self.vehicle_configs[vehicle_name])
         return "All producers started!"
     
 
-    def start_producer(self, producer_name, producer_container, vehicle_name, vehicle_config):
+    def start_producer(self, producer_name, producer_container, vehicle_config):
         def run_producer():
 
-            command_to_exec = self.producer_command + " --vehicle_name=" + vehicle_name + \
-                    " --container_name=" + vehicle_name + \
+            command_to_exec = self.producer_command + \
                     " --kafka_broker=" + vehicle_config["kafka_broker"] + \
                     " --mu_anomalies=" + str(vehicle_config["mu_anomalies"]) + \
                     " --mu_normal=" + str(vehicle_config["mu_normal"]) + \

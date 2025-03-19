@@ -44,8 +44,7 @@ class ConsumerManager:
             
             consumer_config = self.consumer_configs[vehicle_name]
 
-            command_to_exec = self.consumer_command + " --vehicle_name=" + vehicle_name + \
-                " --container_name=" + vehicle_name + \
+            command_to_exec = self.consumer_command + \
                 " --kafka_broker=" + consumer_config["kafka_broker"] + \
                 " --buffer_size=" + str(consumer_config["buffer_size"]) + \
                 " --batch_size=" + str(consumer_config["batch_size"]) + \

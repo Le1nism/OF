@@ -317,7 +317,6 @@ class ContainerManager:
 
 
         start_attack_command = f"{ATTACK_COMMAND}" + \
-            f" --vehicle_name={vehicle_name} " + \
             f" --logging_level={cfg.logging_level} " + \
             f" --target_ip={self.containers_ips[cfg.attack.victim_container]} " + \
             f" --target_port={cfg.attack.target_port}" + \
