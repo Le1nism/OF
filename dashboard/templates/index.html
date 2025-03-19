@@ -14,25 +14,28 @@
         <h2>Train Manager</h2>
         <nav>
             <button id="create-vehicles">Create vehicles</button>
-            <button id="delete-vehicles">Delete vehicles</button>
+            <button id="delete-vehicles" class="stop">Delete vehicles</button>
         </nav>
         <nav>
             <button id="start-wandb">Start wandb</button>
-            <button id="stop-wandb">Stop wandb</button>
+            <button id="stop-wandb" class="stop">Stop wandb</button>
         </nav>
         <nav>
             <button id="produce-all">Start producers</button>
+            <button id="stop-producing-all" class="stop">Stop all producers</button>
+        </nav>
+        <nav>
             <button id="consume-all">Start consumers</button>
-            <button id="stop-producing-all">Stop all producers</button>
-            <button id="stop-consuming-all">Stop all consumers</button>
+            <button id="stop-consuming-all" class="stop">Stop all consumers</button>
+
         </nav>
         <nav>
             <button id="start-federated-learning">Start Federated Learning</button>
-            <button id="stop-federated-learning">Stop Federated Learning</button>
+            <button id="stop-federated-learning" class="stop">Stop Federated Learning</button>
         </nav>
         <nav>
             <button id="start-security-manager">Start Security Manager</button>
-            <button id="stop-security-manager">Stop Security Manager</button>
+            <button id="stop-security-manager" class="stop">Stop Security Manager</button>
         </nav>
         <!--nav>
             <a href="/real-all-data">Show latest messages</a><br>
@@ -49,8 +52,8 @@
         </nav>
         {% for button in rendering_params.botmaster_buttons %}
             <nav>
-                <button id="{{ button }}_start_attack" class="attack">attack from {{ button }}</button>
-                <button id="{{ button }}_end_attack"  >stop attacking from {{ button }}</button>
+                <button id="{{ button }}_start_attack">attack from {{ button }}</button>
+                <button id="{{ button }}_end_attack" class="stop">stop attacking from {{ button }}</button>
             </nav>
         {% endfor %}
         

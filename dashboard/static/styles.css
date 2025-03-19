@@ -102,7 +102,7 @@ button.disabled {
     box-shadow: none;
 }
 
-button.attack {
+button.stop {
     background-color: #e22d2d;
     color: #faf7f7;
 }
