@@ -71,6 +71,7 @@ class ContainerManager:
             "docker", "run", "-d",
             "--name", container_name,
             "--network", "of_trains_network",
+            "--env", f"VEHICLE_NAME={vehicle_name}",
             "open_fair-producer",
             "tail", "-f", "/dev/null"
         ]
@@ -84,6 +85,7 @@ class ContainerManager:
             "docker", "run", "-d",
             "--name", container_name,
             "--network", "of_trains_network",
+            "--env", f"VEHICLE_NAME={vehicle_name}",
             "open_fair-consumer",
             "tail", "-f", "/dev/null"
         ]
