@@ -9,8 +9,8 @@
     <title>Open-FAIR Dashboard</title>
 </head>
 <body>
+    <h1>Open-FAIR SereWay</h1>
     <div class="containerForGroup">
-        <h1>Open-FAIR SereWay</h1>
         <h2>Train Manager</h2>
         <nav>
             <button id="create-vehicles">Create vehicles</button>
@@ -45,8 +45,8 @@
         <h2>Bot Master</h2>
         {% for button in rendering_params.botmaster_buttons %}
             <nav>
-                <button id="{{ button }}" onclick="alert('{{ button }} clicked!')" class="attack">attack {{ button }}</button>
-                <button id="{{ button }}" onclick="alert('{{ button }} clicked!')" disabled="True" class="disabled">stop attacking {{ button }}</button>
+                <button id="{{ button }}_start_attack" class="attack">attack from {{ button }}</button>
+                <button id="{{ button }}_end_attack"  disabled="True" class="disabled">stop attacking from {{ button }}</button>
             </nav>
         {% endfor %}
         

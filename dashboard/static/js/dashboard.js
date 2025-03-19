@@ -13,6 +13,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
   const startSecurityManagerButton = document.getElementById("start-security-manager");
   const stopSecurityManagerButton = document.getElementById("stop-security-manager");
 
+  const startAttackButtons = Array.from(document.querySelectorAll('[id$="_start_attack"]'));
+  const stopAttackButtons = Array.from(document.querySelectorAll('[id$="_end_attack"]'))
+
   produceAllButton.addEventListener("click", function() {
       fetch("/produce-all", {method: "POST"})
         .then(response => response.text())
@@ -84,4 +87,19 @@ window.addEventListener('DOMContentLoaded', (event) => {
         .then(response => response.text())
         .then(data => console.log(data));
   });
+
+  startAttackButtons.forEach(button => {
+      button.addEventListener("click", function() {
+          fetch("/start-attack", {
+              method: "POST",
+              headers: {
+                  'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ pressed_button_id: button.id })
+          })
+          .then(response => response.text())
+          .then(data => console.log(data));
+      });
+  });
+
 });

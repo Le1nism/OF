@@ -1,6 +1,6 @@
 from omegaconf import DictConfig, OmegaConf 
 import hydra
-from flask import Flask,  render_template
+from flask import Flask,  render_template, request
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -92,6 +92,13 @@ def create_app(cfg: DictConfig) -> None:
 
         return render_template('index.html', rendering_params=rendering_params)
 
+    @app.route("/start-attack", methods=["POST"], )
+    def start_attack():
+        data = request.get_json()
+        pressed_button_id = data['pressed_button_id']
+        attacking_vehicle = pressed_button_id.split("_")[0]
+        return container_manager.start_attack_from_vehicle(cfg, attacking_vehicle)
+    
 
     @app.route("/produce-all", methods=["POST"])
     def produce_all():

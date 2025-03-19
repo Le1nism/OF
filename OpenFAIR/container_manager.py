@@ -9,6 +9,7 @@ import subprocess
 WANDBER_COMMAND = "python wandber.py"
 FL_COMMAND = "python federated_learning.py"
 SM_COMMAND = "python security_manager.py"
+ATTACK_COMMAND = "python attack.py"
 
 class ContainerManager:
     
@@ -281,3 +282,41 @@ class ContainerManager:
             m = f"Error stopping security manager: {e}"
             self.logger.error(m)
             return m
+        
+    
+    def start_attack_from_vehicle(self, cfg, vehicle_name):
+
+        attacking_container = self.producers[f"{vehicle_name}_producer"]
+
+        assert cfg.attack.victim_container in self.containers_ips
+        try:
+            assert cfg.attack.victim_container in self.containers_ips
+        except AssertionError:
+            m = f"Error: Victim container {cfg.attack.victim_container} not found in container IPs."
+            m += f"\n try one of these :{list(self.containers_ips.keys())}"
+            self.logger.error(m)
+            return m
+
+
+        start_attack_command = f"{ATTACK_COMMAND}" + \
+            f" --vehicle_name={vehicle_name} " + \
+            f" --logging_level={cfg.logging_level} " + \
+            f" --target_ip={self.containers_ips[cfg.attack.victim_container]} " + \
+            f" --target_port={cfg.attack.target_port}" + \
+            f" --duration={cfg.attack.duration}" + \
+            f" --packet_size={cfg.attack.packet_size}" + \
+            f" --delay={cfg.attack.delay}"  
+
+        
+        def run_attack(self):
+            return_tuple = attacking_container.exec_run(
+                 start_attack_command,
+                 tty=True,
+                 stream=True,
+                 stdin=True)
+            for line in return_tuple[1]:
+                print(line.decode().strip())
+        
+        thread = threading.Thread(target=run_attack, args=(self,))
+        thread.start()
+        return f"Starting attack from {vehicle_name}"

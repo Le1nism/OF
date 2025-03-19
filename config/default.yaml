@@ -191,3 +191,10 @@ dashboard:
   kafka_consumer_group_id: kafka-consumer-group-1
   kafka_auto_offset_reset: earliest
   message_cache_len: 20
+
+attack:
+  target_port: 80
+  duration: 60
+  packet_size: 1024
+  delay: 0.001
+  victim_container: zookeeper # be careful what you wish for...
