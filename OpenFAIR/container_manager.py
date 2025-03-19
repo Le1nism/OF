@@ -348,3 +348,15 @@ class ContainerManager:
             m = f"Error stopping attack from {vehicle_name}: {e}"
             self.logger.error(m)
             return m
+    
+
+    def start_preconf_attack(self, cfg):
+        for attacking_vehicle_name in cfg.attack.preconf_attacking_vehicles:
+            self.start_attack_from_vehicle(cfg, attacking_vehicle_name)
+        return "Preconfigured attack started!"
+    
+    
+    def stop_preconf_attack(self, cfg):
+        for attacking_vehicle_name in cfg.attack.preconf_attacking_vehicles:
+            self.stop_attack_from_vehicle(attacking_vehicle_name)
+        return "Preconfigured attack stopped!"

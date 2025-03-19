@@ -198,3 +198,6 @@ attack:
   packet_size: 1024
   delay: 0.001
   victim_container: zookeeper # be careful what you wish for...
+  preconf_attacking_vehicles:
+    - daniel
+    - frank

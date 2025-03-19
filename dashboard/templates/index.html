@@ -43,6 +43,10 @@
     </div>
     <div class="containerForGroup">
         <h2>Bot Master</h2>
+        <nav>
+            <button id="start-preconf-attack">Start Preconfigurated Attack</button>
+            <button id="stop-preconf-attack">Stop Preconfigurated Attack</button>
+        </nav>
         {% for button in rendering_params.botmaster_buttons %}
             <nav>
                 <button id="{{ button }}_start_attack" class="attack">attack from {{ button }}</button>

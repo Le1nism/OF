@@ -105,6 +105,14 @@ def create_app(cfg: DictConfig) -> None:
         pressed_button_id = data['pressed_button_id']
         attacking_vehicle = pressed_button_id.split("_")[0]
         return container_manager.stop_attack_from_vehicle(attacking_vehicle)
+    
+    @app.route("/start-preconf-attack", methods=["POST"])
+    def start_preconf_attack():
+        return container_manager.start_preconf_attack(cfg)
+    
+    @app.route("/stop-preconf-attack", methods=["POST"])
+    def stop_preconf_attack():
+        return container_manager.stop_preconf_attack(cfg)
 
     @app.route("/produce-all", methods=["POST"])
     def produce_all():

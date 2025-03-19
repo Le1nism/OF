@@ -16,6 +16,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
   const startAttackButtons = Array.from(document.querySelectorAll('[id$="_start_attack"]'));
   const stopAttackButtons = Array.from(document.querySelectorAll('[id$="_end_attack"]'))
 
+  const startPreconfAttackButton = document.getElementById("start-preconf-attack");
+  const stopPreconfAttackButton = document.getElementById("stop-preconf-attack");
+
   produceAllButton.addEventListener("click", function() {
       fetch("/produce-all", {method: "POST"})
         .then(response => response.text())
@@ -84,6 +87,18 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
   stopSecurityManagerButton.addEventListener("click", function() {
       fetch("/stop-security-manager", {method: "POST"})
+        .then(response => response.text())
+        .then(data => console.log(data));
+  });
+
+  startPreconfAttackButton.addEventListener("click", function() {
+      fetch("/start-preconf-attack", {method: "POST"})
+        .then(response => response.text())
+        .then(data => console.log(data));
+  });
+
+  stopPreconfAttackButton.addEventListener("click", function() {
+      fetch("/stop-preconf-attack", {method: "POST"})
         .then(response => response.text())
         .then(data => console.log(data));
   });
