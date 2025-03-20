@@ -260,7 +260,7 @@ class ContainerManager:
             f" --initialization_strategy={cfg.security_manager.initialization_strategy}" + \
             f" --input_dim={cfg.security_manager.input_dim}" + \
             f" --output_dim={cfg.security_manager.output_dim}" + \
-            f" --h_dim={cfg.security_manager.h_dim}" + \
+            f" --h_dim={cfg.security_manager.hidden_dim}" + \
             f" --num_layers={cfg.security_manager.num_layers}" + \
             f" --dropout={cfg.security_manager.dropout}" + \
             f" --optimizer={cfg.security_manager.optimizer}"
