@@ -256,8 +256,15 @@ class ContainerManager:
             f" --training_freq_seconds={cfg.security_manager.training_freq_seconds}" +\
             f" --save_model_freq_epochs={cfg.security_manager.save_model_freq_epochs}" +\
             f" --model_saving_path={cfg.security_manager.model_saving_path}" + \
-            f" --vehicle_names={vehicle_param_str}"
-
+            f" --vehicle_names={vehicle_param_str}" + \
+            f" --initialization_strategy={cfg.security_manager.initialization_strategy}" + \
+            f" --input_dim={cfg.security_manager.input_dim}" + \
+            f" --output_dim={cfg.security_manager.output_dim}" + \
+            f" --h_dim={cfg.security_manager.h_dim}" + \
+            f" --num_layers={cfg.security_manager.num_layers}" + \
+            f" --dropout={cfg.security_manager.dropout}" + \
+            f" --optimizer={cfg.security_manager.optimizer}"
+        
         if len(cfg.attack.preconf_attacking_vehicles) > 0:
             preconf_attackers_str_param = cfg.attack.preconf_attacking_vehicles[0]
             for vehicle in cfg.attack.preconf_attacking_vehicles:
