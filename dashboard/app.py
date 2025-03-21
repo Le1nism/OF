@@ -5,10 +5,21 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from OpenFAIR import MessageCache, MetricsLogger, KafkaMessageConsumer, ContainerManager
-
+import logging
 
 DASHBOARD_NAME = "DASH"
 
+###
+## Configure Werkzeug logger to filter out vehicle-status requests
+## These are too many and clutter the logs
+werkzeug_logger = logging.getLogger('werkzeug')
+original_handle = werkzeug_logger.handle
+def custom_handle(record):
+    if 'POST /vehicle-status' not in record.getMessage():
+        return original_handle(record)
+    return True
+werkzeug_logger.handle = custom_handle
+###
 
 def processing_message(topic, msg):
     """

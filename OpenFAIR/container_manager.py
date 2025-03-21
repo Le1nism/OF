@@ -57,10 +57,7 @@ class ContainerManager:
     def init_vehicle_status_dict(self):
         vehicle_status_dict = {}
         for vehicle_name in self.vehicle_names:
-            if vehicle_name in self.cfg.attack.preconf_attacking_vehicles:
-                vehicle_status_dict[f"{vehicle_name}"] = INFECTED
-            else:
-                vehicle_status_dict[vehicle_name] = HEALTHY
+            vehicle_status_dict[vehicle_name] = HEALTHY
         self.logger.info("Vehicle State Dictionary:")
         for vehicle, state in vehicle_status_dict.items():
             self.logger.info(f"  {vehicle}: {state}")  
@@ -291,13 +288,6 @@ class ContainerManager:
             f" --dropout={cfg.security_manager.dropout}" + \
             f" --optimizer={cfg.security_manager.optimizer}" + \
             f" --manager_port={cfg.dashboard.port}"
-        
-        if len(cfg.attack.preconf_attacking_vehicles) > 0:
-            preconf_attackers_str_param = cfg.attack.preconf_attacking_vehicles[0]
-            for vehicle in cfg.attack.preconf_attacking_vehicles:
-                preconf_attackers_str_param += f"\ {vehicle}"
-            start_command += \
-            f" --preconf_attacking_vehicles={preconf_attackers_str_param}"
         
         def run_security_manager(self):
             return_tuple = self.wandber['container'].exec_run(
