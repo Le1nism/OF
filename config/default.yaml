@@ -45,6 +45,10 @@ default_vehicle_config:
   anomaly_classes: all
   diagnostics_classes: all
   time_emulation: True
+  ping_thread_timeout: 5
+  ping_host: google.com
+  probe_frequency_seconds: 5
+
 
 # We have 19 (from 0 to 18) anomaly clusters and 15 diagnostics clusters (from 0 to 40)
 # Each vehicle can have different anomaly and diagnostics that prioritises when generating data.

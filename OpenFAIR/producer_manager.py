@@ -49,7 +49,11 @@ class ProducerManager:
                     " --beta=" + str(vehicle_config["beta"]) + \
                     " --logging_level=" + str(self.logging_level) + \
                     " --anomaly_classes=" + ",".join(map(str,vehicle_config["anomaly_classes"])) + \
-                    " --diagnostics_classes=" + ",".join(map(str,vehicle_config["diagnostics_classes"]))
+                    " --diagnostics_classes=" + ",".join(map(str,vehicle_config["diagnostics_classes"])) + \
+                    " --ping_thread_timeout=" + str(vehicle_config["ping_thread_timeout"]) + \
+                    " --ping_host=" + str(vehicle_config["ping_host"]) + \
+                    " --probe_frequency_seconds=" + str(vehicle_config["probe_frequency_seconds"])
+            
             if vehicle_config["time_emulation"]:
                 command_to_exec += " --time_emulation" 
             
