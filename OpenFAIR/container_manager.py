@@ -46,7 +46,13 @@ class ContainerManager:
 
         self.vehicle_status_dict = self.init_vehicle_status_dict()
         self.refresh_containers()
+        self.host_ip = self.get_my_ip()
+        self.logger.info(f"Host IP: {self.host_ip}")
 
+
+    def get_my_ip(self):
+        cmd = "hostname -I | cut -d' ' -f1"
+        return subprocess.run(cmd, shell=True, check=True, stdout=subprocess.PIPE).stdout.decode().strip()
 
     def init_vehicle_status_dict(self):
         vehicle_status_dict = {}
@@ -90,6 +96,7 @@ class ContainerManager:
             "--name", container_name,
             "--network", "of_trains_network",
             "--env", f"VEHICLE_NAME={vehicle_name}",
+            "--env", f"HOST_IP={self.host_ip}",
             "open_fair-producer",
             "tail", "-f", "/dev/null"
         ]
@@ -104,6 +111,7 @@ class ContainerManager:
             "--name", container_name,
             "--network", "of_trains_network",
             "--env", f"VEHICLE_NAME={vehicle_name}",
+            "--env", f"HOST_IP={self.host_ip}",
             "open_fair-consumer",
             "tail", "-f", "/dev/null"
         ]
@@ -281,7 +289,8 @@ class ContainerManager:
             f" --h_dim={cfg.security_manager.hidden_dim}" + \
             f" --num_layers={cfg.security_manager.num_layers}" + \
             f" --dropout={cfg.security_manager.dropout}" + \
-            f" --optimizer={cfg.security_manager.optimizer}"
+            f" --optimizer={cfg.security_manager.optimizer}" + \
+            f" --manager_port={cfg.dashboard.port}"
         
         if len(cfg.attack.preconf_attacking_vehicles) > 0:
             preconf_attackers_str_param = cfg.attack.preconf_attacking_vehicles[0]
@@ -405,3 +414,7 @@ class ContainerManager:
         for attacking_vehicle_name in cfg.attack.preconf_attacking_vehicles:
             self.stop_attack_from_vehicle(attacking_vehicle_name)
         return "Preconfigured attack stopped!"
+    
+
+    def get_vehicle_status(self, vehicle_name):
+        return self.vehicle_status_dict[vehicle_name]

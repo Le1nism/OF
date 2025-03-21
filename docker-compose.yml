@@ -54,7 +54,8 @@ services:
     hostname: wandber  # Hostname for internal communication
     environment:
       WANDB_API_KEY: ${WANDB_API_KEY}
-      no_proxy: 192.168.183.146  # DISTA server style :) Allows the container to access the host machine. Replace with your host IP address IF needed
+      no_proxy: ${HOST_IP}  # Allows the container to access the host machine in case the host has a proxy.
+      HOST_IP: ${HOST_IP}  #  Replace with your host IP address in the .env file
     depends_on:
       - kafka  # Ensure this producer starts only after Kafka is running
     networks:

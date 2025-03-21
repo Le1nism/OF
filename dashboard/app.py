@@ -83,6 +83,13 @@ def create_app(cfg: DictConfig) -> None:
         return render_template('index.html', rendering_params=rendering_params)
     
 
+    @app.route('/vehicle-status', methods=['POST'])
+    def vehicle_status():
+        data = request.get_json()
+        vehicle_name = data['vehicle_name']
+        return container_manager.get_vehicle_status(vehicle_name)
+
+
     @app.route("/start-attack", methods=["POST"], )
     def start_attack():
         data = request.get_json()
