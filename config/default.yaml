@@ -28,7 +28,7 @@ security_manager:
   model_saving_path: sm_model.pth
   training_freq_seconds: 0.5
   initialization_strategy: xavier   # xavier, he, normal
-  input_dim: 5
+  input_dim: 3 # for the current metrics (Latency; Network Inbound ; Network Outbound) # TODO isolate Memory and CPU in containers, and add them to the input_dim
   hidden_dim: 20
   output_dim: 1
   num_layers: 2
