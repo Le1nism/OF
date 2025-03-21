@@ -10,6 +10,9 @@ WANDBER_COMMAND = "python wandber.py"
 FL_COMMAND = "python federated_learning.py"
 SM_COMMAND = "python security_manager.py"
 ATTACK_COMMAND = "python attack.py"
+HEALTHY = "HEALTHY"
+INFECTED = "INFECTED"
+
 
 class ContainerManager:
     
@@ -41,7 +44,22 @@ class ContainerManager:
                 vehicle_name = list(vehicle.keys())[0]
             self.vehicle_names.append(vehicle_name) 
 
+        self.vehicle_status_dict = self.init_vehicle_status_dict()
         self.refresh_containers()
+
+
+    def init_vehicle_status_dict(self):
+        vehicle_status_dict = {}
+        for vehicle_name in self.vehicle_names:
+            if vehicle_name in self.cfg.attack.preconf_attacking_vehicles:
+                vehicle_status_dict[f"{vehicle_name}"] = INFECTED
+            else:
+                vehicle_status_dict[vehicle_name] = HEALTHY
+        self.logger.info("Vehicle State Dictionary:")
+        for vehicle, state in vehicle_status_dict.items():
+            self.logger.info(f"  {vehicle}: {state}")  
+
+        return vehicle_status_dict
 
 
     def create_vehicles(self):
@@ -341,6 +359,7 @@ class ContainerManager:
             for line in return_tuple[1]:
                 print(line.decode().strip())
         
+        self.vehicle_status_dict[vehicle_name] = INFECTED
         thread = threading.Thread(target=run_attack, args=(self,))
         thread.start()
         return f"Starting attack from {vehicle_name}"
@@ -370,7 +389,11 @@ class ContainerManager:
             m = f"Error stopping attack from {vehicle_name}: {e}"
             self.logger.error(m)
             return m
-    
+        finally:
+            self.vehicle_status_dict[f"{vehicle_name}"] = HEALTHY
+            self.logger.debug(f"Vehicle State Dictionary:")
+            for vehicle, state in self.vehicle_status_dict.items():
+                self.logger.debug(f"  {vehicle}: {state}")
 
     def start_preconf_attack(self, cfg):
         for attacking_vehicle_name in cfg.attack.preconf_attacking_vehicles:
