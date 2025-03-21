@@ -59,7 +59,6 @@ def create_app(cfg: DictConfig) -> None:
     app.logger.name = DASHBOARD_NAME
     app.logger.setLevel(cfg.logging_level.upper())
 
-
     # Create a ConainerManager instance
     container_manager = ContainerManager(cfg)
 
@@ -67,16 +66,6 @@ def create_app(cfg: DictConfig) -> None:
     message_consumer = KafkaMessageConsumer(parent=app, cfg=cfg)
     message_consumer.start()
 
-
-    def prepare_botmaster_buttons(cfg):
-        vehicle_names = []
-        for vehicle in cfg.vehicles:
-            if type(vehicle) == str:
-                vehicle_names.append(vehicle)
-            else: 
-                vehicle_names.append(list(vehicle.keys())[0])
-        return vehicle_names
-    
 
     @app.route('/', methods=['GET'])
     def home():
@@ -86,11 +75,13 @@ def create_app(cfg: DictConfig) -> None:
         Returns:
             str: The HTML for the home page.
         """
+
         rendering_params = {
-            "botmaster_buttons" : prepare_botmaster_buttons(cfg)
+            "botmaster_buttons" : container_manager.vehicle_names
         }
 
         return render_template('index.html', rendering_params=rendering_params)
+    
 
     @app.route("/start-attack", methods=["POST"], )
     def start_attack():
@@ -99,6 +90,7 @@ def create_app(cfg: DictConfig) -> None:
         attacking_vehicle = pressed_button_id.split("_")[0]
         return container_manager.start_attack_from_vehicle(cfg, attacking_vehicle)
     
+
     @app.route("/stop-attack", methods=["POST"])
     def stop_attack():
         data = request.get_json()
@@ -106,10 +98,12 @@ def create_app(cfg: DictConfig) -> None:
         attacking_vehicle = pressed_button_id.split("_")[0]
         return container_manager.stop_attack_from_vehicle(attacking_vehicle)
     
+
     @app.route("/start-preconf-attack", methods=["POST"])
     def start_preconf_attack():
         return container_manager.start_preconf_attack(cfg)
     
+
     @app.route("/stop-preconf-attack", methods=["POST"])
     def stop_preconf_attack():
         return container_manager.stop_preconf_attack(cfg)
@@ -148,13 +142,16 @@ def create_app(cfg: DictConfig) -> None:
     def start_wandb():
         return container_manager.start_wandb(cfg)
 
+
     @app.route('/start-security-manager', methods=['POST'])
     def start_security_manager():
         return container_manager.start_security_manager(cfg)
     
+
     @app.route('/stop-security-manager', methods=['POST'])
     def stop_security_manager():
         return container_manager.stop_security_manager()
+
 
     @app.route('/create-vehicles', methods=['POST'])
     def create_vehicles():
