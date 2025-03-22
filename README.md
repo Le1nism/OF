@@ -1,3 +1,4 @@
+
 # Open FARI
 
 This is the official implementation of the paper:
@@ -33,6 +34,10 @@ This will fetch and checkout the submodules recursively.
 
 ### Installation:
 
+If you're using Windows to run the application, you may want to consider running the application on WSL (Windows Subsystem for Linux), which eliminates overhead caused by a VM or dualbooting.
+
+[This guide](https://learn.microsoft.com/en-us/windows/wsl/install) by Microsoft explains how to install and activate WSL with a user-chosen Linux distribution (recommended: Ubuntu 24-04).
+
 You may want to create a virtual environment before installing python libraries:
 
 
@@ -57,6 +62,37 @@ Activate the virtual environment. The command to activate the virtual environmen
 Once the virtual environment is activated, you can install packages and run Python scripts within the virtual environment without affecting your global Python installation. Install the required packages to launch the container manager from the `requirements.txt` file:
 
     pip install -r requirements.txt
+
+## Installing Docker
+**On Windows:**
+
+Download [Docker Desktop](https://www.docker.com/products/docker-desktop/) and run the program.
+
+**On WSL:**
+
+Follow [this guide](https://docs.docker.com/engine/install/ubuntu/) to install Docker CE for the Ubuntu distribution (commands for other distributions can be found on the same website).
+Perform the post installation steps, as shown [here](https://docs.docker.com/engine/install/linux-postinstall/).
+(Optional) You can also make Docker Daemon start on WSL initialization, by adding:
+```
+[boot]
+systemd=true
+```
+to your `/etc/wsl.conf` within your WSL distribution and restart it with `wsl.exe --shutdown`.
+
+To verify that Docker works, run `docker version` and `docker compose version` to verify that Docker Compose got installed as well.
+
+## Installing Make
+**On Windows:**
+
+Download Make from the [GnuWin32](https://gnuwin32.sourceforge.net/packages/make.htm) project.
+Run the installer and add the `bin` directory to your `PATH` (inside Windows' Environment Variables).
+Verify it works by opening a command prompt and executing `make --version`.
+
+**On WSL:**
+
+Run `sudo apt-get update` and `sudo apt-get install make`.
+Verify it works by executing `make --version`.
+
 
 ## Building vehicle images and dashboard:
 
