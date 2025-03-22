@@ -70,23 +70,29 @@ Download [Docker Desktop](https://www.docker.com/products/docker-desktop/) and r
 **On WSL:**
 
 Follow [this guide](https://docs.docker.com/engine/install/ubuntu/) to install Docker CE for the Ubuntu distribution (commands for other distributions can be found on the same website).
+
 Perform the post installation steps, as shown [here](https://docs.docker.com/engine/install/linux-postinstall/).
-(Optional: you can also make Docker Daemon start on WSL initialization, by adding:
+
+(Optional) You can also make Docker Daemon start on WSL initialization, by adding:
 ```
 [boot]
 systemd=true
 ```
 to your `/etc/wsl.conf` within your WSL distribution and restart it with `wsl.exe --shutdown`.
+
 To verify that Docker works, run `docker version` and `docker compose version` to verify that Docker Compose got installed as well.
 
 ## Installing Make
 **On Windows:**
 Download Make from the [GnuWin32](https://gnuwin32.sourceforge.net/packages/make.htm) project.
+
 Run the installer and add the `bin` directory to your `PATH` (inside Windows' Environment Variables).
+
 Verify it works by opening a command prompt and executing `make --version`.
 
 **On WSL:**
 Run `sudo apt-get update` and `sudo apt-get install make`.
+
 Verify it works by executing `make --version`.
 
 
