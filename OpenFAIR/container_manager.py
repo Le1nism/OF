@@ -4,7 +4,7 @@ from OpenFAIR.producer_manager import ProducerManager
 from OpenFAIR.consumer_manager import ConsumerManager
 import threading
 import subprocess
-
+import time
 
 WANDBER_COMMAND = "python wandber.py"
 FL_COMMAND = "python federated_learning.py"
@@ -45,6 +45,7 @@ class ContainerManager:
             self.vehicle_names.append(vehicle_name) 
 
         self.vehicle_status_dict = self.init_vehicle_status_dict()
+        self.last_attack_started_at = {vehicle_name: time.time() for vehicle_name in self.vehicle_names}
         self.refresh_containers()
         self.host_ip = self.get_my_ip()
         self.logger.info(f"Host IP: {self.host_ip}")
@@ -53,6 +54,7 @@ class ContainerManager:
     def get_my_ip(self):
         cmd = "hostname -I | cut -d' ' -f1"
         return subprocess.run(cmd, shell=True, check=True, stdout=subprocess.PIPE).stdout.decode().strip()
+
 
     def init_vehicle_status_dict(self):
         vehicle_status_dict = {}
@@ -359,12 +361,13 @@ class ContainerManager:
                 print(line.decode().strip())
         
         self.vehicle_status_dict[vehicle_name] = INFECTED
+        self.last_attack_started_at[vehicle_name] = time.time()
         thread = threading.Thread(target=run_attack, args=(self,))
         thread.start()
         return f"Starting attack from {vehicle_name}"
 
 
-    def stop_attack_from_vehicle(self, vehicle_name):
+    def stop_attack_from_vehicle(self, vehicle_name, origin):
 
         assert f"{vehicle_name}_producer" in self.producers
 
@@ -379,6 +382,11 @@ class ContainerManager:
                 attacking_container.exec_run(f"kill -SIGINT {pid}")
                 m = f"Stopping attack from {vehicle_name}..."
                 self.logger.info(m)
+                reactive_mitigation_time = time.time() - self.last_attack_started_at[vehicle_name]
+                if origin == "AI":     
+                    self.logger.info(f"Vehicle {vehicle_name} was automatically healed after {int(reactive_mitigation_time)} seconds.")
+                else:
+                    self.logger.info(f"Vehicle {vehicle_name} was manually healed after {int(reactive_mitigation_time)} seconds.")
                 return m
             else:
                 m = f"No attacking process found in {vehicle_name}"
@@ -389,10 +397,12 @@ class ContainerManager:
             self.logger.error(m)
             return m
         finally:
+
             self.vehicle_status_dict[f"{vehicle_name}"] = HEALTHY
             self.logger.debug(f"Vehicle State Dictionary:")
             for vehicle, state in self.vehicle_status_dict.items():
                 self.logger.debug(f"  {vehicle}: {state}")
+         
 
     def start_preconf_attack(self, cfg):
         for attacking_vehicle_name in cfg.attack.preconf_attacking_vehicles:
@@ -402,7 +412,7 @@ class ContainerManager:
 
     def stop_preconf_attack(self, cfg):
         for attacking_vehicle_name in cfg.attack.preconf_attacking_vehicles:
-            self.stop_attack_from_vehicle(attacking_vehicle_name)
+            self.stop_attack_from_vehicle(attacking_vehicle_name, "MANUALLY")
         return "Preconfigured attack stopped!"
     
 

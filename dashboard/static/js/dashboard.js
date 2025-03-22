@@ -110,7 +110,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
               headers: {
                   'Content-Type': 'application/json'
               },
-              body: JSON.stringify({ pressed_button_id: button.id })
+              body: JSON.stringify({ vehicle_name: button.id })
           })
           .then(response => response.text())
           .then(data => console.log(data));
@@ -124,7 +124,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
               headers: {
                   'Content-Type': 'application/json'
               },
-              body: JSON.stringify({ pressed_button_id: button.id })
+              body: JSON.stringify({ vehicle_name: button.id,
+                                      origin: "MANUALLY"
+                                    })
           })
           .then(response => response.text())
           .then(data => console.log(data));

@@ -104,17 +104,18 @@ def create_app(cfg: DictConfig) -> None:
     @app.route("/start-attack", methods=["POST"], )
     def start_attack():
         data = request.get_json()
-        pressed_button_id = data['pressed_button_id']
-        attacking_vehicle = pressed_button_id.split("_")[0]
+        chosen_vehicle = data['vehicle_name']
+        attacking_vehicle = chosen_vehicle.split("_")[0]
         return container_manager.start_attack_from_vehicle(cfg, attacking_vehicle)
     
 
     @app.route("/stop-attack", methods=["POST"])
     def stop_attack():
         data = request.get_json()
-        pressed_button_id = data['pressed_button_id']
-        attacking_vehicle = pressed_button_id.split("_")[0]
-        return container_manager.stop_attack_from_vehicle(attacking_vehicle)
+        chosen_vehicle = data['vehicle_name']
+        origin = data['origin']
+        attacking_vehicle = chosen_vehicle.split("_")[0]
+        return container_manager.stop_attack_from_vehicle(attacking_vehicle, origin)
     
 
     @app.route("/start-preconf-attack", methods=["POST"])
