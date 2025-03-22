@@ -35,6 +35,7 @@ This will fetch and checkout the submodules recursively.
 ### Installation:
 
 If you're using Windows to run the application, you may want to consider running the application on WSL (Windows Subsystem for Linux), which eliminates overhead caused by a VM or dualbooting.
+
 [This guide](https://learn.microsoft.com/en-us/windows/wsl/install) by Microsoft explains how to install and activate WSL with a user-chosen Linux distribution (recommended: Ubuntu 24-04).
 
 You may want to create a virtual environment before installing python libraries:
@@ -70,9 +71,7 @@ Download [Docker Desktop](https://www.docker.com/products/docker-desktop/) and r
 **On WSL:**
 
 Follow [this guide](https://docs.docker.com/engine/install/ubuntu/) to install Docker CE for the Ubuntu distribution (commands for other distributions can be found on the same website).
-
 Perform the post installation steps, as shown [here](https://docs.docker.com/engine/install/linux-postinstall/).
-
 (Optional) You can also make Docker Daemon start on WSL initialization, by adding:
 ```
 [boot]
@@ -84,15 +83,14 @@ To verify that Docker works, run `docker version` and `docker compose version` t
 
 ## Installing Make
 **On Windows:**
+
 Download Make from the [GnuWin32](https://gnuwin32.sourceforge.net/packages/make.htm) project.
-
 Run the installer and add the `bin` directory to your `PATH` (inside Windows' Environment Variables).
-
 Verify it works by opening a command prompt and executing `make --version`.
 
 **On WSL:**
-Run `sudo apt-get update` and `sudo apt-get install make`.
 
+Run `sudo apt-get update` and `sudo apt-get install make`.
 Verify it works by executing `make --version`.
 
 
