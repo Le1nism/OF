@@ -64,9 +64,11 @@ Once the virtual environment is activated, you can install packages and run Pyth
 
 ## Installing Docker
 **On Windows:**
+
 Download [Docker Desktop](https://www.docker.com/products/docker-desktop/) and run the program.
 
 **On WSL:**
+
 Follow [this guide](https://docs.docker.com/engine/install/ubuntu/) to install Docker CE for the Ubuntu distribution (commands for other distributions can be found on the same website).
 Perform the post installation steps, as shown [here](https://docs.docker.com/engine/install/linux-postinstall/).
 (Optional: you can also make Docker Daemon start on WSL initialization, by adding:
