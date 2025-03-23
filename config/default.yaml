@@ -34,6 +34,7 @@ security_manager:
   num_layers: 2
   dropout: 0.1
   optimizer: Adam
+  mitigation: False
 
   
 default_vehicle_config:

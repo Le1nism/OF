@@ -291,6 +291,9 @@ class ContainerManager:
             f" --optimizer={cfg.security_manager.optimizer}" + \
             f" --manager_port={cfg.dashboard.port}"
         
+        if cfg.security_manager.mitigation:
+            start_command += f" --mitigation"
+        
         def run_security_manager(self):
             return_tuple = self.wandber['container'].exec_run(
                  start_command,
