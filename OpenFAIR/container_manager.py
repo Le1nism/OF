@@ -372,7 +372,7 @@ class ContainerManager:
         assert f"{vehicle_name}_producer" in self.producers
 
         attacking_container = self.producers[f"{vehicle_name}_producer"]
-
+        reactive_mitigation_time = None
         try:
             # Try to find and kill the process
             pid_result = attacking_container.exec_run(f"pgrep -f '{ATTACK_COMMAND}'")
@@ -387,15 +387,15 @@ class ContainerManager:
                     self.logger.info(f"Vehicle {vehicle_name} was automatically healed after {int(reactive_mitigation_time)} seconds.")
                 else:
                     self.logger.info(f"Vehicle {vehicle_name} was manually healed after {int(reactive_mitigation_time)} seconds.")
-                return m
+                return {"message" :m, "mitigation_time": int(reactive_mitigation_time)}
             else:
                 m = f"No attacking process found in {vehicle_name}"
                 self.logger.info(m)
-                return m
+                return {"message" :m, "mitigation_time": reactive_mitigation_time}
         except Exception as e:
             m = f"Error stopping attack from {vehicle_name}: {e}"
             self.logger.error(m)
-            return m
+            return {"message" :m, "mitigation_time": reactive_mitigation_time}
         finally:
 
             self.vehicle_status_dict[f"{vehicle_name}"] = HEALTHY
