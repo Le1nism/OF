@@ -70,6 +70,7 @@ class ContainerManager:
     def create_vehicles(self):
 
         for vehicle_name in self.vehicle_names:
+
             self.create_producer(vehicle_name)
             self.create_consumer(vehicle_name)
 
@@ -90,12 +91,17 @@ class ContainerManager:
 
     def create_producer(self, vehicle_name):
         container_name = f"{vehicle_name}_producer"
+
+
         cmd = [
             "docker", "run", "-d",
             "--name", container_name,
             "--network", "of_trains_network",
             "--env", f"VEHICLE_NAME={vehicle_name}",
             "--env", f"HOST_IP={self.host_ip}",
+            "--cpuset-cpus", self.producer_manager.vehicle_configs[vehicle_name]['cpu_cores'],
+            "--cpu-period", str(self.producer_manager.vehicle_configs[vehicle_name]['cpu_period']),
+            "--cpu-quota", str(self.producer_manager.vehicle_configs[vehicle_name]['cpu_quota']),
             "open_fair-producer",
             "tail", "-f", "/dev/null"
         ]
@@ -283,7 +289,7 @@ class ContainerManager:
             f" --model_saving_path={cfg.security_manager.model_saving_path}" + \
             f" --vehicle_names={vehicle_param_str}" + \
             f" --initialization_strategy={cfg.security_manager.initialization_strategy}" + \
-            f" --input_dim={cfg.security_manager.input_dim}" + \
+            f" --input_dim={len(cfg.security_manager.probe_metrics)}" + \
             f" --output_dim={cfg.security_manager.output_dim}" + \
             f" --h_dim={cfg.security_manager.hidden_dim}" + \
             f" --num_layers={cfg.security_manager.num_layers}" + \
