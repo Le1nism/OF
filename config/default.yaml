@@ -216,6 +216,9 @@ dashboard:
   kafka_consumer_group_id: kafka-consumer-group-1
   kafka_auto_offset_reset: earliest
   message_cache_len: 20
+  ping_thread_timeout: 5
+  ping_host: google.com
+  probe_frequency_seconds: 5
 
 attack:
   target_port: 80
@@ -226,3 +229,5 @@ attack:
   preconf_attacking_vehicles:
     - daniel
     - frank
+  automatic_attack: False
+  automatic_attack_interval_secs: 5
