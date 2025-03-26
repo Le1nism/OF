@@ -295,10 +295,16 @@ class ContainerManager:
             f" --aggregation_strategy={self.cfg.federated_learning.aggregation_strategy}" +\
             f" --initialization_strategy={self.cfg.federated_learning.initialization_strategy}" +\
             f" --aggregation_interval_secs={self.cfg.federated_learning.aggregation_interval_secs}" +\
-            f" --weights_buffer_size={self.cfg.federated_learning.weights_buffer_size}"
-                
+            f" --weights_buffer_size={self.cfg.federated_learning.weights_buffer_size}" +\
+            f" --output_dim={self.cfg.anomaly_detection.output_dim}" + \
+            f" --h_dim={self.cfg.anomaly_detection.h_dim}" + \
+            f" --num_layers={self.cfg.anomaly_detection.num_layers}" +\
+            f" --input_dim={self.cfg.anomaly_detection.input_dim}"
+        
         if self.cfg.wandb.online:
             start_command += " --online"
+        if self.cfg.anomaly_detection.layer_norm:
+            start_command += " --layer_norm"
         
         def run_federated_learning(self):
             return_tuple = self.wandber['container'].exec_run(
