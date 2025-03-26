@@ -100,13 +100,20 @@ def create_app(cfg: DictConfig) -> None:
         vehicle_name = data['vehicle_name']
         return container_manager.get_vehicle_status(vehicle_name)
 
+    @app.route('/start-automatic-attacks', methods=['POST'])
+    def start_automatic_attacks():
+        return container_manager.start_automatic_attacks()
+    
+    @app.route('/stop-automatic-attacks', methods=['POST'])
+    def stop_automatic_attacks():
+        return container_manager.stop_automatic_attacks()
 
     @app.route("/start-attack", methods=["POST"], )
     def start_attack():
         data = request.get_json()
         chosen_vehicle = data['vehicle_name']
         attacking_vehicle = chosen_vehicle.split("_")[0]
-        return container_manager.start_attack_from_vehicle(cfg, attacking_vehicle)
+        return container_manager.start_attack_from_vehicle(attacking_vehicle, origin="MANUAL")
     
 
     @app.route("/stop-attack", methods=["POST"])
@@ -120,12 +127,12 @@ def create_app(cfg: DictConfig) -> None:
 
     @app.route("/start-preconf-attack", methods=["POST"])
     def start_preconf_attack():
-        return container_manager.start_preconf_attack(cfg)
+        return container_manager.start_preconf_attack()
     
 
     @app.route("/stop-preconf-attack", methods=["POST"])
     def stop_preconf_attack():
-        return container_manager.stop_preconf_attack(cfg)
+        return container_manager.stop_preconf_attack()
 
     @app.route("/produce-all", methods=["POST"])
     def produce_all():

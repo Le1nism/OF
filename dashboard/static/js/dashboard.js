@@ -12,12 +12,27 @@ window.addEventListener('DOMContentLoaded', (event) => {
   const stopFederatedLearningButton = document.getElementById("stop-federated-learning");
   const startSecurityManagerButton = document.getElementById("start-security-manager");
   const stopSecurityManagerButton = document.getElementById("stop-security-manager");
+  const startAutomaticAttacksButton = document.getElementById("start-automatic-attacks");
+  const stopAutomaticAttacksButton = document.getElementById("stop-automatic-attacks");
 
   const startAttackButtons = Array.from(document.querySelectorAll('[id$="_start_attack"]'));
   const stopAttackButtons = Array.from(document.querySelectorAll('[id$="_end_attack"]'))
 
   const startPreconfAttackButton = document.getElementById("start-preconf-attack");
   const stopPreconfAttackButton = document.getElementById("stop-preconf-attack");
+
+
+  startAutomaticAttacksButton.addEventListener("click", function() {
+      fetch("/start-automatic-attacks", {method: "POST"})
+        .then(response => response.text())
+        .then(data => console.log(data));
+  });
+
+  stopAutomaticAttacksButton.addEventListener("click", function() {
+      fetch("/stop-automatic-attacks", {method: "POST"})
+        .then(response => response.text())
+        .then(data => console.log(data));
+  });
 
   produceAllButton.addEventListener("click", function() {
       fetch("/produce-all", {method: "POST"})
