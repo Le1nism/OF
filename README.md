@@ -1,9 +1,9 @@
 
-# SereWay: Toward SEcurity and REliability benchmarking for the RailWAY IoT.
+# Open FARI
 
 This is the official implementation of the paper:
 
-## SereWay: Toward SEcurity and REliability benchmarking for the RailWAY IoT.
+## Open-FARI: An Open-source testbed for Federated Anomaly detection in the Railway IoT
 
 from Alessandra Rizzardi, Raffaele Della Corte, Jesus F. Cevallos M., Vittorio Orbinato, Simona De Vivo, Sabrina Sicari, Domenico Cotroneo, and Alberto Coen-Porisini
 
@@ -18,7 +18,7 @@ If you find this code useful, please cite us:
 This is a nested repo, so be sure to clone the repo recursively, using the `--recursive` flag with the `git clone` command. Here's the syntax:
 
 ```bash
-git clone --recursive https://github.com/DIETI-DISTA-IoT/SereWay
+git clone --recursive https://github.com/DIETI-DISTA-IoT/OF
 ```
 
 This will clone the repository and all its submodules.
@@ -127,4 +127,3 @@ Adjust configurations for this script in the `config/default.yaml` or create an 
 Comand-line args can be sent also using the hydra syntax (i.e. no hyphens) and created appending `+` 
 
     python dashboard/app.py +foo=bar
-
