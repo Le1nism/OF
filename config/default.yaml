@@ -208,6 +208,9 @@ default_consumer_config:
   training_freq_seconds: 0.5
   epoch_size: 20
   save_model_freq_epochs: 5
+  cpu_period: 100000
+  cpu_quota: 80000  #calcolo cpu_quota = cpu_period * cpu_limit
+
 
 dashboard:
   port: 5000
