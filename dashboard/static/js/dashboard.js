@@ -14,12 +14,15 @@ window.addEventListener('DOMContentLoaded', (event) => {
   const stopSecurityManagerButton = document.getElementById("stop-security-manager");
   const startAutomaticAttacksButton = document.getElementById("start-automatic-attacks");
   const stopAutomaticAttacksButton = document.getElementById("stop-automatic-attacks");
-
   const startAttackButtons = Array.from(document.querySelectorAll('[id$="_start_attack"]'));
   const stopAttackButtons = Array.from(document.querySelectorAll('[id$="_end_attack"]'))
-
   const startPreconfAttackButton = document.getElementById("start-preconf-attack");
   const stopPreconfAttackButton = document.getElementById("stop-preconf-attack");
+  const shutdownButton = document.getElementById("shutdown");
+  const startExperimentButton = document.getElementById("start-experiment");
+  const startMitigationButton = document.getElementById("start-mitigation");
+  const stopMitigationButton = document.getElementById("stop-mitigation");
+
 
 
   startAutomaticAttacksButton.addEventListener("click", function() {
@@ -148,4 +151,28 @@ window.addEventListener('DOMContentLoaded', (event) => {
       });
   });
 
+  startExperimentButton.addEventListener("click", function() {
+    fetch("/start-experiment", {method: "POST"})
+      .then(response => response.text())
+      .then(data => console.log(data));
+  });
+
+  shutdownButton.addEventListener("click", function() {
+      fetch("/shutdown", {method: "POST"})
+        .then(response => response.text())
+        .then(data => console.log(data));
+  });
+
+  startMitigationButton.addEventListener("click", function() {
+      fetch("/start-mitigation", {method: "POST"})
+        .then(response => response.text())
+        .then(data => console.log(data));
+  });
+  
+  stopMitigationButton.addEventListener("click", function() {
+      fetch("/stop-mitigation", {method: "POST"})
+        .then(response => response.text())
+        .then(data => console.log(data));
+  });
+  
 });
