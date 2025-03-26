@@ -82,6 +82,7 @@ class ContainerManager:
         self.logger.info("Stopping automatic Attack Agent")
         self.attack_agent.alive = False
         self.attack_agent.thread.join(1)
+        self.attack_agent.stop_all_attacks()
         self.logger.info("Attack Agent stopped correctly.")
         return "Automatic Attack Agent stopped!"
 

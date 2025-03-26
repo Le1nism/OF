@@ -32,3 +32,9 @@ class AttackAgent():
                 random_vehicle = random.choice(healtty_vehicles)
                 self.container_manager.start_attack_from_vehicle(random_vehicle, origin="AI")
             time.sleep(self.interval)
+
+
+    def stop_all_attacks(self):
+        for vehicle, status in self.container_manager.vehicle_status_dict.items():
+            if status == INFECTED:
+                self.container_manager.stop_attack_from_vehicle(vehicle, origin="AI")
