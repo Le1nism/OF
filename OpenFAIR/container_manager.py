@@ -280,22 +280,22 @@ class ContainerManager:
         return "Wandber consumer started!"
 
 
-    def start_federated_learning(self, cfg):
+    def start_federated_learning(self):
 
         start_command = FL_COMMAND + \
-            f" --logging_level={cfg.logging_level} " + \
-            f" --project_name={cfg.wandb.project_name} " + \
-            f" --run_name={cfg.wandb.run_name} " + \
-            f" --kafka_broker_url={cfg.wandb.kafka_broker_url} " + \
-            f" --kafka_consumer_group_id={cfg.wandb.kafka_consumer_group_id} " + \
-            f" --kafka_auto_offset_reset={cfg.wandb.kafka_auto_offset_reset} " + \
-            f" --kafka_topic_update_interval_secs={cfg.kafka_topic_update_interval_secs}" +\
-            f" --aggregation_strategy={cfg.federated_learning.aggregation_strategy}" +\
-            f" --initialization_strategy={cfg.federated_learning.initialization_strategy}" +\
-            f" --aggregation_interval_secs={cfg.federated_learning.aggregation_interval_secs}" +\
-            f" --weights_buffer_size={cfg.federated_learning.weights_buffer_size}"
+            f" --logging_level={self.cfg.logging_level} " + \
+            f" --project_name={self.cfg.wandb.project_name} " + \
+            f" --run_name={self.cfg.wandb.run_name} " + \
+            f" --kafka_broker_url={self.cfg.wandb.kafka_broker_url} " + \
+            f" --kafka_consumer_group_id={self.cfg.wandb.kafka_consumer_group_id} " + \
+            f" --kafka_auto_offset_reset={self.cfg.wandb.kafka_auto_offset_reset} " + \
+            f" --kafka_topic_update_interval_secs={self.cfg.kafka_topic_update_interval_secs}" +\
+            f" --aggregation_strategy={self.cfg.federated_learning.aggregation_strategy}" +\
+            f" --initialization_strategy={self.cfg.federated_learning.initialization_strategy}" +\
+            f" --aggregation_interval_secs={self.cfg.federated_learning.aggregation_interval_secs}" +\
+            f" --weights_buffer_size={self.cfg.federated_learning.weights_buffer_size}"
                 
-        if cfg.wandb.online:
+        if self.cfg.wandb.online:
             start_command += " --online"
         
         def run_federated_learning(self):
@@ -333,7 +333,7 @@ class ContainerManager:
             return m
 
         
-    def start_security_manager(self, cfg):
+    def start_security_manager(self):
 
         assert len(self.vehicle_names) > 0, "No vehicles found. Please create vehicles first."
         vehicle_param_str = self.vehicle_names[0]
@@ -342,30 +342,30 @@ class ContainerManager:
 
 
         start_command = SM_COMMAND + \
-            f" --logging_level={cfg.logging_level} " + \
-            f" --kafka_broker_url={cfg.wandb.kafka_broker_url} " + \
-            f" --kafka_consumer_group_id={cfg.wandb.kafka_consumer_group_id} " + \
-            f" --kafka_auto_offset_reset={cfg.wandb.kafka_auto_offset_reset} " + \
-            f" --kafka_topic_update_interval_secs={cfg.kafka_topic_update_interval_secs}" +\
-            f" --initialization_strategy={cfg.security_manager.initialization_strategy}" +\
-            f" --buffer_size={cfg.security_manager.buffer_size}" +\
-            f" --batch_size={cfg.security_manager.batch_size}" +\
-            f" --learning_rate={cfg.security_manager.learning_rate}" +\
-            f" --epoch_size={cfg.security_manager.epoch_size}" +\
-            f" --training_freq_seconds={cfg.security_manager.training_freq_seconds}" +\
-            f" --save_model_freq_epochs={cfg.security_manager.save_model_freq_epochs}" +\
-            f" --model_saving_path={cfg.security_manager.model_saving_path}" + \
+            f" --logging_level={self.cfg.logging_level} " + \
+            f" --kafka_broker_url={self.cfg.wandb.kafka_broker_url} " + \
+            f" --kafka_consumer_group_id={self.cfg.wandb.kafka_consumer_group_id} " + \
+            f" --kafka_auto_offset_reset={self.cfg.wandb.kafka_auto_offset_reset} " + \
+            f" --kafka_topic_update_interval_secs={self.cfg.kafka_topic_update_interval_secs}" +\
+            f" --initialization_strategy={self.cfg.security_manager.initialization_strategy}" +\
+            f" --buffer_size={self.cfg.security_manager.buffer_size}" +\
+            f" --batch_size={self.cfg.security_manager.batch_size}" +\
+            f" --learning_rate={self.cfg.security_manager.learning_rate}" +\
+            f" --epoch_size={self.cfg.security_manager.epoch_size}" +\
+            f" --training_freq_seconds={self.cfg.security_manager.training_freq_seconds}" +\
+            f" --save_model_freq_epochs={self.cfg.security_manager.save_model_freq_epochs}" +\
+            f" --model_saving_path={self.cfg.security_manager.model_saving_path}" + \
             f" --vehicle_names={vehicle_param_str}" + \
-            f" --initialization_strategy={cfg.security_manager.initialization_strategy}" + \
-            f" --input_dim={len(cfg.security_manager.probe_metrics)}" + \
-            f" --output_dim={cfg.security_manager.output_dim}" + \
-            f" --h_dim={cfg.security_manager.hidden_dim}" + \
-            f" --num_layers={cfg.security_manager.num_layers}" + \
-            f" --dropout={cfg.security_manager.dropout}" + \
-            f" --optimizer={cfg.security_manager.optimizer}" + \
-            f" --manager_port={cfg.dashboard.port}"
+            f" --initialization_strategy={self.cfg.security_manager.initialization_strategy}" + \
+            f" --input_dim={len(self.cfg.security_manager.probe_metrics)}" + \
+            f" --output_dim={self.cfg.security_manager.output_dim}" + \
+            f" --h_dim={self.cfg.security_manager.hidden_dim}" + \
+            f" --num_layers={self.cfg.security_manager.num_layers}" + \
+            f" --dropout={self.cfg.security_manager.dropout}" + \
+            f" --optimizer={self.cfg.security_manager.optimizer}" + \
+            f" --manager_port={self.cfg.dashboard.port}"
         
-        if cfg.security_manager.mitigation:
+        if self.cfg.security_manager.mitigation:
             start_command += f" --mitigation"
         
         def run_security_manager(self):
