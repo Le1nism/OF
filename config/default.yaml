@@ -40,8 +40,9 @@ security_manager:
   dropout: 0.1
   optimizer: Adam
   mitigation: True
-
+  sm_port: 5001
   
+
 default_vehicle_config:
   kafka_broker: kafka:9092
   mu_anomalies: 157
