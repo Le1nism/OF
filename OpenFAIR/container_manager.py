@@ -182,6 +182,9 @@ class ContainerManager:
             "--network", "of_trains_network",
             "--env", f"VEHICLE_NAME={vehicle_name}",
             "--env", f"HOST_IP={self.host_ip}",
+            "--cpuset-cpus", self.consumer_manager.consumer_configs[vehicle_name]['cpu_cores'],
+            "--cpu-period", str(self.consumer_manager.consumer_configs[vehicle_name]['cpu_period']),
+            "--cpu-quota", str(self.consumer_manager.consumer_configs[vehicle_name]['cpu_quota']),
             "open_fair-consumer",
             "tail", "-f", "/dev/null"
         ]
