@@ -11,6 +11,7 @@ import signal
 from confluent_kafka import SerializingProducer
 from confluent_kafka.serialization import StringSerializer
 import json
+import requests
 
 WANDBER_COMMAND = "python wandber.py"
 FL_COMMAND = "python federated_learning.py"
@@ -364,7 +365,8 @@ class ContainerManager:
             f" --num_layers={self.cfg.security_manager.num_layers}" + \
             f" --dropout={self.cfg.security_manager.dropout}" + \
             f" --optimizer={self.cfg.security_manager.optimizer}" + \
-            f" --manager_port={self.cfg.dashboard.port}"
+            f" --manager_port={self.cfg.dashboard.port}" + \
+            f" --sm_port={self.cfg.security_manager.sm_port}"
         
         if self.cfg.security_manager.mitigation:
             start_command += f" --mitigation"
@@ -500,3 +502,28 @@ class ContainerManager:
 
     def get_vehicle_status(self, vehicle_name):
         return self.vehicle_status_dict[vehicle_name]
+    
+
+    def start_mitigation(self):
+        security_manager_ip = self.containers_ips['wandber']
+        mitigation_service_port = self.cfg.security_manager.sm_port
+        url = f"http://{security_manager_ip}:{mitigation_service_port}/start-mitigation"
+        response = requests.post(url)
+        
+        if response.status_code == 200:
+            self.logger.info("Mitigation started successfully.")
+        else:
+            self.logger.error(f"Failed to start mitigation. Status code: {response.status_code}")
+
+
+    def stop_mitigation(self):
+        security_manager_ip = self.containers_ips['wandber']
+        mitigation_service_port = self.cfg.security_manager.sm_port
+        url = f"http://{security_manager_ip}:{mitigation_service_port}/stop-mitigation"
+        response = requests.post(url)
+        
+        if response.status_code == 200:
+            self.logger.info("Mitigation stopped successfully.")
+        else:
+            self.logger.error(f"Failed to stop mitigation. Status code: {response.status_code}")
+

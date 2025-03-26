@@ -243,6 +243,16 @@ def create_app(cfg: DictConfig) -> None:
         return render_template('statistics.html', all_stats=sorted_stats)
 
 
+    @app.route('/start-mitigation', methods=['POST'])
+    def start_mitigation():
+        return container_manager.start_mitigation()
+    
+
+    @app.route('/stop-mitigation', methods=['POST'])
+    def stop_mitigation():
+        return container_manager.stop_mitigation()
+    
+
     @app.route('/start-experiment', methods=['POST'])
     def start_experiment():
         container_manager.start_preconf_attack()

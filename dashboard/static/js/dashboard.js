@@ -20,6 +20,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
   const stopPreconfAttackButton = document.getElementById("stop-preconf-attack");
   const shutdownButton = document.getElementById("shutdown");
   const startExperimentButton = document.getElementById("start-experiment");
+  const startMitigationButton = document.getElementById("start-mitigation");
+  const stopMitigationButton = document.getElementById("stop-mitigation");
 
 
 
@@ -161,4 +163,16 @@ window.addEventListener('DOMContentLoaded', (event) => {
         .then(data => console.log(data));
   });
 
+  startMitigationButton.addEventListener("click", function() {
+      fetch("/start-mitigation", {method: "POST"})
+        .then(response => response.text())
+        .then(data => console.log(data));
+  });
+  
+  stopMitigationButton.addEventListener("click", function() {
+      fetch("/stop-mitigation", {method: "POST"})
+        .then(response => response.text())
+        .then(data => console.log(data));
+  });
+  
 });
