@@ -1,5 +1,6 @@
 import threading
 import logging
+from omegaconf import DictConfig
 
 class ConsumerManager:
 
@@ -20,7 +21,7 @@ class ConsumerManager:
             else:
                 vehicle_name = list(vehicle.keys())[0]
             self.consumer_configs[vehicle_name] = self.default_consumer_config.copy()
-            if type(vehicle) == dict:
+            if type(vehicle) == DictConfig:
                 self.consumer_configs[vehicle_name].update(vehicle[vehicle_name])
             if self.consumer_configs[vehicle_name]["anomaly_classes"] == "all":
                 self.consumer_configs[vehicle_name]["anomaly_classes"] = list(range(1, 19))

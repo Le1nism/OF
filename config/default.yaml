@@ -20,22 +20,30 @@ federated_learning:
   weights_buffer_size: 5
   
 security_manager:
-  buffer_size: 5000
+  buffer_size: 10000
   batch_size: 32
   learning_rate: 0.001
-  epoch_size: 20
+  epoch_size: 50
   save_model_freq_epochs: 5
   model_saving_path: sm_model.pth
-  training_freq_seconds: 0.5
+  training_freq_seconds: 1
   initialization_strategy: xavier   # xavier, he, normal
-  input_dim: 3 # for the current metrics (Latency; Network Inbound ; Network Outbound) # TODO isolate Memory and CPU in containers, and add them to the input_dim
-  hidden_dim: 20
+  probe_metrics:
+    - RTT
+    - INBOUND
+    - OUTBOUND
+    - CPU
+    - MEM
+  hidden_dim: 50
   output_dim: 1
-  num_layers: 2
+  num_layers: 5
   dropout: 0.1
   optimizer: Adam
-
+  mitigation: True
+  sm_port: 5001
+  layer_norm: True
   
+
 default_vehicle_config:
   kafka_broker: kafka:9092
   mu_anomalies: 157
@@ -48,7 +56,10 @@ default_vehicle_config:
   ping_thread_timeout: 5
   ping_host: google.com
   probe_frequency_seconds: 5
-
+  cpu_cores: "0,1,2,3,4,5,6,7,8,9,10,11"
+  # cpu_limit: 0.8
+  cpu_period: 100000
+  cpu_quota: 80000  #calcolo cpu_quota = cpu_period * cpu_limit
 
 # We have 19 (from 0 to 18) anomaly clusters and 15 diagnostics clusters (from 0 to 40)
 # Each vehicle can have different anomaly and diagnostics that prioritises when generating data.
@@ -120,6 +131,8 @@ vehicles:
         - 4
         - 6
         - 14
+      cpu_cores: "0,1" 
+
   - bob:
       anomaly_classes:
         - 0 
@@ -144,6 +157,8 @@ vehicles:
         - 4
         - 6
         - 14
+      cpu_cores: "2,3" 
+
   - claude:
       anomaly_classes:
         - 0
@@ -170,9 +185,17 @@ vehicles:
         - 4
         - 6
         - 14
-  - daniel
-  - emily
-  - frank
+      cpu_cores: "4,5" 
+
+  - daniel:
+      cpu_cores: "6,7" 
+
+  - emily:
+      cpu_cores: "8,9"
+
+  - frank:
+      cpu_cores: "10,11"
+
 
 default_consumer_config:
   buffer_size: 5000
@@ -187,6 +210,9 @@ default_consumer_config:
   training_freq_seconds: 0.5
   epoch_size: 20
   save_model_freq_epochs: 5
+  cpu_period: 100000
+  cpu_quota: 80000  #calcolo cpu_quota = cpu_period * cpu_limit
+
 
 dashboard:
   port: 5000
@@ -195,6 +221,9 @@ dashboard:
   kafka_consumer_group_id: kafka-consumer-group-1
   kafka_auto_offset_reset: earliest
   message_cache_len: 20
+  ping_thread_timeout: 5
+  ping_host: google.com
+  probe_frequency_seconds: 5
 
 attack:
   target_port: 80
@@ -205,3 +234,4 @@ attack:
   preconf_attacking_vehicles:
     - daniel
     - frank
+  automatic_attack_interval_secs: 5

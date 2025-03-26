@@ -12,12 +12,30 @@ window.addEventListener('DOMContentLoaded', (event) => {
   const stopFederatedLearningButton = document.getElementById("stop-federated-learning");
   const startSecurityManagerButton = document.getElementById("start-security-manager");
   const stopSecurityManagerButton = document.getElementById("stop-security-manager");
-
+  const startAutomaticAttacksButton = document.getElementById("start-automatic-attacks");
+  const stopAutomaticAttacksButton = document.getElementById("stop-automatic-attacks");
   const startAttackButtons = Array.from(document.querySelectorAll('[id$="_start_attack"]'));
   const stopAttackButtons = Array.from(document.querySelectorAll('[id$="_end_attack"]'))
-
   const startPreconfAttackButton = document.getElementById("start-preconf-attack");
   const stopPreconfAttackButton = document.getElementById("stop-preconf-attack");
+  const shutdownButton = document.getElementById("shutdown");
+  const startExperimentButton = document.getElementById("start-experiment");
+  const startMitigationButton = document.getElementById("start-mitigation");
+  const stopMitigationButton = document.getElementById("stop-mitigation");
+
+
+
+  startAutomaticAttacksButton.addEventListener("click", function() {
+      fetch("/start-automatic-attacks", {method: "POST"})
+        .then(response => response.text())
+        .then(data => console.log(data));
+  });
+
+  stopAutomaticAttacksButton.addEventListener("click", function() {
+      fetch("/stop-automatic-attacks", {method: "POST"})
+        .then(response => response.text())
+        .then(data => console.log(data));
+  });
 
   produceAllButton.addEventListener("click", function() {
       fetch("/produce-all", {method: "POST"})
@@ -110,7 +128,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
               headers: {
                   'Content-Type': 'application/json'
               },
-              body: JSON.stringify({ pressed_button_id: button.id })
+              body: JSON.stringify({ vehicle_name: button.id })
           })
           .then(response => response.text())
           .then(data => console.log(data));
@@ -124,11 +142,37 @@ window.addEventListener('DOMContentLoaded', (event) => {
               headers: {
                   'Content-Type': 'application/json'
               },
-              body: JSON.stringify({ pressed_button_id: button.id })
+              body: JSON.stringify({ vehicle_name: button.id,
+                                      origin: "MANUALLY"
+                                    })
           })
           .then(response => response.text())
           .then(data => console.log(data));
       });
   });
 
+  startExperimentButton.addEventListener("click", function() {
+    fetch("/start-experiment", {method: "POST"})
+      .then(response => response.text())
+      .then(data => console.log(data));
+  });
+
+  shutdownButton.addEventListener("click", function() {
+      fetch("/shutdown", {method: "POST"})
+        .then(response => response.text())
+        .then(data => console.log(data));
+  });
+
+  startMitigationButton.addEventListener("click", function() {
+      fetch("/start-mitigation", {method: "POST"})
+        .then(response => response.text())
+        .then(data => console.log(data));
+  });
+  
+  stopMitigationButton.addEventListener("click", function() {
+      fetch("/stop-mitigation", {method: "POST"})
+        .then(response => response.text())
+        .then(data => console.log(data));
+  });
+  
 });

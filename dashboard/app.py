@@ -6,6 +6,7 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from OpenFAIR import MessageCache, MetricsLogger, KafkaMessageConsumer, ContainerManager
 import logging
+import time
 
 DASHBOARD_NAME = "DASH"
 
@@ -101,30 +102,41 @@ def create_app(cfg: DictConfig) -> None:
         return container_manager.get_vehicle_status(vehicle_name)
 
 
+    @app.route('/start-automatic-attacks', methods=['POST'])
+    def start_automatic_attacks():
+        return container_manager.start_automatic_attacks()
+    
+
+    @app.route('/stop-automatic-attacks', methods=['POST'])
+    def stop_automatic_attacks():
+        return container_manager.stop_automatic_attacks()
+
+
     @app.route("/start-attack", methods=["POST"], )
     def start_attack():
         data = request.get_json()
-        pressed_button_id = data['pressed_button_id']
-        attacking_vehicle = pressed_button_id.split("_")[0]
-        return container_manager.start_attack_from_vehicle(cfg, attacking_vehicle)
+        chosen_vehicle = data['vehicle_name']
+        attacking_vehicle = chosen_vehicle.split("_")[0]
+        return container_manager.start_attack_from_vehicle(attacking_vehicle, origin="MANUAL")
     
 
     @app.route("/stop-attack", methods=["POST"])
     def stop_attack():
         data = request.get_json()
-        pressed_button_id = data['pressed_button_id']
-        attacking_vehicle = pressed_button_id.split("_")[0]
-        return container_manager.stop_attack_from_vehicle(attacking_vehicle)
+        chosen_vehicle = data['vehicle_name']
+        origin = data['origin']
+        attacking_vehicle = chosen_vehicle.split("_")[0]
+        return container_manager.stop_attack_from_vehicle(attacking_vehicle, origin)
     
 
     @app.route("/start-preconf-attack", methods=["POST"])
     def start_preconf_attack():
-        return container_manager.start_preconf_attack(cfg)
+        return container_manager.start_preconf_attack()
     
 
     @app.route("/stop-preconf-attack", methods=["POST"])
     def stop_preconf_attack():
-        return container_manager.stop_preconf_attack(cfg)
+        return container_manager.stop_preconf_attack()
 
     @app.route("/produce-all", methods=["POST"])
     def produce_all():
@@ -148,7 +160,7 @@ def create_app(cfg: DictConfig) -> None:
 
     @app.route('/start-federated-learning', methods=['POST'])
     def start_federated_learning():
-        return container_manager.start_federated_learning(cfg)
+        return container_manager.start_federated_learning()
     
 
     @app.route('/stop-federated-learning', methods=['POST'])
@@ -158,12 +170,12 @@ def create_app(cfg: DictConfig) -> None:
 
     @app.route('/start-wandb', methods=['POST'])
     def start_wandb():
-        return container_manager.start_wandb(cfg)
+        return container_manager.start_wandb()
 
 
     @app.route('/start-security-manager', methods=['POST'])
     def start_security_manager():
-        return container_manager.start_security_manager(cfg)
+        return container_manager.start_security_manager()
     
 
     @app.route('/stop-security-manager', methods=['POST'])
@@ -231,9 +243,54 @@ def create_app(cfg: DictConfig) -> None:
         return render_template('statistics.html', all_stats=sorted_stats)
 
 
-    # Run the Flask app
-    app.run(host=cfg.dashboard.host, port=cfg.dashboard.port)
+    @app.route('/start-mitigation', methods=['POST'])
+    def start_mitigation():
+        return container_manager.start_mitigation()
+    
 
+    @app.route('/stop-mitigation', methods=['POST'])
+    def stop_mitigation():
+        return container_manager.stop_mitigation()
+    
+
+    @app.route('/start-experiment', methods=['POST'])
+    def start_experiment():
+        container_manager.start_preconf_attack()
+        time.sleep(2)
+        container_manager.produce_all()
+        time.sleep(2)
+        container_manager.consume_all()
+        time.sleep(2)        
+        container_manager.start_security_manager()
+        time.sleep(2)
+        container_manager.start_federated_learning()
+        time.sleep(2)
+        container_manager.start_wandb()
+        return "Automatically started the experiment", 200
+
+
+    @app.route('/shutdown', methods=['POST'])
+    def shutdown():
+        container_manager.stop_security_manager()
+        time.sleep(1)
+        container_manager.stop_federated_learning()
+        time.sleep(1)
+        container_manager.stop_consuming_all()
+        time.sleep(1)
+        container_manager.stop_producing_all()
+        time.sleep(1)
+        container_manager.stop_automatic_attacks()
+        time.sleep(1)
+        container_manager.stop_wandb()
+        time.sleep(3)
+        container_manager.signal_handler(None, None)
+        exit(0)
+        return 'Server shutting down...', 200
+    
+
+    # Run the Flask app
+    app.run(host=cfg.dashboard.host, port=cfg.dashboard.port)   
+    
 
 if __name__ == "__main__":
     create_app()

@@ -1,5 +1,6 @@
 import threading
 import logging
+from omegaconf import DictConfig
 
 class ProducerManager:
 
@@ -13,6 +14,7 @@ class ProducerManager:
         self.default_vehicle_config = cfg.default_vehicle_config
         self.vehicle_names = []
         self.vehicle_configs = {}
+        self.probe_metrics = cfg.security_manager.probe_metrics
         for vehicle in cfg.vehicles:
             if type(vehicle) == str:
                 vehicle_name = vehicle
@@ -20,7 +22,7 @@ class ProducerManager:
                 vehicle_name = list(vehicle.keys())[0]
             self.vehicle_names.append(vehicle_name)    
             self.vehicle_configs[vehicle_name] = self.default_vehicle_config.copy()
-            if type(vehicle) == dict:
+            if type(vehicle) == DictConfig:
                 self.vehicle_configs[vehicle_name].update(vehicle[vehicle_name])
             if self.vehicle_configs[vehicle_name]["anomaly_classes"] == "all":
                 self.vehicle_configs[vehicle_name]["anomaly_classes"] = list(range(1, 15))
@@ -52,7 +54,8 @@ class ProducerManager:
                     " --diagnostics_classes=" + ",".join(map(str,vehicle_config["diagnostics_classes"])) + \
                     " --ping_thread_timeout=" + str(vehicle_config["ping_thread_timeout"]) + \
                     " --ping_host=" + str(vehicle_config["ping_host"]) + \
-                    " --probe_frequency_seconds=" + str(vehicle_config["probe_frequency_seconds"])
+                    " --probe_frequency_seconds=" + str(vehicle_config["probe_frequency_seconds"]) +\
+                    " --probe_metrics=" + ",".join(map(str,self.probe_metrics))
             
             if vehicle_config["time_emulation"]:
                 command_to_exec += " --time_emulation" 
