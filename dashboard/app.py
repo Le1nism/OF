@@ -13,13 +13,15 @@ DASHBOARD_NAME = "DASH"
 ###
 ## Configure Werkzeug logger to filter out vehicle-status requests
 ## These are too many and clutter the logs
-werkzeug_logger = logging.getLogger('werkzeug')
-original_handle = werkzeug_logger.handle
+logger = logging.getLogger('werkzeug')
+# change the name of the logger:
+logger.name = 'DASHBOARD'
+original_handle = logger.handle
 def custom_handle(record):
     if 'POST /vehicle-status' not in record.getMessage():
         return original_handle(record)
     return True
-werkzeug_logger.handle = custom_handle
+logger.handle = custom_handle
 ###
 
 def processing_message(topic, msg):
@@ -255,16 +257,23 @@ def create_app(cfg: DictConfig) -> None:
 
     @app.route('/start-experiment', methods=['POST'])
     def start_experiment():
+        logger.info("Starting experiment")
+        logger.info("\n\nStarting preconfigured attacks...")
         container_manager.start_preconf_attack()
-        time.sleep(2)
+        time.sleep(1)
+        logger.info("\n\nStarting producers...")
         container_manager.produce_all()
-        time.sleep(2)
+        time.sleep(3)
+        logger.info("\n\nStarting consumers...")
         container_manager.consume_all()
-        time.sleep(2)        
+        time.sleep(4)        
+        logger.info("\n\nStarting security manager...")
         container_manager.start_security_manager()
-        time.sleep(2)
+        time.sleep(1)
+        logger.info("\n\nStarting federated learning...")
         container_manager.start_federated_learning()
         time.sleep(2)
+        logger.info("\n\nStarting wandb...")
         container_manager.start_wandb()
         return "Automatically started the experiment", 200
 
@@ -283,9 +292,7 @@ def create_app(cfg: DictConfig) -> None:
         time.sleep(1)
         container_manager.stop_wandb()
         time.sleep(3)
-        container_manager.signal_handler(None, None)
-        exit(0)
-        return 'Server shutting down...', 200
+        return 'CAN SHUTDOWN NOW...', 200
     
 
     # Run the Flask app
