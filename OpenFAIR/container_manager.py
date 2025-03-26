@@ -78,6 +78,7 @@ class ContainerManager:
         self.attack_agent.thread.start()
         return "Automatic Attack Agent started!"
 
+
     def stop_automatic_attacks(self):
         self.logger.info("Stopping automatic Attack Agent")
         self.attack_agent.alive = False
@@ -104,6 +105,7 @@ class ContainerManager:
         self.producer.flush()
         self.logger.info(f"Exiting...")
         exit(0)
+
 
     def health_probes_thread(self, args):
         self.logger.info(f"Starting thread for dashboard health probes")
