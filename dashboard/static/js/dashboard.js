@@ -14,12 +14,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
   const stopSecurityManagerButton = document.getElementById("stop-security-manager");
   const startAutomaticAttacksButton = document.getElementById("start-automatic-attacks");
   const stopAutomaticAttacksButton = document.getElementById("stop-automatic-attacks");
-
   const startAttackButtons = Array.from(document.querySelectorAll('[id$="_start_attack"]'));
   const stopAttackButtons = Array.from(document.querySelectorAll('[id$="_end_attack"]'))
-
   const startPreconfAttackButton = document.getElementById("start-preconf-attack");
   const stopPreconfAttackButton = document.getElementById("stop-preconf-attack");
+
 
 
   startAutomaticAttacksButton.addEventListener("click", function() {
