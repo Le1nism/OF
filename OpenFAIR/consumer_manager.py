@@ -9,6 +9,7 @@ class ConsumerManager:
         self.threads = {}
         self.consumer_command = CONSUMER_COMMAND
         self.logger = logging.getLogger("CONSUMER_MANAGER")
+        self.cfg = cfg
         self.logging_level = cfg.logging_level.upper()
         self.logger.setLevel(self.logging_level)
         self.default_consumer_config = dict(cfg.default_consumer_config)
@@ -55,9 +56,18 @@ class ConsumerManager:
                 " --kafka_topic_update_interval_secs=" + str(consumer_config["kafka_topic_update_interval_secs"]) + \
                 " --learning_rate=" + str(consumer_config["learning_rate"]) + \
                 " --epoch_size=" + str(consumer_config["epoch_size"]) + \
+                f" --input_dim={self.cfg.anomaly_detection.input_dim}" + \
+                f" --output_dim={self.cfg.anomaly_detection.output_dim}" + \
+                f" --h_dim={self.cfg.anomaly_detection.h_dim}" + \
+                f" --num_layers={self.cfg.anomaly_detection.num_layers}" + \
+                f" --dropout={consumer_config['dropout']}" + \
+                f" --optimizer={consumer_config['optimizer']}" + \
                 " --training_freq_seconds=" + str(consumer_config["training_freq_seconds"]) + \
                 " --save_model_freq_epochs=" + str(consumer_config["save_model_freq_epochs"]) + \
                 " --model_saving_path=" + vehicle_name + '_' + self.override + '_model.pth'
+
+            if self.cfg.anomaly_detection.layer_norm:
+                command_to_exec += " --layer_norm"
 
             return_tuple = consumer_container.exec_run(
                 command_to_exec,

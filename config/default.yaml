@@ -207,6 +207,12 @@ default_consumer_config:
   weights_push_freq_seconds: 180
   weights_pull_freq_seconds: 180
   learning_rate: 0.001
+  initialization_strategy: xavier
+  output_dim: 1
+  h_dim: 128
+  num_layers: 3
+  dropout: 0.1
+  optimizer: Adam
   training_freq_seconds: 0.5
   epoch_size: 20
   save_model_freq_epochs: 5
@@ -214,6 +220,14 @@ default_consumer_config:
   cpu_quota: 80000  #calcolo cpu_quota = cpu_period * cpu_limit
 
 
+anomaly_detection:
+  output_dim: 1
+  h_dim: 128
+  num_layers: 3
+  layer_norm: False
+  input_dim: 59
+
+  
 dashboard:
   port: 5000
   host: 0.0.0.0
