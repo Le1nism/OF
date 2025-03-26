@@ -18,6 +18,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
   const stopAttackButtons = Array.from(document.querySelectorAll('[id$="_end_attack"]'))
   const startPreconfAttackButton = document.getElementById("start-preconf-attack");
   const stopPreconfAttackButton = document.getElementById("stop-preconf-attack");
+  const shutdownButton = document.getElementById("shutdown");
+  const startExperimentButton = document.getElementById("start-experiment");
 
 
 
@@ -145,6 +147,18 @@ window.addEventListener('DOMContentLoaded', (event) => {
           .then(response => response.text())
           .then(data => console.log(data));
       });
+  });
+
+  startExperimentButton.addEventListener("click", function() {
+    fetch("/start-experiment", {method: "POST"})
+      .then(response => response.text())
+      .then(data => console.log(data));
+  });
+
+  shutdownButton.addEventListener("click", function() {
+      fetch("/shutdown", {method: "POST"})
+        .then(response => response.text())
+        .then(data => console.log(data));
   });
 
 });
