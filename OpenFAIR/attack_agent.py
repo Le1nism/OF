@@ -12,7 +12,7 @@ class AttackAgent():
     def __init__(self, container_manager, kwargs):
         self.container_manager = container_manager
         self.alive = False
-        self.interval = kwargs.attack.automatic_attack_interval
+        self.interval = kwargs.attack.automatic_attack_interval_secs
         self.thread = threading.Thread(target=self.attacking_thread)
         self.thread.daemon = True            
 
