@@ -72,6 +72,7 @@ class ContainerManager:
                 no_proxy += f",{node_ip}"
         os.environ['no_proxy'] = no_proxy
 
+
     def start_dashboard_monitor(self):
         # Start the dashboard monitor
         conf_prod = {
