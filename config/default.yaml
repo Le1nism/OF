@@ -238,7 +238,9 @@ dashboard:
   ping_thread_timeout: 5
   ping_host: google.com
   probe_frequency_seconds: 5
+  proxy: True
 
+  
 attack:
   target_port: 80
   duration: 0  # duration is in seconds. 0 means forever...

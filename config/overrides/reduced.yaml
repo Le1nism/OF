@@ -1,6 +1,6 @@
 
 wandb:
-  run_name: NID_fed_avg_late_mitigation
+  run_name: sudden_mitigation
 
 default_vehicle_config:
   # The rate of information (i.e., time) is multiplied x 100 for the sake of speeding up the simulation
@@ -16,7 +16,6 @@ security_manager:
     - RTT
     - INBOUND
     - OUTBOUND
-  mitigation: False
 
 
 anomaly_detection:

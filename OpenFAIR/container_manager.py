@@ -12,6 +12,8 @@ from confluent_kafka import SerializingProducer
 from confluent_kafka.serialization import StringSerializer
 import json
 import requests
+import os
+
 
 WANDBER_COMMAND = "python wandber.py"
 FL_COMMAND = "python federated_learning.py"
@@ -57,17 +59,30 @@ class ContainerManager:
         self.host_ip = self.get_my_ip()
         self.logger.info(f"Host IP: {self.host_ip}")
         self.attack_agent = AttackAgent(self, cfg)
+        self.start_dashboard_monitor()
+        if cfg.dashboard.proxy:
+            self.proxy_configuration()
 
+
+    def proxy_configuration(self):
+        # get the value of the no_proxy env var:
+        no_proxy = os.environ.get('no_proxy')
+        for node_ip in self.containers_ips.values():
+            if node_ip not in no_proxy:
+                no_proxy += f",{node_ip}"
+        os.environ['no_proxy'] = no_proxy
+
+    def start_dashboard_monitor(self):
         # Start the dashboard monitor
         conf_prod = {
-            'bootstrap.servers': cfg.dashboard.kafka_broker_url,
+            'bootstrap.servers': self.cfg.dashboard.kafka_broker_url,
             'key.serializer': StringSerializer('utf_8'),
             'value.serializer': lambda x, ctx: json.dumps(x).encode('utf-8')
         }
         self.producer = SerializingProducer(conf_prod)
         signal.signal(signal.SIGINT, lambda sig, frame: self.signal_handler(sig, frame))
-        self.monitor = DashBoardMonitor(self.logger, cfg)
-        self.monitor_thread = threading.Thread(target=self.health_probes_thread, args=(cfg,))
+        self.monitor = DashBoardMonitor(self.logger, self.cfg)
+        self.monitor_thread = threading.Thread(target=self.health_probes_thread)
         self.monitor_thread.daemon = True
         self.monitor_alive = True
         self.monitor_thread.start()
@@ -109,14 +124,14 @@ class ContainerManager:
         exit(0)
 
 
-    def health_probes_thread(self, args):
+    def health_probes_thread(self):
         self.logger.info(f"Starting thread for dashboard health probes")
         while self.monitor_alive:
             health_dict = self.monitor.probe_health()
             self.produce_message(
                 data=health_dict, 
                 topic_name=f"DASHBOARD_PROBES")
-            time.sleep(args.dashboard.probe_frequency_seconds)
+            time.sleep(self.cfg.dashboard.probe_frequency_seconds)
 
 
     def get_my_ip(self):
@@ -517,22 +532,28 @@ class ContainerManager:
         security_manager_ip = self.containers_ips['wandber']
         mitigation_service_port = self.cfg.security_manager.sm_port
         url = f"http://{security_manager_ip}:{mitigation_service_port}/start-mitigation"
-        response = requests.post(url)
+        response = requests.post(url, json={})
         
         if response.status_code == 200:
-            self.logger.info("Mitigation started successfully.")
+            m = "Mitigation started successfully."
+            self.logger.info(m)
         else:
-            self.logger.error(f"Failed to start mitigation. Status code: {response.status_code}")
+            m = f"Failed to start mitigation. Status code: {response.status_code}"
+            self.logger.error(m)
+        return m, response.status_code
 
 
     def stop_mitigation(self):
         security_manager_ip = self.containers_ips['wandber']
         mitigation_service_port = self.cfg.security_manager.sm_port
         url = f"http://{security_manager_ip}:{mitigation_service_port}/stop-mitigation"
-        response = requests.post(url)
+        response = requests.post(url, json={})
         
         if response.status_code == 200:
-            self.logger.info("Mitigation stopped successfully.")
+            m = "Mitigation stopped successfully."
+            self.logger.info(m)
         else:
-            self.logger.error(f"Failed to stop mitigation. Status code: {response.status_code}")
+            m = f"Failed to stop mitigation. Status code: {response.status_code}"
+            self.logger.error(m)
+        return m, response.status_code
 
