@@ -258,40 +258,42 @@ def create_app(cfg: DictConfig) -> None:
     @app.route('/start-experiment', methods=['POST'])
     def start_experiment():
         logger.info("Starting experiment")
-        logger.info("\n\nStarting automatic attacks...")
-        container_manager.start_automatic_attacks()
-        time.sleep(1)
+              
         logger.info("\n\nStarting producers...")
         container_manager.produce_all()
-        time.sleep(3)
+        time.sleep(4)
         logger.info("\n\nStarting consumers...")
         container_manager.consume_all()
-        time.sleep(4)        
+        time.sleep(5)        
         logger.info("\n\nStarting security manager...")
         container_manager.start_security_manager()
-        time.sleep(1)
+        time.sleep(2)
         logger.info("\n\nStarting federated learning...")
         container_manager.start_federated_learning()
-        time.sleep(2)
+        time.sleep(3)
         logger.info("\n\nStarting wandb...")
         container_manager.start_wandb()
+        time.sleep(3)
+        logger.info("\n\nStarting automatic attacks...")
+        container_manager.start_automatic_attacks()
+        
         return "Automatically started the experiment", 200
 
 
     @app.route('/shutdown', methods=['POST'])
     def shutdown():
         container_manager.stop_security_manager()
-        time.sleep(1)
+        time.sleep(2)
         container_manager.stop_federated_learning()
-        time.sleep(1)
+        time.sleep(2)
         container_manager.stop_consuming_all()
-        time.sleep(1)
+        time.sleep(2)
         container_manager.stop_producing_all()
-        time.sleep(1)
+        time.sleep(2)
         container_manager.stop_automatic_attacks()
-        time.sleep(1)
+        time.sleep(2)
         container_manager.stop_wandb()
-        time.sleep(3)
+        time.sleep(4)
         return 'CAN SHUTDOWN NOW...', 200
     
 
