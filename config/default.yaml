@@ -42,7 +42,10 @@ security_manager:
   mitigation: True
   sm_port: 5001
   layer_norm: True
-  
+  true_positive_reward: 2
+  true_negative_reward: 0
+  false_positive_reward: -4
+  false_negative_reward: -10
 
 default_vehicle_config:
   kafka_broker: kafka:9092
@@ -250,4 +253,4 @@ attack:
   preconf_attacking_vehicles:
     - daniel
     - frank
-  automatic_attack_interval_secs: 5
+  automatic_attack_interval_secs: 20
