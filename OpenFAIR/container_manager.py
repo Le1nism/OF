@@ -494,7 +494,7 @@ class ContainerManager:
             if pid:
                 attacking_container.exec_run(f"kill -SIGINT {pid}")
                 m = f"Stopping attack from {vehicle_name}..."
-                self.logger.info(m)
+                self.logger.debug(m)
                 reactive_mitigation_time = time.time() - self.last_attack_started_at[vehicle_name]
                 # approx to 3 decimal places
                 reactive_mitigation_time = round(reactive_mitigation_time, 3)
@@ -505,7 +505,7 @@ class ContainerManager:
                 return {"message" :m, "mitigation_time": reactive_mitigation_time}
             else:
                 m = f"No attacking process found in {vehicle_name}"
-                self.logger.info(m)
+                self.logger.debug(m)
                 return {"message" :m, "mitigation_time": reactive_mitigation_time}
         except Exception as e:
             m = f"Error stopping attack from {vehicle_name}: {e}"
