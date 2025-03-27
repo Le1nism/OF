@@ -492,11 +492,13 @@ class ContainerManager:
                 m = f"Stopping attack from {vehicle_name}..."
                 self.logger.info(m)
                 reactive_mitigation_time = time.time() - self.last_attack_started_at[vehicle_name]
+                # approx to 3 decimal places
+                reactive_mitigation_time = round(reactive_mitigation_time, 3)
                 if origin == "AI":     
-                    self.logger.info(f"Vehicle {vehicle_name} was automatically healed after {int(reactive_mitigation_time)} seconds.")
+                    self.logger.info(f"Vehicle {vehicle_name} was automatically healed after {reactive_mitigation_time} seconds.")
                 else:
-                    self.logger.info(f"Vehicle {vehicle_name} was manually healed after {int(reactive_mitigation_time)} seconds.")
-                return {"message" :m, "mitigation_time": int(reactive_mitigation_time)}
+                    self.logger.info(f"Vehicle {vehicle_name} was manually healed after {reactive_mitigation_time} seconds.")
+                return {"message" :m, "mitigation_time": reactive_mitigation_time}
             else:
                 m = f"No attacking process found in {vehicle_name}"
                 self.logger.info(m)
