@@ -388,7 +388,11 @@ class ContainerManager:
             f" --dropout={self.cfg.security_manager.dropout}" + \
             f" --optimizer={self.cfg.security_manager.optimizer}" + \
             f" --manager_port={self.cfg.dashboard.port}" + \
-            f" --sm_port={self.cfg.security_manager.sm_port}"
+            f" --sm_port={self.cfg.security_manager.sm_port}" +\
+            f" --true_positive_reward={self.cfg.security_manager.true_positive_reward}" + \
+            f" --false_positive_reward={self.cfg.security_manager.false_positive_reward}" + \
+            f" --true_negative_reward={self.cfg.security_manager.true_negative_reward}" + \
+            f" --false_negative_reward={self.cfg.security_manager.false_negative_reward}"
             
         
         if self.cfg.security_manager.mitigation:
@@ -407,7 +411,7 @@ class ContainerManager:
         
         thread = threading.Thread(target=run_security_manager, args=(self,))
         thread.start()
-        return "Federated learning started!"
+        return "Security Manager started!", 200
     
 
     def stop_security_manager(self):
