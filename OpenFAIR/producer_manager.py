@@ -15,6 +15,9 @@ class ProducerManager:
         self.vehicle_names = []
         self.vehicle_configs = {}
         self.probe_metrics = cfg.security_manager.probe_metrics
+        self.mode = cfg.mode
+        self.manager_port = cfg.dashboard.port
+        self.no_proxy_host = cfg.dashboard.proxy
         for vehicle in cfg.vehicles:
             if type(vehicle) == str:
                 vehicle_name = vehicle
@@ -55,8 +58,13 @@ class ProducerManager:
                     " --ping_thread_timeout=" + str(vehicle_config["ping_thread_timeout"]) + \
                     " --ping_host=" + str(vehicle_config["ping_host"]) + \
                     " --probe_frequency_seconds=" + str(vehicle_config["probe_frequency_seconds"]) +\
-                    " --probe_metrics=" + ",".join(map(str,self.probe_metrics))
+                    " --probe_metrics=" + ",".join(map(str,self.probe_metrics)) + \
+                    " --mode=" + str(self.mode) + \
+                    " --manager_port=" + str(self.manager_port)
             
+            if self.no_proxy_host:
+                command_to_exec += " --no_proxy_host"
+                
             if vehicle_config["time_emulation"]:
                 command_to_exec += " --time_emulation" 
             
