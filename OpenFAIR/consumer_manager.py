@@ -76,7 +76,7 @@ class ConsumerManager:
                 stdin=True
             )
             for line in return_tuple[1]:
-                print(line.decode().strip())
+                self.logger.info(line.decode().strip())
 
         thread = threading.Thread(target=run_consumer, name=consumer_name)
         thread.start()
@@ -93,11 +93,11 @@ class ConsumerManager:
             
             if pid:
                 container.exec_run(f"kill -SIGINT {pid}")
-                print(f"Sent SIGINT to {consumer_name}")
+                self.logger.info(f"Sent SIGINT to {consumer_name}")
             else:
-                print(f"No running process found for {consumer_name}")
+                self.logger.info(f"No running process found for {consumer_name}")
         except Exception as e:
-            print(f"Error stopping {consumer_name}: {e}")
+            self.logger.info(f"Error stopping {consumer_name}: {e}")
 
 
     def stop_all_consumers(self):

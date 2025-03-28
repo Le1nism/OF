@@ -111,7 +111,7 @@ class ContainerManager:
             self.producer.produce(topic=topic_name, value=data)  # Send the message to Kafka
             self.logger.debug(f"sent health probes.")
         except Exception as e:
-            print(f"Error while producing message to {topic_name} : {e}")
+            self.logger.info(f"Error while producing message to {topic_name} : {e}")
 
 
     def signal_handler(self, sig, frame):
@@ -291,7 +291,7 @@ class ContainerManager:
                  stream=True,
                  stdin=True)
             for line in return_tuple[1]:
-                print(line.decode().strip())
+                self.logger.info(line.decode().strip())
         
         thread = threading.Thread(target=run_wandber, args=(self,))
         thread.start()
@@ -329,7 +329,7 @@ class ContainerManager:
                  stream=True,
                  stdin=True)
             for line in return_tuple[1]:
-                print(line.decode().strip())
+                self.logger.info(line.decode().strip())
         
         thread = threading.Thread(target=run_federated_learning, args=(self,))
         thread.start()
@@ -407,7 +407,7 @@ class ContainerManager:
                  stream=True,
                  stdin=True)
             for line in return_tuple[1]:
-                print(line.decode().strip())
+                self.logger.info(line.decode().strip())
         
         thread = threading.Thread(target=run_security_manager, args=(self,))
         thread.start()
@@ -467,7 +467,7 @@ class ContainerManager:
                  stream=True,
                  stdin=True)
             for line in return_tuple[1]:
-                print(line.decode().strip())
+                self.logger.info(line.decode().strip())
         
         self.vehicle_status_dict[vehicle_name] = INFECTED
         self.last_attack_started_at[vehicle_name] = time.time()

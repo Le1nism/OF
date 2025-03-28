@@ -67,7 +67,7 @@ class ProducerManager:
                 stdin=True
             )
             for line in return_tuple[1]:
-                print(line.decode().strip())
+                self.logger.info(line.decode().strip())
 
         thread = threading.Thread(target=run_producer, name=producer_name)
         thread.start()
@@ -84,11 +84,11 @@ class ProducerManager:
             
             if pid:
                 container.exec_run(f"kill -SIGINT {pid}")
-                print(f"Sent SIGINT to {producer_name}")
+                self.logger.info(f"Sent SIGINT to {producer_name}")
             else:
-                print(f"No running process found for {producer_name}")
+                self.logger.info(f"No running process found for {producer_name}")
         except Exception as e:
-            print(f"Error stopping {producer_name}: {e}")
+            self.logger.info(f"Error stopping {producer_name}: {e}")
 
 
     def stop_all_producers(self):
