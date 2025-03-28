@@ -66,7 +66,19 @@ class ConsumerManager:
                 " --save_model_freq_epochs=" + str(consumer_config["save_model_freq_epochs"]) + \
                 " --model_saving_path=" + vehicle_name + '_' + self.override + '_model.pth' + \
                 " --probe_metrics=" + ",".join(map(str,self.cfg.security_manager.probe_metrics)) + \
-                " --mode=" + str(self.cfg.mode)
+                " --mode=" + str(self.cfg.mode) +\
+                " --manager_port=" + str(self.cfg.dashboard.port) +\
+                f" --true_positive_reward={self.cfg.security_manager.true_positive_reward}" + \
+                f" --false_positive_reward={self.cfg.security_manager.false_positive_reward}" + \
+                f" --true_negative_reward={self.cfg.security_manager.true_negative_reward}" + \
+                f" --false_negative_reward={self.cfg.security_manager.false_negative_reward}"
+            
+            
+            if self.cfg.security_manager.mitigation:
+                command_to_exec += f" --mitigation"
+
+            if self.cfg.dashboard.proxy:
+                command_to_exec += " --no_proxy_host"
 
             if self.cfg.anomaly_detection.layer_norm:
                 command_to_exec += " --layer_norm"
