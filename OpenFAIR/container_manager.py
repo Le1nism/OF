@@ -315,7 +315,8 @@ class ContainerManager:
             f" --output_dim={self.cfg.anomaly_detection.output_dim}" + \
             f" --h_dim={self.cfg.anomaly_detection.h_dim}" + \
             f" --num_layers={self.cfg.anomaly_detection.num_layers}" +\
-            f" --input_dim={self.cfg.anomaly_detection.input_dim}"
+            f" --input_dim={self.cfg.anomaly_detection.input_dim}" +\
+            " --mode=" + str(self.cfg.mode)
         
         if self.cfg.wandb.online:
             start_command += " --online"
