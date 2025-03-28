@@ -65,6 +65,7 @@ class ConsumerManager:
                 " --training_freq_seconds=" + str(consumer_config["training_freq_seconds"]) + \
                 " --save_model_freq_epochs=" + str(consumer_config["save_model_freq_epochs"]) + \
                 " --model_saving_path=" + vehicle_name + '_' + self.override + '_model.pth' + \
+                " --probe_metrics=" + ",".join(map(str,self.cfg.security_manager.probe_metrics)) + \
                 " --mode=" + str(self.cfg.mode)
 
             if self.cfg.anomaly_detection.layer_norm:
