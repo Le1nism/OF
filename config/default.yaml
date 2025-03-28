@@ -1,5 +1,6 @@
 
 override: ""
+mode: OF # OF (security metrics separated from sensors), SW (united paradigm)
 
 logging_level: info
 container_manager_port: 7777
@@ -209,7 +210,7 @@ default_consumer_config:
   diagnostics_classes: all
   weights_push_freq_seconds: 180
   weights_pull_freq_seconds: 180
-  learning_rate: 0.001
+  learning_rate: 0.002
   initialization_strategy: xavier
   output_dim: 1
   h_dim: 128
@@ -225,9 +226,9 @@ default_consumer_config:
 
 anomaly_detection:
   output_dim: 1
-  h_dim: 128
+  h_dim: 64
   num_layers: 3
-  layer_norm: False
+  layer_norm: True
   input_dim: 59
 
   
