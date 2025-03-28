@@ -77,6 +77,8 @@ def create_app(cfg: DictConfig) -> None:
     app.process_message_routine = processing_message
     app.logger.name = DASHBOARD_NAME
     app.logger.setLevel(cfg.logging_level.upper())
+    # pretty print the cfg OmegaDict
+    app.logger.info(OmegaConf.to_yaml(cfg))
 
     # Create a ConainerManager instance
     container_manager = ContainerManager(cfg)
