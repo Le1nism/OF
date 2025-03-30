@@ -438,114 +438,48 @@ class ContainerManager:
         
     
     def start_attack_from_vehicle(self, vehicle_name, origin):
-        """
+
         assert f"{vehicle_name}_producer" in self.producers
-
-        attacking_container = self.producers[f"{vehicle_name}_producer"]
-
-        assert self.cfg.attack.victim_container in self.containers_ips
-        try:
-            assert self.cfg.attack.victim_container in self.containers_ips
-        except AssertionError:
-            m = f"Error: Victim container {self.cfg.attack.victim_container} not found in container IPs."
-            m += f"\n try one of these :{list(self.containers_ips.keys())}"
-            self.logger.error(m)
-            return m
-
-
-        start_attack_command = f"{ATTACK_COMMAND}" + \
-            f" --logging_level={self.cfg.logging_level} " + \
-            f" --target_ip={self.containers_ips[self.cfg.attack.victim_container]} " + \
-            f" --target_port={self.cfg.attack.target_port}" + \
-            f" --duration={self.cfg.attack.duration}" + \
-            f" --packet_size={self.cfg.attack.packet_size}" + \
-            f" --delay={self.cfg.attack.delay}"  
-
         
-        def run_attack():
-            return_tuple = attacking_container.exec_run(
-                 start_attack_command,
-                 tty=True,
-                 stream=True,
-                 stdin=True)
-            for line in return_tuple[1]:
-                self.logger.info(line.decode().strip())
-        
-        self.vehicle_status_dict[vehicle_name] = INFECTED
-        self.last_attack_started_at[vehicle_name] = time.time()
-        thread = threading.Thread(target=run_attack)
-        thread.start()
-        if origin == "AI":
-            prefix = "Automatically"
-        else:
-            prefix = "Manually"
-        return f"{prefix} starting attack from {vehicle_name}"
-        """
-
+        self.logger.info(f"[BOTMASTER] Starting Attack from  {vehicle_name}")
         bot_ip = self.containers_ips[f'{vehicle_name}_producer']
         bot_port = self.cfg.attack.bot_port
         url = f"http://{bot_ip}:{bot_port}/start-attack"
         response = requests.post(url, json={})
         preamble = "Automatic" if origin == "AI" else "Manual"
         if response.status_code == 200:
-            m = f"{preamble} attack at {vehicle_name} started successfully."
+            self.vehicle_status_dict[vehicle_name] = INFECTED
+            self.last_attack_started_at[vehicle_name] = time.time()
+            m = f"[BOTMASTER] - {preamble} attack at {vehicle_name} started successfully."
             self.logger.info(m)
         else:
-            m = f"Failed to start {preamble} attack at {vehicle_name}. Status code: {response.status_code}"
+            m = f"[BOTMASTER] - Failed to start {preamble} attack at {vehicle_name}. Status code: {response.status_code}"
             self.logger.error(m)
         return m, response.status_code
     
 
     def stop_attack_from_vehicle(self, vehicle_name, origin):
-        """
+
         assert f"{vehicle_name}_producer" in self.producers
-
-        attacking_container = self.producers[f"{vehicle_name}_producer"]
         reactive_mitigation_time = None
-        try:
-            # Try to find and kill the process
-            pid_result = attacking_container.exec_run(f"pgrep -f '{ATTACK_COMMAND}'")
-            pid = pid_result[1].decode().strip()
-            
-            if pid:
-                attacking_container.exec_run(f"kill -SIGINT {pid}")
-                m = f"Stopping attack from {vehicle_name}..."
-                self.logger.debug(m)
-                reactive_mitigation_time = time.time() - self.last_attack_started_at[vehicle_name]
-                # approx to 3 decimal places
-                reactive_mitigation_time = round(reactive_mitigation_time, 3)
-                if origin == "AI":     
-                    self.logger.info(f"Vehicle {vehicle_name} was automatically healed after {reactive_mitigation_time} seconds.")
-                else:
-                    self.logger.info(f"Vehicle {vehicle_name} was manually healed after {reactive_mitigation_time} seconds.")
-                return {"message" :m, "mitigation_time": reactive_mitigation_time}
-            else:
-                m = f"No attacking process found in {vehicle_name}"
-                self.logger.debug(m)
-                return {"message" :m, "mitigation_time": reactive_mitigation_time}
-        except Exception as e:
-            m = f"Error stopping attack from {vehicle_name}: {e}"
-            self.logger.error(m)
-            return {"message" :m, "mitigation_time": reactive_mitigation_time}
-        finally:
 
-            self.vehicle_status_dict[f"{vehicle_name}"] = HEALTHY
-            self.logger.debug(f"Vehicle State Dictionary:")
-            for vehicle, state in self.vehicle_status_dict.items():
-                self.logger.debug(f"  {vehicle}: {state}")  
-    """
+        self.logger.info(f"[ATO] Healing attack on {vehicle_name}...")
         bot_ip = self.containers_ips[f'{vehicle_name}_producer']
         bot_port = self.cfg.attack.bot_port
         url = f"http://{bot_ip}:{bot_port}/stop-attack"
         response = requests.post(url, json={})
         adverb = "automatically" if origin == "AI" else "manually"
         if response.status_code == 200:
-            m = f"Attack at {vehicle_name} stopped {adverb}."
+            m = f"[ATO] Attack at {vehicle_name} stopped {adverb}."
             self.logger.info(m)
+            self.vehicle_status_dict[f"{vehicle_name}"] = HEALTHY
+            reactive_mitigation_time = time.time() - self.last_attack_started_at[vehicle_name]
         else:
-            m = f"Failed to stop attack at {vehicle_name} {adverb}. Status code: {response.status_code}"
+            m = f"[ATO] Failed to stop attack at {vehicle_name} {adverb}. Status code: {response.status_code}"
             self.logger.error(m)
-        return m, response.status_code
+
+        return {"message" :m, "mitigation_time": reactive_mitigation_time}
+
 
     def start_preconf_attack(self):
         for attacking_vehicle_name in self.cfg.attack.preconf_attacking_vehicles:
