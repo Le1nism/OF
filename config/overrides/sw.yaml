@@ -14,3 +14,8 @@ security_manager:
     - RTT
     - INBOUND
     - OUTBOUND
+
+anomaly_detection:
+  h_dim: 200
+  num_layers: 4
+  layer_norm: True

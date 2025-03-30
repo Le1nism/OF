@@ -255,3 +255,4 @@ attack:
     - daniel
     - frank
   automatic_attack_interval_secs: 20
+  bot_port: 5002
