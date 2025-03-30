@@ -48,6 +48,7 @@ security_manager:
   false_positive_reward: -4
   false_negative_reward: -10
 
+
 default_vehicle_config:
   kafka_broker: kafka:9092
   mu_anomalies: 157
@@ -254,5 +255,5 @@ attack:
   preconf_attacking_vehicles:
     - daniel
     - frank
-  automatic_attack_interval_secs: 20
+  automatic_attack_interval_secs: 8
   bot_port: 5002
