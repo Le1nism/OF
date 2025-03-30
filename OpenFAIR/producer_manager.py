@@ -4,7 +4,7 @@ from omegaconf import DictConfig
 
 class ProducerManager:
 
-    def __init__(self, cfg, producers, PRODUCER_COMMAND="python produce.py"):
+    def __init__(self, cfg, producers, containers_ips, PRODUCER_COMMAND="python produce.py"):
         self.logger = logging.getLogger("PRODUCER_MANAGER")
         self.logging_level = cfg.logging_level.upper()
         self.logger.setLevel(self.logging_level)
@@ -18,6 +18,8 @@ class ProducerManager:
         self.mode = cfg.mode
         self.manager_port = cfg.dashboard.port
         self.no_proxy_host = cfg.dashboard.proxy
+        self.attack_config = cfg.attack
+        self.containers_ips = containers_ips
         for vehicle in cfg.vehicles:
             if type(vehicle) == str:
                 vehicle_name = vehicle
@@ -60,7 +62,12 @@ class ProducerManager:
                     " --probe_frequency_seconds=" + str(vehicle_config["probe_frequency_seconds"]) +\
                     " --probe_metrics=" + ",".join(map(str,self.probe_metrics)) + \
                     " --mode=" + str(self.mode) + \
-                    " --manager_port=" + str(self.manager_port)
+                    " --manager_port=" + str(self.manager_port) + \
+                    f" --target_ip={self.containers_ips[self.attack_config.victim_container]}" + \
+                    f" --target_port={self.attack_config.target_port}" + \
+                    f" --duration={self.attack_config.duration}" + \
+                    f" --packet_size={self.attack_config.packet_size}" + \
+                    f" --delay={self.attack_config.delay}"  
             
             if self.no_proxy_host:
                 command_to_exec += " --no_proxy_host"

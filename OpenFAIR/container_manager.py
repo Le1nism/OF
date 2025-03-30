@@ -229,7 +229,7 @@ class ContainerManager:
             self.containers_ips[container.name] = container_ip 
         
 
-        self.producer_manager = ProducerManager(self.cfg, self.producers)
+        self.producer_manager = ProducerManager(self.cfg, self.producers, self.containers_ips)
         self.consumer_manager = ConsumerManager(self.cfg, self.consumers)
             
     
@@ -438,7 +438,7 @@ class ContainerManager:
         
     
     def start_attack_from_vehicle(self, vehicle_name, origin):
-
+        """
         assert f"{vehicle_name}_producer" in self.producers
 
         attacking_container = self.producers[f"{vehicle_name}_producer"]
@@ -480,10 +480,24 @@ class ContainerManager:
         else:
             prefix = "Manually"
         return f"{prefix} starting attack from {vehicle_name}"
+        """
 
+        bot_ip = self.containers_ips[f'{vehicle_name}_producer']
+        bot_port = self.cfg.attack.bot_port
+        url = f"http://{bot_ip}:{bot_port}/start-attack"
+        response = requests.post(url, json={})
+        preamble = "Automatic" if origin == "AI" else "Manual"
+        if response.status_code == 200:
+            m = f"{preamble} attack at {vehicle_name} started successfully."
+            self.logger.info(m)
+        else:
+            m = f"Failed to start {preamble} attack at {vehicle_name}. Status code: {response.status_code}"
+            self.logger.error(m)
+        return m, response.status_code
+    
 
     def stop_attack_from_vehicle(self, vehicle_name, origin):
-
+        """
         assert f"{vehicle_name}_producer" in self.producers
 
         attacking_container = self.producers[f"{vehicle_name}_producer"]
@@ -518,8 +532,20 @@ class ContainerManager:
             self.vehicle_status_dict[f"{vehicle_name}"] = HEALTHY
             self.logger.debug(f"Vehicle State Dictionary:")
             for vehicle, state in self.vehicle_status_dict.items():
-                self.logger.debug(f"  {vehicle}: {state}")
-         
+                self.logger.debug(f"  {vehicle}: {state}")  
+    """
+        bot_ip = self.containers_ips[f'{vehicle_name}_producer']
+        bot_port = self.cfg.attack.bot_port
+        url = f"http://{bot_ip}:{bot_port}/stop-attack"
+        response = requests.post(url, json={})
+        adverb = "automatically" if origin == "AI" else "manually"
+        if response.status_code == 200:
+            m = f"Attack at {vehicle_name} stopped {adverb}."
+            self.logger.info(m)
+        else:
+            m = f"Failed to stop attack at {vehicle_name} {adverb}. Status code: {response.status_code}"
+            self.logger.error(m)
+        return m, response.status_code
 
     def start_preconf_attack(self):
         for attacking_vehicle_name in self.cfg.attack.preconf_attacking_vehicles:

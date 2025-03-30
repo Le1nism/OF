@@ -18,7 +18,7 @@ logger = logging.getLogger('werkzeug')
 logger.name = 'DASHBOARD'
 original_handle = logger.handle
 def custom_handle(record):
-    substrings_to_ignore = ['vehicle-status', 'stop-attack']
+    substrings_to_ignore = ['vehicle-status', 'stop-attack', 'start-attack']
 
     for substring in substrings_to_ignore:
         if substring in record.getMessage():
