@@ -16,6 +16,6 @@ security_manager:
     - OUTBOUND
 
 anomaly_detection:
-  h_dim: 200
+  h_dim: 400
   num_layers: 4
   layer_norm: True
