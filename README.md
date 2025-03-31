@@ -18,7 +18,7 @@ If you find this code useful, please cite us:
 This is a nested repo, so be sure to clone the repo recursively, using the `--recursive` flag with the `git clone` command. Here's the syntax:
 
 ```bash
-git clone --recursive https://github.com/DIETI-DISTA-IoT/OF
+git clone --recursive https://github.com/Le1nism/OF
 ```
 
 This will clone the repository and all its submodules.
