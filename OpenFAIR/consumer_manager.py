@@ -9,6 +9,7 @@ class ConsumerManager:
         self.threads = {}
         self.consumer_command = CONSUMER_COMMAND
         self.logger = logging.getLogger("CONSUMER_MANAGER")
+        self.cfg = cfg
         self.logging_level = cfg.logging_level.upper()
         self.logger.setLevel(self.logging_level)
         self.default_consumer_config = dict(cfg.default_consumer_config)
@@ -55,9 +56,32 @@ class ConsumerManager:
                 " --kafka_topic_update_interval_secs=" + str(consumer_config["kafka_topic_update_interval_secs"]) + \
                 " --learning_rate=" + str(consumer_config["learning_rate"]) + \
                 " --epoch_size=" + str(consumer_config["epoch_size"]) + \
+                f" --input_dim={self.cfg.anomaly_detection.input_dim}" + \
+                f" --output_dim={self.cfg.anomaly_detection.output_dim}" + \
+                f" --h_dim={self.cfg.anomaly_detection.h_dim}" + \
+                f" --num_layers={self.cfg.anomaly_detection.num_layers}" + \
+                f" --dropout={consumer_config['dropout']}" + \
+                f" --optimizer={consumer_config['optimizer']}" + \
                 " --training_freq_seconds=" + str(consumer_config["training_freq_seconds"]) + \
                 " --save_model_freq_epochs=" + str(consumer_config["save_model_freq_epochs"]) + \
-                " --model_saving_path=" + vehicle_name + '_' + self.override + '_model.pth'
+                " --model_saving_path=" + vehicle_name + '_' + self.override + '_model.pth' + \
+                " --probe_metrics=" + ",".join(map(str,self.cfg.security_manager.probe_metrics)) + \
+                " --mode=" + str(self.cfg.mode) +\
+                " --manager_port=" + str(self.cfg.dashboard.port) +\
+                f" --true_positive_reward={self.cfg.security_manager.true_positive_reward}" + \
+                f" --false_positive_reward={self.cfg.security_manager.false_positive_reward}" + \
+                f" --true_negative_reward={self.cfg.security_manager.true_negative_reward}" + \
+                f" --false_negative_reward={self.cfg.security_manager.false_negative_reward}"
+            
+            
+            if self.cfg.security_manager.mitigation:
+                command_to_exec += f" --mitigation"
+
+            if self.cfg.dashboard.proxy:
+                command_to_exec += " --no_proxy_host"
+
+            if self.cfg.anomaly_detection.layer_norm:
+                command_to_exec += " --layer_norm"
 
             return_tuple = consumer_container.exec_run(
                 command_to_exec,
@@ -66,7 +90,7 @@ class ConsumerManager:
                 stdin=True
             )
             for line in return_tuple[1]:
-                print(line.decode().strip())
+                self.logger.info(line.decode().strip())
 
         thread = threading.Thread(target=run_consumer, name=consumer_name)
         thread.start()
@@ -83,11 +107,11 @@ class ConsumerManager:
             
             if pid:
                 container.exec_run(f"kill -SIGINT {pid}")
-                print(f"Sent SIGINT to {consumer_name}")
+                self.logger.info(f"Sent SIGINT to {consumer_name}")
             else:
-                print(f"No running process found for {consumer_name}")
+                self.logger.info(f"No running process found for {consumer_name}")
         except Exception as e:
-            print(f"Error stopping {consumer_name}: {e}")
+            self.logger.info(f"Error stopping {consumer_name}: {e}")
 
 
     def stop_all_consumers(self):

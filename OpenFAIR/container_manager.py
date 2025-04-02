@@ -12,6 +12,8 @@ from confluent_kafka import SerializingProducer
 from confluent_kafka.serialization import StringSerializer
 import json
 import requests
+import os
+
 
 WANDBER_COMMAND = "python wandber.py"
 FL_COMMAND = "python federated_learning.py"
@@ -57,17 +59,31 @@ class ContainerManager:
         self.host_ip = self.get_my_ip()
         self.logger.info(f"Host IP: {self.host_ip}")
         self.attack_agent = AttackAgent(self, cfg)
+        self.start_dashboard_monitor()
+        if cfg.dashboard.proxy:
+            self.proxy_configuration()
 
+
+    def proxy_configuration(self):
+        # get the value of the no_proxy env var:
+        no_proxy = os.environ.get('no_proxy')
+        for node_ip in self.containers_ips.values():
+            if node_ip not in no_proxy:
+                no_proxy += f",{node_ip}"
+        os.environ['no_proxy'] = no_proxy
+
+
+    def start_dashboard_monitor(self):
         # Start the dashboard monitor
         conf_prod = {
-            'bootstrap.servers': cfg.dashboard.kafka_broker_url,
+            'bootstrap.servers': self.cfg.dashboard.kafka_broker_url,
             'key.serializer': StringSerializer('utf_8'),
             'value.serializer': lambda x, ctx: json.dumps(x).encode('utf-8')
         }
         self.producer = SerializingProducer(conf_prod)
         signal.signal(signal.SIGINT, lambda sig, frame: self.signal_handler(sig, frame))
-        self.monitor = DashBoardMonitor(self.logger, cfg)
-        self.monitor_thread = threading.Thread(target=self.health_probes_thread, args=(cfg,))
+        self.monitor = DashBoardMonitor(self.logger, self.cfg)
+        self.monitor_thread = threading.Thread(target=self.health_probes_thread)
         self.monitor_thread.daemon = True
         self.monitor_alive = True
         self.monitor_thread.start()
@@ -95,7 +111,7 @@ class ContainerManager:
             self.producer.produce(topic=topic_name, value=data)  # Send the message to Kafka
             self.logger.debug(f"sent health probes.")
         except Exception as e:
-            print(f"Error while producing message to {topic_name} : {e}")
+            self.logger.info(f"Error while producing message to {topic_name} : {e}")
 
 
     def signal_handler(self, sig, frame):
@@ -109,14 +125,14 @@ class ContainerManager:
         exit(0)
 
 
-    def health_probes_thread(self, args):
+    def health_probes_thread(self):
         self.logger.info(f"Starting thread for dashboard health probes")
         while self.monitor_alive:
             health_dict = self.monitor.probe_health()
             self.produce_message(
                 data=health_dict, 
                 topic_name=f"DASHBOARD_PROBES")
-            time.sleep(args.dashboard.probe_frequency_seconds)
+            time.sleep(self.cfg.dashboard.probe_frequency_seconds)
 
 
     def get_my_ip(self):
@@ -213,7 +229,7 @@ class ContainerManager:
             self.containers_ips[container.name] = container_ip 
         
 
-        self.producer_manager = ProducerManager(self.cfg, self.producers)
+        self.producer_manager = ProducerManager(self.cfg, self.producers, self.containers_ips)
         self.consumer_manager = ConsumerManager(self.cfg, self.consumers)
             
     
@@ -275,7 +291,7 @@ class ContainerManager:
                  stream=True,
                  stdin=True)
             for line in return_tuple[1]:
-                print(line.decode().strip())
+                self.logger.info(line.decode().strip())
         
         thread = threading.Thread(target=run_wandber, args=(self,))
         thread.start()
@@ -295,10 +311,18 @@ class ContainerManager:
             f" --aggregation_strategy={self.cfg.federated_learning.aggregation_strategy}" +\
             f" --initialization_strategy={self.cfg.federated_learning.initialization_strategy}" +\
             f" --aggregation_interval_secs={self.cfg.federated_learning.aggregation_interval_secs}" +\
-            f" --weights_buffer_size={self.cfg.federated_learning.weights_buffer_size}"
-                
+            f" --weights_buffer_size={self.cfg.federated_learning.weights_buffer_size}" +\
+            f" --output_dim={self.cfg.anomaly_detection.output_dim}" + \
+            f" --h_dim={self.cfg.anomaly_detection.h_dim}" + \
+            f" --num_layers={self.cfg.anomaly_detection.num_layers}" +\
+            f" --input_dim={self.cfg.anomaly_detection.input_dim}" +\
+            " --probe_metrics=" + ",".join(map(str,self.cfg.security_manager.probe_metrics)) + \
+            " --mode=" + str(self.cfg.mode)
+        
         if self.cfg.wandb.online:
             start_command += " --online"
+        if self.cfg.anomaly_detection.layer_norm:
+            start_command += " --layer_norm"
         
         def run_federated_learning(self):
             return_tuple = self.wandber['container'].exec_run(
@@ -307,7 +331,7 @@ class ContainerManager:
                  stream=True,
                  stdin=True)
             for line in return_tuple[1]:
-                print(line.decode().strip())
+                self.logger.info(line.decode().strip())
         
         thread = threading.Thread(target=run_federated_learning, args=(self,))
         thread.start()
@@ -366,7 +390,11 @@ class ContainerManager:
             f" --dropout={self.cfg.security_manager.dropout}" + \
             f" --optimizer={self.cfg.security_manager.optimizer}" + \
             f" --manager_port={self.cfg.dashboard.port}" + \
-            f" --sm_port={self.cfg.security_manager.sm_port}"
+            f" --sm_port={self.cfg.security_manager.sm_port}" +\
+            f" --true_positive_reward={self.cfg.security_manager.true_positive_reward}" + \
+            f" --false_positive_reward={self.cfg.security_manager.false_positive_reward}" + \
+            f" --true_negative_reward={self.cfg.security_manager.true_negative_reward}" + \
+            f" --false_negative_reward={self.cfg.security_manager.false_negative_reward}"
             
         
         if self.cfg.security_manager.mitigation:
@@ -381,11 +409,11 @@ class ContainerManager:
                  stream=True,
                  stdin=True)
             for line in return_tuple[1]:
-                print(line.decode().strip())
+                self.logger.info(line.decode().strip())
         
         thread = threading.Thread(target=run_security_manager, args=(self,))
         thread.start()
-        return "Federated learning started!"
+        return "Security Manager started!", 200
     
 
     def stop_security_manager(self):
@@ -412,84 +440,46 @@ class ContainerManager:
     def start_attack_from_vehicle(self, vehicle_name, origin):
 
         assert f"{vehicle_name}_producer" in self.producers
-
-        attacking_container = self.producers[f"{vehicle_name}_producer"]
-
-        assert self.cfg.attack.victim_container in self.containers_ips
-        try:
-            assert self.cfg.attack.victim_container in self.containers_ips
-        except AssertionError:
-            m = f"Error: Victim container {self.cfg.attack.victim_container} not found in container IPs."
-            m += f"\n try one of these :{list(self.containers_ips.keys())}"
-            self.logger.error(m)
-            return m
-
-
-        start_attack_command = f"{ATTACK_COMMAND}" + \
-            f" --logging_level={self.cfg.logging_level} " + \
-            f" --target_ip={self.containers_ips[self.cfg.attack.victim_container]} " + \
-            f" --target_port={self.cfg.attack.target_port}" + \
-            f" --duration={self.cfg.attack.duration}" + \
-            f" --packet_size={self.cfg.attack.packet_size}" + \
-            f" --delay={self.cfg.attack.delay}"  
-
         
-        def run_attack():
-            return_tuple = attacking_container.exec_run(
-                 start_attack_command,
-                 tty=True,
-                 stream=True,
-                 stdin=True)
-            for line in return_tuple[1]:
-                print(line.decode().strip())
-        
-        self.vehicle_status_dict[vehicle_name] = INFECTED
-        self.last_attack_started_at[vehicle_name] = time.time()
-        thread = threading.Thread(target=run_attack)
-        thread.start()
-        if origin == "AI":
-            prefix = "Automatically"
+        self.logger.info(f"[BOTMASTER] Starting Attack from  {vehicle_name}")
+        bot_ip = self.containers_ips[f'{vehicle_name}_producer']
+        bot_port = self.cfg.attack.bot_port
+        url = f"http://{bot_ip}:{bot_port}/start-attack"
+        response = requests.post(url, json={})
+        preamble = "Automatic" if origin == "AI" else "Manual"
+        if response.status_code == 200:
+            self.vehicle_status_dict[vehicle_name] = INFECTED
+            self.last_attack_started_at[vehicle_name] = time.time()
+            m = f"[BOTMASTER] - {preamble} attack at {vehicle_name} started successfully."
+            self.logger.info(m)
         else:
-            prefix = "Manually"
-        return f"{prefix} starting attack from {vehicle_name}"
-
+            m = f"[BOTMASTER] - Failed to start {preamble} attack at {vehicle_name}. Status code: {response.status_code}"
+            self.logger.error(m)
+        return m, response.status_code
+    
 
     def stop_attack_from_vehicle(self, vehicle_name, origin):
 
         assert f"{vehicle_name}_producer" in self.producers
-
-        attacking_container = self.producers[f"{vehicle_name}_producer"]
         reactive_mitigation_time = None
-        try:
-            # Try to find and kill the process
-            pid_result = attacking_container.exec_run(f"pgrep -f '{ATTACK_COMMAND}'")
-            pid = pid_result[1].decode().strip()
-            
-            if pid:
-                attacking_container.exec_run(f"kill -SIGINT {pid}")
-                m = f"Stopping attack from {vehicle_name}..."
-                self.logger.info(m)
-                reactive_mitigation_time = time.time() - self.last_attack_started_at[vehicle_name]
-                if origin == "AI":     
-                    self.logger.info(f"Vehicle {vehicle_name} was automatically healed after {int(reactive_mitigation_time)} seconds.")
-                else:
-                    self.logger.info(f"Vehicle {vehicle_name} was manually healed after {int(reactive_mitigation_time)} seconds.")
-                return {"message" :m, "mitigation_time": int(reactive_mitigation_time)}
-            else:
-                m = f"No attacking process found in {vehicle_name}"
-                self.logger.info(m)
-                return {"message" :m, "mitigation_time": reactive_mitigation_time}
-        except Exception as e:
-            m = f"Error stopping attack from {vehicle_name}: {e}"
-            self.logger.error(m)
-            return {"message" :m, "mitigation_time": reactive_mitigation_time}
-        finally:
 
+        self.logger.info(f"[ATO] Healing attack on {vehicle_name}...")
+        bot_ip = self.containers_ips[f'{vehicle_name}_producer']
+        bot_port = self.cfg.attack.bot_port
+        url = f"http://{bot_ip}:{bot_port}/stop-attack"
+        response = requests.post(url, json={})
+        adverb = "automatically" if origin == "AI" else "manually"
+        if response.status_code == 200:
+            m = f"[ATO] Attack at {vehicle_name} stopped {adverb}."
+            self.logger.info(m)
             self.vehicle_status_dict[f"{vehicle_name}"] = HEALTHY
-            self.logger.debug(f"Vehicle State Dictionary:")
-            for vehicle, state in self.vehicle_status_dict.items():
-                self.logger.debug(f"  {vehicle}: {state}")
-         
+            reactive_mitigation_time = time.time() - self.last_attack_started_at[vehicle_name]
+        else:
+            m = f"[ATO] Failed to stop attack at {vehicle_name} {adverb}. Status code: {response.status_code}"
+            self.logger.error(m)
+
+        return {"message" :m, "mitigation_time": reactive_mitigation_time}
+
 
     def start_preconf_attack(self):
         for attacking_vehicle_name in self.cfg.attack.preconf_attacking_vehicles:
@@ -511,22 +501,28 @@ class ContainerManager:
         security_manager_ip = self.containers_ips['wandber']
         mitigation_service_port = self.cfg.security_manager.sm_port
         url = f"http://{security_manager_ip}:{mitigation_service_port}/start-mitigation"
-        response = requests.post(url)
+        response = requests.post(url, json={})
         
         if response.status_code == 200:
-            self.logger.info("Mitigation started successfully.")
+            m = "Mitigation started successfully."
+            self.logger.info(m)
         else:
-            self.logger.error(f"Failed to start mitigation. Status code: {response.status_code}")
+            m = f"Failed to start mitigation. Status code: {response.status_code}"
+            self.logger.error(m)
+        return m, response.status_code
 
 
     def stop_mitigation(self):
         security_manager_ip = self.containers_ips['wandber']
         mitigation_service_port = self.cfg.security_manager.sm_port
         url = f"http://{security_manager_ip}:{mitigation_service_port}/stop-mitigation"
-        response = requests.post(url)
+        response = requests.post(url, json={})
         
         if response.status_code == 200:
-            self.logger.info("Mitigation stopped successfully.")
+            m = "Mitigation stopped successfully."
+            self.logger.info(m)
         else:
-            self.logger.error(f"Failed to stop mitigation. Status code: {response.status_code}")
+            m = f"Failed to stop mitigation. Status code: {response.status_code}"
+            self.logger.error(m)
+        return m, response.status_code
 

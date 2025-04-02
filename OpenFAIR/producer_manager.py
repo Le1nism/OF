@@ -4,7 +4,7 @@ from omegaconf import DictConfig
 
 class ProducerManager:
 
-    def __init__(self, cfg, producers, PRODUCER_COMMAND="python produce.py"):
+    def __init__(self, cfg, producers, containers_ips, PRODUCER_COMMAND="python produce.py"):
         self.logger = logging.getLogger("PRODUCER_MANAGER")
         self.logging_level = cfg.logging_level.upper()
         self.logger.setLevel(self.logging_level)
@@ -15,6 +15,11 @@ class ProducerManager:
         self.vehicle_names = []
         self.vehicle_configs = {}
         self.probe_metrics = cfg.security_manager.probe_metrics
+        self.mode = cfg.mode
+        self.manager_port = cfg.dashboard.port
+        self.no_proxy_host = cfg.dashboard.proxy
+        self.attack_config = cfg.attack
+        self.containers_ips = containers_ips
         for vehicle in cfg.vehicles:
             if type(vehicle) == str:
                 vehicle_name = vehicle
@@ -55,8 +60,18 @@ class ProducerManager:
                     " --ping_thread_timeout=" + str(vehicle_config["ping_thread_timeout"]) + \
                     " --ping_host=" + str(vehicle_config["ping_host"]) + \
                     " --probe_frequency_seconds=" + str(vehicle_config["probe_frequency_seconds"]) +\
-                    " --probe_metrics=" + ",".join(map(str,self.probe_metrics))
+                    " --probe_metrics=" + ",".join(map(str,self.probe_metrics)) + \
+                    " --mode=" + str(self.mode) + \
+                    " --manager_port=" + str(self.manager_port) + \
+                    f" --target_ip={self.containers_ips[self.attack_config.victim_container]}" + \
+                    f" --target_port={self.attack_config.target_port}" + \
+                    f" --duration={self.attack_config.duration}" + \
+                    f" --packet_size={self.attack_config.packet_size}" + \
+                    f" --delay={self.attack_config.delay}"  
             
+            if self.no_proxy_host:
+                command_to_exec += " --no_proxy_host"
+                
             if vehicle_config["time_emulation"]:
                 command_to_exec += " --time_emulation" 
             
@@ -67,7 +82,7 @@ class ProducerManager:
                 stdin=True
             )
             for line in return_tuple[1]:
-                print(line.decode().strip())
+                self.logger.info(line.decode().strip())
 
         thread = threading.Thread(target=run_producer, name=producer_name)
         thread.start()
@@ -84,11 +99,11 @@ class ProducerManager:
             
             if pid:
                 container.exec_run(f"kill -SIGINT {pid}")
-                print(f"Sent SIGINT to {producer_name}")
+                self.logger.info(f"Sent SIGINT to {producer_name}")
             else:
-                print(f"No running process found for {producer_name}")
+                self.logger.info(f"No running process found for {producer_name}")
         except Exception as e:
-            print(f"Error stopping {producer_name}: {e}")
+            self.logger.info(f"Error stopping {producer_name}: {e}")
 
 
     def stop_all_producers(self):
