@@ -1,7 +1,7 @@
 mode: OF
 
 wandb:
-  run_name: OF_Robust
+  run_name: 10000Hz
 
 default_vehicle_config:
   # The rate of information (i.e., time) is multiplied x 100 for the sake of speeding up the simulation
@@ -22,4 +22,6 @@ anomaly_detection:
 
 
 attack:
-  automatic_attack_interval_secs: 2
+  automatic_attack_interval_secs: 12
+  delay: 0.0001
+  target_port: 2181
