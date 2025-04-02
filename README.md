@@ -1,15 +1,21 @@
 
-# SereWay: Toward SEcurity and REliability benchmarking for the RailWAY IoT.
+# OpenFAIR SereWay: Toward SEcurity and REliability benchmarking for the RailWAY IoT.
 
-This is the official implementation of the paper:
+This is the official implementation of the papers:
 
-## SereWay: Toward SEcurity and REliability benchmarking for the RailWAY IoT.
+ - ## _Open-FARI: An Open-source testbed for Federated Anomaly detection in the Railway IIoT_
 
-from Alessandra Rizzardi, Raffaele Della Corte, Jesus F. Cevallos M., Vittorio Orbinato, Simona De Vivo, Sabrina Sicari, Domenico Cotroneo, and Alberto Coen-Porisini
+and 
 
-If you find this code useful, please cite us:
+ - ## _SereWay: Toward SEcurity and REliability benchmarking for the RailWAY IoT_
 
-[CITATION]
+from _Alessandra Rizzardi, Raffaele Della Corte, Jesus F. Cevallos M., Vittorio Orbinato, Simona De Vivo, Sabrina Sicari, Domenico Cotroneo, and Alberto Coen-Porisini_
+
+If you find this code useful, please cite us!:
+
+- Alessandra Rizzardi, Raffaele Della Corte, Jesus F. Cevallos M., Vittorio Orbinato, Simona De Vivo, Sabrina Sicari, Domenico Cotroneo, and Alberto Coen-Porisini, Open-FARI: An Open-source testbed for Federated Anomaly detection in the Railway IIoT, IWCMW 2025, Accepted, In press
+
+- Alessandra Rizzardi, Raffaele Della Corte, Jesus F. Cevallos M., Vittorio Orbinato, Simona De Vivo, Sabrina Sicari, Domenico Cotroneo, and Alberto Coen-Porisini, SereWay: Toward SEcurity and REliability benchmarking for the RailWAY IoT, Under review
 
 ## Usage
 

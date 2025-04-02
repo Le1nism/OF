@@ -22,4 +22,4 @@ anomaly_detection:
 
 
 attack:
-  automatic_attack_interval_secs: 2
+  automatic_attack_interval_secs: 8
