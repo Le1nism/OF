@@ -1,0 +1,25 @@
+mode: SW
+
+wandb:
+  run_name: SLOW_SW
+
+default_vehicle_config:
+  # The rate of information (i.e., time) is multiplied x 100 for the sake of speeding up the simulation
+  mu_anomalies: 3
+  mu_normal: 3
+
+
+security_manager:
+  probe_metrics:
+    - RTT
+    - INBOUND
+    - OUTBOUND
+
+anomaly_detection:
+  h_dim: 400
+  num_layers: 4
+  layer_norm: True
+
+
+attack:
+  automatic_attack_interval_secs: 12

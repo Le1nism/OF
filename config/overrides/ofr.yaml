@@ -1,14 +1,12 @@
+mode: OF
 
 wandb:
-  run_name: no_fed
+  run_name: OF_Robust
 
 default_vehicle_config:
   # The rate of information (i.e., time) is multiplied x 100 for the sake of speeding up the simulation
   mu_anomalies: 0.157
   mu_normal: 0.117
-
-default_consumer_config:
-  learning_rate: 0.002
 
 
 security_manager:
@@ -16,3 +14,12 @@ security_manager:
     - RTT
     - INBOUND
     - OUTBOUND
+
+anomaly_detection:
+  h_dim: 400
+  num_layers: 4
+  layer_norm: True
+
+
+attack:
+  automatic_attack_interval_secs: 2

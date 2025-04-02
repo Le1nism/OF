@@ -1,5 +1,6 @@
 
 override: ""
+mode: OF # OF (security metrics separated from sensors), SW (united paradigm)
 
 logging_level: info
 container_manager_port: 7777
@@ -42,7 +43,11 @@ security_manager:
   mitigation: True
   sm_port: 5001
   layer_norm: True
-  
+  true_positive_reward: 2
+  true_negative_reward: 0
+  false_positive_reward: -4
+  false_negative_reward: -10
+
 
 default_vehicle_config:
   kafka_broker: kafka:9092
@@ -206,7 +211,13 @@ default_consumer_config:
   diagnostics_classes: all
   weights_push_freq_seconds: 180
   weights_pull_freq_seconds: 180
-  learning_rate: 0.001
+  learning_rate: 0.002
+  initialization_strategy: xavier
+  output_dim: 1
+  h_dim: 128
+  num_layers: 3
+  dropout: 0.1
+  optimizer: Adam
   training_freq_seconds: 0.5
   epoch_size: 20
   save_model_freq_epochs: 5
@@ -214,6 +225,14 @@ default_consumer_config:
   cpu_quota: 80000  #calcolo cpu_quota = cpu_period * cpu_limit
 
 
+anomaly_detection:
+  output_dim: 1
+  h_dim: 64
+  num_layers: 3
+  layer_norm: True
+  input_dim: 59
+
+  
 dashboard:
   port: 5000
   host: 0.0.0.0
@@ -224,7 +243,9 @@ dashboard:
   ping_thread_timeout: 5
   ping_host: google.com
   probe_frequency_seconds: 5
+  proxy: True
 
+  
 attack:
   target_port: 80
   duration: 0  # duration is in seconds. 0 means forever...
@@ -234,4 +255,5 @@ attack:
   preconf_attacking_vehicles:
     - daniel
     - frank
-  automatic_attack_interval_secs: 5
+  automatic_attack_interval_secs: 8
+  bot_port: 5002

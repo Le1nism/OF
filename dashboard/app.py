@@ -13,13 +13,20 @@ DASHBOARD_NAME = "DASH"
 ###
 ## Configure Werkzeug logger to filter out vehicle-status requests
 ## These are too many and clutter the logs
-werkzeug_logger = logging.getLogger('werkzeug')
-original_handle = werkzeug_logger.handle
+logger = logging.getLogger('werkzeug')
+# change the name of the logger:
+logger.name = 'DASHBOARD'
+original_handle = logger.handle
 def custom_handle(record):
-    if 'POST /vehicle-status' not in record.getMessage():
-        return original_handle(record)
-    return True
-werkzeug_logger.handle = custom_handle
+    substrings_to_ignore = ['vehicle-status', 'stop-attack', 'start-attack']
+
+    for substring in substrings_to_ignore:
+        if substring in record.getMessage():
+            return
+
+    return original_handle(record)
+
+logger.handle = custom_handle
 ###
 
 def processing_message(topic, msg):
@@ -70,6 +77,8 @@ def create_app(cfg: DictConfig) -> None:
     app.process_message_routine = processing_message
     app.logger.name = DASHBOARD_NAME
     app.logger.setLevel(cfg.logging_level.upper())
+    # pretty print the cfg OmegaDict
+    app.logger.info(OmegaConf.to_yaml(cfg))
 
     # Create a ConainerManager instance
     container_manager = ContainerManager(cfg)
@@ -255,37 +264,44 @@ def create_app(cfg: DictConfig) -> None:
 
     @app.route('/start-experiment', methods=['POST'])
     def start_experiment():
-        container_manager.start_preconf_attack()
-        time.sleep(2)
+        logger.info("Starting experiment")
+              
+        logger.info("\n\nStarting producers...")
         container_manager.produce_all()
-        time.sleep(2)
+        time.sleep(4)
+        logger.info("\n\nStarting consumers...")
         container_manager.consume_all()
-        time.sleep(2)        
+        time.sleep(5)        
+        logger.info("\n\nStarting security manager...")
         container_manager.start_security_manager()
         time.sleep(2)
+        logger.info("\n\nStarting federated learning...")
         container_manager.start_federated_learning()
-        time.sleep(2)
+        time.sleep(3)
+        logger.info("\n\nStarting wandb...")
         container_manager.start_wandb()
+        time.sleep(3)
+        logger.info("\n\nStarting automatic attacks...")
+        container_manager.start_automatic_attacks()
+        
         return "Automatically started the experiment", 200
 
 
     @app.route('/shutdown', methods=['POST'])
     def shutdown():
         container_manager.stop_security_manager()
-        time.sleep(1)
+        time.sleep(2)
         container_manager.stop_federated_learning()
-        time.sleep(1)
+        time.sleep(2)
         container_manager.stop_consuming_all()
-        time.sleep(1)
+        time.sleep(2)
         container_manager.stop_producing_all()
-        time.sleep(1)
+        time.sleep(2)
         container_manager.stop_automatic_attacks()
-        time.sleep(1)
+        time.sleep(2)
         container_manager.stop_wandb()
-        time.sleep(3)
-        container_manager.signal_handler(None, None)
-        exit(0)
-        return 'Server shutting down...', 200
+        time.sleep(4)
+        return 'CAN SHUTDOWN NOW...', 200
     
 
     # Run the Flask app
