@@ -7,6 +7,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from OpenFAIR import MessageCache, MetricsLogger, KafkaMessageConsumer, ContainerManager
 import logging
 import time
+from dashboard.https_container_manager import HTTPSContainerManager
 
 DASHBOARD_NAME = "DASH"
 
@@ -80,8 +81,8 @@ def create_app(cfg: DictConfig) -> None:
     # pretty print the cfg OmegaDict
     app.logger.info(OmegaConf.to_yaml(cfg))
 
-    # Create a ConainerManager instance
-    container_manager = ContainerManager(cfg)
+    # Create an HTTPS Container Manager instance
+    container_manager = HTTPSContainerManager(cfg)
 
     # Create a MessageConsumer instance
     message_consumer = KafkaMessageConsumer(parent=app, cfg=cfg)
