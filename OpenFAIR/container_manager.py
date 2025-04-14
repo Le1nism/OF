@@ -13,6 +13,7 @@ from confluent_kafka.serialization import StringSerializer
 import json
 import requests
 import os
+import socket
 
 
 WANDBER_COMMAND = "python wandber.py"
@@ -66,14 +67,46 @@ class ContainerManager:
 
     def proxy_configuration(self):
         # get the value of the no_proxy env var:
-        no_proxy = os.environ.get('no_proxy')
+        no_proxy = os.environ.get('no_proxy', '')
         for node_ip in self.containers_ips.values():
             if node_ip not in no_proxy:
                 no_proxy += f",{node_ip}"
         os.environ['no_proxy'] = no_proxy
 
 
+    def check_kafka_connectivity(self):
+        """Check if Kafka broker is accessible"""
+        
+        kafka_host = self.cfg.dashboard.kafka_broker_url.split(':')[0]
+        kafka_port = int(self.cfg.dashboard.kafka_broker_url.split(':')[1])
+        
+        self.logger.info(f"Checking Kafka connectivity to {kafka_host}:{kafka_port}")
+        
+        # Try to connect to the Kafka broker
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(5)  # 5 second timeout
+        
+        try:
+            result = sock.connect_ex((kafka_host, kafka_port))
+            if result == 0:
+                self.logger.info("Kafka broker is accessible")
+                return True
+            else:
+                self.logger.error(f"Kafka broker is not accessible. Error code: {result}")
+                return False
+        except Exception as e:
+            self.logger.error(f"Error checking Kafka connectivity: {e}")
+            return False
+        finally:
+            sock.close()
+
+
     def start_dashboard_monitor(self):
+        # Check Kafka connectivity first
+        if not self.check_kafka_connectivity():
+            self.logger.error("Cannot start dashboard monitor: Kafka broker is not accessible")
+            return "Cannot start dashboard monitor: Kafka broker is not accessible. Please ensure Kafka is running."
+            
         # Start the dashboard monitor
         conf_prod = {
             'bootstrap.servers': self.cfg.dashboard.kafka_broker_url,
@@ -87,7 +120,8 @@ class ContainerManager:
         self.monitor_thread.daemon = True
         self.monitor_alive = True
         self.monitor_thread.start()
-        
+        return "Dashboard monitor started successfully"
+
 
     def start_automatic_attacks(self):
         self.logger.info("Starting automatic Attack Agent")
@@ -252,7 +286,10 @@ class ContainerManager:
 
 
     def stop_wandb(self):
-        self.wandber['container']
+        if self.wandber['container'] is None:
+            self.logger.info("No wandber container found")
+            return "No wandber container found"
+            
         try:
             # Try to find and kill the process
             pid_result = self.wandber['container'].exec_run(f"pgrep -f '{WANDBER_COMMAND}'")
@@ -271,6 +308,10 @@ class ContainerManager:
 
 
     def start_wandb(self):
+        # Check Kafka connectivity first
+        if not self.check_kafka_connectivity():
+            self.logger.error("Cannot start wandber: Kafka broker is not accessible")
+            return "Cannot start wandber: Kafka broker is not accessible. Please ensure Kafka is running."
 
         start_command = f"python wandber.py " + \
             f" --logging_level={self.cfg.logging_level} " + \
@@ -299,6 +340,10 @@ class ContainerManager:
 
 
     def start_federated_learning(self):
+        # Check Kafka connectivity first
+        if not self.check_kafka_connectivity():
+            self.logger.error("Cannot start federated learning: Kafka broker is not accessible")
+            return "Cannot start federated learning: Kafka broker is not accessible. Please ensure Kafka is running."
 
         start_command = FL_COMMAND + \
             f" --logging_level={self.cfg.logging_level} " + \
@@ -339,6 +384,10 @@ class ContainerManager:
     
 
     def stop_federated_learning(self):
+        if self.federated_learner['container'] is None:
+            self.logger.info("No federated learner container found")
+            return "No federated learner container found"
+            
         try:
             # Try to find and kill the process
             pid_result = self.federated_learner['container'].exec_run(f"pgrep -f '{FL_COMMAND}'")
@@ -360,11 +409,15 @@ class ContainerManager:
 
         
     def start_security_manager(self):
+        # Check Kafka connectivity first
+        if not self.check_kafka_connectivity():
+            self.logger.error("Cannot start security manager: Kafka broker is not accessible")
+            return "Cannot start security manager: Kafka broker is not accessible. Please ensure Kafka is running.", 500
 
         assert len(self.vehicle_names) > 0, "No vehicles found. Please create vehicles first."
         vehicle_param_str = self.vehicle_names[0]
         for vehicle in self.vehicle_names[1:]:
-            vehicle_param_str += f"\ {vehicle}"
+            vehicle_param_str += f" {vehicle}"
 
 
         start_command = SM_COMMAND + \
@@ -417,6 +470,10 @@ class ContainerManager:
     
 
     def stop_security_manager(self):
+        if self.security_manager['container'] is None:
+            self.logger.info("No security manager container found")
+            return "No security manager container found"
+            
         try:
             # Try to find and kill the process
             pid_result = self.security_manager['container'].exec_run(f"pgrep -f '{SM_COMMAND}'")
