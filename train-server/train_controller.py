@@ -40,6 +40,7 @@ class TrainController:
 		)
 		
 		self.config = config
+
 		return {"status": "started", "pid": self.process.pid}
 	
 	def stop_consumer(self):
@@ -52,11 +53,13 @@ class TrainController:
 		self.process.wait(timeout=10)
 		
 		if self.process.poll() is None:
+
 			# Force kill if it doesn't terminate
 			self.process.kill()
 		
 		self.process = None
 		self.config = None
+
 		return {"status": "stopped"}
 	
 	def get_status(self):
@@ -65,6 +68,7 @@ class TrainController:
 			return {"status": "stopped"}
 		
 		return {
+
 			"status": "running",
 			"pid": self.process.pid,
 			"config": self.config.dict() if self.config else None
@@ -74,8 +78,10 @@ class TrainController:
 
 		# Build the command line arguments from the config
 		cmd = ["python", "consume.py"]
+
 		for key, value in config.dict().items():
 			cmd.extend([f"--{key}", str(value)])
+
 		return cmd
 
 controller = TrainController()
