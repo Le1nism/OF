@@ -32,13 +32,13 @@ Trasformazione dell'architettura per permettere a ogni treno di avere il proprio
   - Gestisce il processo di consumer del treno
 - Il Train Server implementato con FastAPI, per ottenere performance migliori e documentazione automatica per le API
 
-### 2. 🔲 Modifica del Consumer Manager
+### 2. ✅ Modifica del Consumer Manager
 - Refactoring della classe ConsumerManager:
   - Rimuovere l'esecuzione diretta di comandi
   - Aggiungere la funzionalità client in HTTP per comunicare con i server dei treni
   - Aggiornare l'approccio di gestione delle configurazioni
 
-### 3. 🔲 Aggiornare la configurazione Docker
+### 3. ✅ Aggiornare la configurazione Docker
 - Modificare il docker-compose.yml per:
   - Aggiungere un servizio Train Server per ogni treno
   - Aggiornare il networking per permettere la comunicazione HTTP tra le componenti
