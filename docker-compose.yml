@@ -63,6 +63,62 @@ services:
     # entrypoint: ["/wait-for-it.sh", "kafka:9092", "--", "sh", "-c", "python produce.py"]  # Wait for Kafka before running the script
     command: ["tail", "-f", "/dev/null"]
 
+  # Train server for Train1
+  train1_server:
+    build:
+      context: ./train1_server
+      dockerfile: Dockerfile
+    container_name: train1_server
+    hostname: train1_server
+    networks:
+      - trains_network
+    ports:
+      - "8001:8000" # Expose the train server API
+    depends_on:
+      - kafka
+
+  # Train1 consumer
+
+  train1_consumer:
+    build:
+      context: ./consumer
+      dockerfile: Dockerfile
+    container_name: train1_consumer
+    hostname: train1_consumer
+    networks:
+      - trains_network
+    depends_on:
+      - kafka
+      - train1_server
+    command: ["tail", "-f", "/dev/null"] # Keep container running
+
+  # Train server for Train2
+  train2_server:
+    build:
+      context: ./train_server
+      dockerfile: Dockerfile
+    container_name: train2_server
+    hostname: train2_server
+    networks:
+      - trains_network
+    ports:
+      - "8002:8000"  # Expose the train server API
+    depends_on:
+      - kafka
+
+  # Train2 consumer
+  train2_consumer:
+    build:
+      context: ./consumer
+      dockerfile: Dockerfile
+    container_name: train2_consumer
+    hostname: train2_consumer
+    networks:
+      - trains_network
+    depends_on:
+      - train2_server
+      - kafka
+    command: ["tail", "-f", "/dev/null"]  # Keep container running
 
   # producer:
   #   build:
