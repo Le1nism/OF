@@ -1,4 +1,6 @@
 
+# [< Architectural Shift Dev Status >](https://le1nism.github.io/OF/)
+
 # OpenFAIR SereWay: Toward SEcurity and REliability benchmarking for the RailWAY IoT.
 
 This is the official implementation of the papers:
@@ -133,4 +135,3 @@ Adjust configurations for this script in the `config/default.yaml` or create an 
 Comand-line args can be sent also using the hydra syntax (i.e. no hyphens) and created appending `+` 
 
     python dashboard/app.py +foo=bar
-
