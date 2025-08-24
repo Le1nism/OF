@@ -13,6 +13,8 @@ from confluent_kafka.serialization import StringSerializer
 import json
 import requests
 import os
+import platform
+import socket
 
 
 WANDBER_COMMAND = "python wandber.py"
@@ -61,14 +63,15 @@ class ContainerManager:
         self.attack_agent = AttackAgent(self, cfg)
         self.start_dashboard_monitor()
         if cfg.dashboard.proxy:
+            self.logger.info("Proxy mode enabled")
             self.proxy_configuration()
 
 
     def proxy_configuration(self):
         # get the value of the no_proxy env var:
-        no_proxy = os.environ.get('no_proxy')
+        no_proxy = os.environ.get('no_proxy', '')
         for node_ip in self.containers_ips.values():
-            if node_ip not in no_proxy:
+            if node_ip and node_ip not in no_proxy:
                 no_proxy += f",{node_ip}"
         os.environ['no_proxy'] = no_proxy
 
@@ -136,8 +139,35 @@ class ContainerManager:
 
 
     def get_my_ip(self):
-        cmd = "hostname -I | cut -d' ' -f1"
-        return subprocess.run(cmd, shell=True, check=True, stdout=subprocess.PIPE).stdout.decode().strip()
+        """Get the host IP address, works on both Windows and Linux"""
+        try:
+            # Try to get IP from environment variable first
+            host_ip = os.getenv('HOST_IP')
+            if host_ip:
+                return host_ip
+            
+            # Detect OS and use appropriate method
+            if platform.system() == "Windows":
+                # Windows method: use socket to get local IP
+                try:
+                    # Connect to a remote address to determine local IP
+                    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                    s.connect(("8.8.8.8", 80))
+                    local_ip = s.getsockname()[0]
+                    s.close()
+                    return local_ip
+                except Exception:
+                    # Fallback: get hostname and resolve
+                    hostname = socket.gethostname()
+                    return socket.gethostbyname(hostname)
+            else:
+                # Linux/Unix method: use hostname command
+                cmd = "hostname -I | cut -d' ' -f1"
+                return subprocess.run(cmd, shell=True, check=True, stdout=subprocess.PIPE).stdout.decode().strip()
+        except Exception as e:
+            self.logger.warning(f"Could not determine host IP: {e}")
+            # Fallback to localhost
+            return "127.0.0.1"
 
 
     def init_vehicle_status_dict(self):
