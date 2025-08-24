@@ -4,6 +4,7 @@ import requests
 import time
 import yaml
 import os
+from omegaconf import ListConfig
 
 class ProducerManager:
     def __init__(self, cfg, producers, containers_ips, PRODUCER_COMMAND="python produce.py"):
@@ -39,6 +40,17 @@ class ProducerManager:
                 self.vehicle_configs[vehicle_name]["anomaly_classes"] = list(range(0, 19))
             if vehicle_config.get("diagnostics_classes") == "all":
                 self.vehicle_configs[vehicle_name]["diagnostics_classes"] = list(range(1, 15))
+
+    def _convert_to_json_serializable(self, obj):
+        """Convert OmegaConf objects to JSON serializable Python objects"""
+        if isinstance(obj, ListConfig):
+            return list(obj)
+        elif isinstance(obj, dict):
+            return {k: self._convert_to_json_serializable(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            return [self._convert_to_json_serializable(item) for item in obj]
+        else:
+            return obj
 
     def start_all_producers(self):
         """Start all producers using HTTP API"""
@@ -145,6 +157,11 @@ class ProducerManager:
 
     def _build_config_data(self, vehicle_config):
         """Build configuration data for HTTP API"""
+        # Convert all OmegaConf objects to JSON serializable Python objects
+        vehicle_config = self._convert_to_json_serializable(vehicle_config)
+        probe_metrics = self._convert_to_json_serializable(self.probe_metrics)
+        attack_config = self._convert_to_json_serializable(self.attack_config)
+        
         config_data = {
             'vehicle_name': vehicle_config.get('vehicle_name'),
             'kafka_broker': vehicle_config.get('kafka_broker', 'kafka:9092'),
@@ -153,9 +170,9 @@ class ProducerManager:
             'mode': self.mode,
             
             # Network configuration
-            'target_ip': self.attack_config.get('target_ip', '172.18.0.4'),
-            'target_port': self.attack_config.get('target_port', 80),
-            'bot_port': self.attack_config.get('bot_port', 5002),
+            'target_ip': attack_config.get('target_ip', '172.18.0.4'),
+            'target_port': attack_config.get('target_port', 80),
+            'bot_port': attack_config.get('bot_port', 5002),
             
             # Timing parameters
             'probe_frequency_seconds': vehicle_config.get('probe_frequency_seconds', 2),
@@ -163,9 +180,9 @@ class ProducerManager:
             'ping_host': vehicle_config.get('ping_host', 'www.google.com'),
             
             # Attack parameters
-            'duration': self.attack_config.get('duration', 0),
-            'packet_size': self.attack_config.get('packet_size', 1024),
-            'delay': self.attack_config.get('delay', 0.001),
+            'duration': attack_config.get('duration', 0),
+            'packet_size': attack_config.get('packet_size', 1024),
+            'delay': attack_config.get('delay', 0.001),
             
             # Data generation parameters
             'mu_anomalies': vehicle_config.get('mu_anomalies', 157),
@@ -175,7 +192,7 @@ class ProducerManager:
             'time_emulation': vehicle_config.get('time_emulation', False),
             
             # Probe metrics
-            'probe_metrics': self.probe_metrics,
+            'probe_metrics': probe_metrics,
             
             # Anomaly and diagnostics classes
             'anomaly_classes': vehicle_config.get('anomaly_classes', list(range(0, 19))),

@@ -264,12 +264,19 @@ class ContainerManager:
             
     
     def produce_all(self):
-        return self.producer_manager.start_all_producers()
+        message, results = self.producer_manager.start_all_producers()
+        # Log individual results
+        for result in results:
+            self.logger.info(result)
+        return message
 
 
     def stop_producing_all(self):
-        self.producer_manager.stop_all_producers()
-        return "All producers stopped!"
+        message, results = self.producer_manager.stop_all_producers()
+        # Log individual results
+        for result in results:
+            self.logger.info(result)
+        return message
 
 
     def consume_all(self):
