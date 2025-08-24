@@ -7,8 +7,9 @@ This directory contains configuration files for the OpenFAIR system, implementin
 The new configuration system replaces unsafe command-line argument injection with:
 1. **Environment Variables** - For basic, non-changing parameters
 2. **YAML Configuration Files** - For complex, vehicle-specific settings
-3. **Validation** - Input validation and type safety
-4. **Health Checks** - Built-in monitoring endpoints
+3. **HTTP API** - For dynamic configuration and control
+4. **Validation** - Input validation and type safety
+5. **Health Checks** - Built-in monitoring endpoints
 
 ## Directory Structure
 
@@ -17,62 +18,33 @@ config/
 ├── producers/           # Producer-specific configurations
 │   ├── angela.yaml     # Configuration for producer-angela
 │   ├── bob.yaml        # Configuration for producer-bob
-│   └── ...
+│   └── ...             # Additional vehicle configurations
 └── README.md           # This file
 ```
 
-## Configuration Priority
+## Configuration Methods
 
-The system loads configuration in the following order (later values override earlier ones):
+### 1. Environment Variables
 
-1. **Environment Variables** - Highest priority
-2. **YAML Configuration Files** - Medium priority  
-3. **Default Values** - Lowest priority
+Basic configuration via environment variables:
 
-## Environment Variables
+```bash
+# Required
+export VEHICLE_NAME=angela
 
-### Required Variables
-- `VEHICLE_NAME` - Name of the vehicle (e.g., "angela", "bob")
+# Optional (with defaults)
+export KAFKA_BROKER=kafka:9092
+export LOGGING_LEVEL=INFO
+export MANAGER_PORT=5000
+export MODE=OF
+```
 
-### Optional Variables (with defaults)
-- `KAFKA_BROKER` - Kafka broker URL (default: "kafka:9092")
-- `LOGGING_LEVEL` - Logging level (default: "INFO")
-- `MANAGER_PORT` - Manager service port (default: 5000)
-- `MODE` - Operation mode (default: "OF")
+### 2. YAML Configuration Files
 
-### Network Configuration
-- `TARGET_IP` - Attack target IP (default: "172.18.0.4")
-- `TARGET_PORT` - Attack target port (default: 80)
-- `BOT_PORT` - Backdoor port (default: 5002)
-
-### Timing Parameters
-- `PROBE_FREQUENCY_SECONDS` - Health probe frequency (default: 2)
-- `PING_THREAD_TIMEOUT` - Ping timeout (default: 5)
-- `PING_HOST` - Ping target host (default: "www.google.com")
-
-### Attack Parameters
-- `DURATION` - Attack duration in seconds (default: 0)
-- `PACKET_SIZE` - Attack packet size (default: 1024)
-- `DELAY` - Attack delay between packets (default: 0.001)
-
-### Data Generation Parameters
-- `MU_ANOMALIES` - Anomaly generation rate (default: 157)
-- `MU_NORMAL` - Normal data generation rate (default: 115)
-- `ALPHA` - Alpha parameter (default: 0.2)
-- `BETA` - Beta parameter (default: 1.9)
-- `TIME_EMULATION` - Enable time emulation (default: false)
-
-### Probe Metrics
-- `PROBE_METRICS` - Comma-separated list of metrics (default: "RTT,INBOUND,OUTBOUND,CPU,MEM")
-
-## YAML Configuration Files
-
-Each producer has a YAML configuration file that can override environment variables and provide additional settings.
-
-### Example Configuration Structure
+Detailed configuration via YAML files:
 
 ```yaml
-# Configuration for producer-angela
+# config/producers/angela.yaml
 vehicle:
   name: angela
   flotta: ETR700
@@ -83,111 +55,221 @@ data_generation:
   alpha: 0.2
   beta: 1.9
   time_emulation: false
-  
-  # Anomaly classes (0-18)
   anomaly_classes: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
-  
-  # Diagnostics classes (0-14)
   diagnostics_classes: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
 
-# Health probe configuration
 probe:
   frequency_seconds: 2
   timeout: 5
   host: "www.google.com"
   metrics: [RTT, INBOUND, OUTBOUND, CPU, MEM]
 
-# Attack simulation configuration
 attack:
   target_ip: "172.18.0.4"
   target_port: 80
-  duration: 0  # 0 means continuous until stopped
+  duration: 0
   packet_size: 1024
   delay: 0.001
   bot_port: 5002
 
-# System configuration
 system:
-  mode: "OF"  # OF or SW
+  mode: "OF"
   logging_level: "INFO"
   manager_port: 5000
 ```
 
-## Docker Compose Integration
+### 3. HTTP API
 
-The docker-compose.yml file mounts configuration files and sets environment variables:
+Dynamic configuration and control via HTTP API:
 
-```yaml
-producer-angela:
-  build:
-    context: ./producer
-    dockerfile: Dockerfile
-  environment:
-    - VEHICLE_NAME=angela
-    - KAFKA_BROKER=kafka:9092
-    # ... other environment variables
-  volumes:
-    - ./config/producers/angela.yaml:/app/config.yaml:ro
-  command: ["python", "produce.py"]
-```
+#### Endpoints
 
-## Health Checks
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/configure` | Configure the producer with new settings |
+| `POST` | `/start` | Start the producer with current configuration |
+| `POST` | `/stop` | Stop the producer |
+| `GET` | `/status` | Get current status and statistics |
+| `GET` | `/health` | Health check endpoint |
+| `GET` | `/config` | Get current configuration |
+| `PUT` | `/config` | Update specific configuration parameters |
 
-Each producer exposes a health check endpoint at `http://localhost:5000/health`:
+#### Example Usage
 
-```json
-{
-  "status": "healthy",
-  "vehicle": "angela",
-  "running": true,
-  "under_attack": false,
-  "records_produced": 1234
+```python
+import requests
+
+# Configure producer
+config_data = {
+    'vehicle_name': 'angela',
+    'kafka_broker': 'kafka:9092',
+    'mu_anomalies': 157,
+    'mu_normal': 115,
+    'alpha': 0.2,
+    'beta': 1.9,
+    'time_emulation': False,
+    'probe_frequency_seconds': 2,
+    'ping_thread_timeout': 5,
+    'ping_host': 'www.google.com',
+    'probe_metrics': ['RTT', 'INBOUND', 'OUTBOUND', 'CPU', 'MEM'],
+    'anomaly_classes': list(range(0, 19)),
+    'diagnostics_classes': list(range(0, 15))
 }
+
+response = requests.post('http://localhost:5000/configure', json=config_data)
+print(response.json())
+
+# Start producer
+response = requests.post('http://localhost:5000/start')
+print(response.json())
+
+# Check status
+response = requests.get('http://localhost:5000/status')
+status = response.json()
+print(f"Running: {status['running']}")
+print(f"Records produced: {status['records_produced']}")
+
+# Update configuration
+updates = {'mu_anomalies': 200, 'probe_frequency_seconds': 3}
+response = requests.put('http://localhost:5000/config', json=updates)
+print(response.json())
+
+# Stop producer
+response = requests.post('http://localhost:5000/stop')
+print(response.json())
 ```
 
-## Security Benefits
+#### Using the API Client
 
-1. **No Command Injection** - No shell command execution
-2. **Input Validation** - All parameters validated before use
-3. **Type Safety** - Proper data types maintained
-4. **Access Control** - Configuration files are read-only in containers
+```python
+from test_api_client import ProducerAPIClient
 
-## Adding New Producers
+client = ProducerAPIClient("http://localhost:5000")
 
-To add a new producer:
+# Configure and start
+client.configure(config_data)
+client.start()
 
-1. Create a new YAML configuration file in `config/producers/`
-2. Add a new service to `docker-compose.yml`
-3. Set the `VEHICLE_NAME` environment variable
-4. Mount the configuration file as a volume
+# Monitor
+status = client.status()
+print(f"Status: {status}")
 
-Example:
-```yaml
-producer-charlie:
-  build:
-    context: ./producer
-    dockerfile: Dockerfile
-  environment:
-    - VEHICLE_NAME=charlie
-    # ... other environment variables
-  volumes:
-    - ./config/producers/charlie.yaml:/app/config.yaml:ro
-  command: ["python", "produce.py"]
+# Update and restart
+client.update_config({'mu_anomalies': 300})
+client.stop()
+client.start()
+
+# Cleanup
+client.stop()
 ```
 
-## Troubleshooting
+## Configuration Priority
 
-### Configuration Validation Errors
-- Check that all required environment variables are set
-- Verify YAML syntax in configuration files
-- Ensure numeric values are within valid ranges
+Configuration is loaded in the following order (later sources override earlier ones):
 
-### Health Check Failures
-- Verify the producer is running: `docker logs producer-angela`
-- Check configuration loading: Look for configuration errors in logs
-- Ensure the health endpoint is accessible: `curl http://localhost:5000/health`
+1. **Environment Variables** - Basic settings
+2. **YAML Configuration File** - Detailed settings
+3. **HTTP API Updates** - Dynamic runtime changes
 
-### Environment Variable Issues
-- Use the `env.example` file as a template
-- Ensure variables are properly quoted in docker-compose.yml
-- Check for typos in variable names
+## Validation
+
+All configuration parameters are validated:
+
+- **Required fields**: `vehicle_name`, `kafka_broker`
+- **Numeric ranges**: `mu_anomalies` (0-1000), `alpha` (0-10), etc.
+- **Port numbers**: Valid port ranges (1-65535)
+- **Data types**: Proper type conversion and validation
+
+## Security Improvements
+
+### Before (Unsafe)
+```python
+# Command injection vulnerability
+command = f"python produce.py --kafka_broker={user_input} --mu_anomalies={user_input}"
+subprocess.run(command, shell=True)  # DANGEROUS!
+```
+
+### After (Safe)
+```python
+# HTTP API with validation
+config_data = {
+    'kafka_broker': user_input,  # Validated
+    'mu_anomalies': user_input   # Validated
+}
+requests.post('/configure', json=config_data)  # SAFE!
+```
+
+## Testing
+
+### Test Configuration Loading
+```bash
+python test_producer_config.py
+```
+
+### Test HTTP API
+```bash
+python test_api_client.py
+```
+
+### Test with Docker
+```bash
+# Start containers
+docker-compose up -d
+
+# Test API endpoints
+curl http://localhost:5000/health
+curl http://localhost:5000/status
+```
+
+## Migration Guide
+
+### From Command-Line Arguments
+
+**Old approach:**
+```bash
+python produce.py \
+  --kafka_broker=kafka:9092 \
+  --mu_anomalies=157 \
+  --mu_normal=115 \
+  --alpha=0.2 \
+  --beta=1.9 \
+  --anomaly_classes=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18 \
+  --diagnostics_classes=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14 \
+  --time_emulation \
+  --ping_thread_timeout=5 \
+  --ping_host=www.google.com \
+  --probe_frequency_seconds=2 \
+  --probe_metrics=RTT,INBOUND,OUTBOUND,CPU,MEM \
+  --mode=OF \
+  --manager_port=5000 \
+  --target_ip=172.18.0.4 \
+  --target_port=80 \
+  --duration=0 \
+  --packet_size=1024 \
+  --delay=0.001
+```
+
+**New approach:**
+```bash
+# Set environment variables
+export VEHICLE_NAME=angela
+export KAFKA_BROKER=kafka:9092
+
+# Use YAML configuration
+python produce.py  # Loads from config/producers/angela.yaml
+
+# Or use HTTP API
+curl -X POST http://localhost:5000/configure \
+  -H "Content-Type: application/json" \
+  -d @config/producers/angela.json
+```
+
+## Benefits
+
+1. **Security**: No command injection vulnerabilities
+2. **Maintainability**: Clear separation of configuration and code
+3. **Flexibility**: Runtime configuration changes
+4. **Validation**: Type safety and parameter validation
+5. **Monitoring**: Built-in health checks and status endpoints
+6. **Scalability**: Easy to manage multiple producers
+7. **Debugging**: Better error messages and logging
