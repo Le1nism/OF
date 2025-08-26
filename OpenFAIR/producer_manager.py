@@ -4,7 +4,7 @@ import requests
 import time
 import yaml
 import os
-from omegaconf import ListConfig
+from omegaconf import ListConfig, DictConfig, OmegaConf
 
 class ProducerManager:
     def __init__(self, cfg, producers, containers_ips, PRODUCER_COMMAND="python produce.py"):
@@ -18,6 +18,11 @@ class ProducerManager:
         self.probe_metrics = cfg.security_manager.probe_metrics
         self.no_proxy_host = cfg.dashboard.proxy
         self.attack_config = cfg.attack
+        
+        # HTTP session configured to ignore system proxy settings for internal Docker IPs
+        self.http = requests.Session()
+        # Do not use environment proxies (prevents corporate proxy from intercepting 172.* calls)
+        self.http.trust_env = False
         
         # Initialize vehicle configurations
         self.vehicle_configs = {}
@@ -43,13 +48,18 @@ class ProducerManager:
 
     def _convert_to_json_serializable(self, obj):
         """Convert OmegaConf objects to JSON serializable Python objects"""
-        if isinstance(obj, ListConfig):
-            return list(obj)
-        elif isinstance(obj, dict):
-            return {k: self._convert_to_json_serializable(v) for k, v in obj.items()}
-        elif isinstance(obj, list):
+        if isinstance(obj, (ListConfig, list)):
             return [self._convert_to_json_serializable(item) for item in obj]
+        elif isinstance(obj, (DictConfig, dict)):
+            return {k: self._convert_to_json_serializable(v) for k, v in obj.items()}
+        elif hasattr(obj, '__dict__'):
+            # Handle other OmegaConf objects by converting to dict first
+            try:
+                return self._convert_to_json_serializable(OmegaConf.to_container(obj))
+            except:
+                return str(obj)
         else:
+            # Handle primitive types
             return obj
 
     def start_all_producers(self):
@@ -68,11 +78,37 @@ class ProducerManager:
             if not container_ip:
                 return f"Failed to start producer {producer_name}: Container IP not found"
             
-            api_url = f"http://{container_ip}:5000"
+            # Prefer Docker DNS name if available (container names are keys in self.producers)
+            # self.producers keys appear like 'producer-bob', 'producer-angela', etc.
+            hostname_url = f"http://{producer_name}:5000"
+            api_url = hostname_url if producer_name in self.producers else f"http://{container_ip}:5000"
+            
+            # Wait for the API to be healthy before configuring
+            if not self._wait_for_health(api_url, overall_timeout_seconds=90):
+                error_msg = f"Failed to start producer {producer_name}: API at {api_url} not healthy"
+                logging.getLogger("PRODUCER_MANAGER").error(error_msg)
+                return error_msg
             
             # Step 1: Configure the producer
             config_data = self._build_config_data(vehicle_config)
-            config_response = requests.post(
+            
+            # Test JSON serialization before sending
+            try:
+                import json
+                json.dumps(config_data)
+            except TypeError as e:
+                error_msg = f"JSON serialization failed for {producer_name}: {e}"
+                logging.getLogger("PRODUCER_MANAGER").error(error_msg)
+                # Log the problematic data structure
+                logging.getLogger("PRODUCER_MANAGER").error(f"Config data keys: {list(config_data.keys())}")
+                for key, value in config_data.items():
+                    try:
+                        json.dumps(value)
+                    except TypeError:
+                        logging.getLogger("PRODUCER_MANAGER").error(f"Non-serializable key: {key}, type: {type(value)}, value: {value}")
+                return error_msg
+            
+            config_response = self.http.post(
                 f"{api_url}/configure",
                 json=config_data,
                 timeout=30
@@ -80,14 +116,14 @@ class ProducerManager:
             config_response.raise_for_status()
             
             # Step 2: Start the producer
-            start_response = requests.post(
+            start_response = self.http.post(
                 f"{api_url}/start",
                 timeout=30
             )
             start_response.raise_for_status()
             
             # Step 3: Verify it's running
-            status_response = requests.get(f"{api_url}/status", timeout=10)
+            status_response = self.http.get(f"{api_url}/status", timeout=10)
             status_response.raise_for_status()
             
             logging.getLogger("PRODUCER_MANAGER").info(f"Producer {producer_name} started successfully")
@@ -110,7 +146,7 @@ class ProducerManager:
                 return f"Failed to stop producer {producer_name}: Container IP not found"
             
             api_url = f"http://{container_ip}:5000"
-            response = requests.post(f"{api_url}/stop", timeout=30)
+            response = self.http.post(f"{api_url}/stop", timeout=30)
             response.raise_for_status()
             
             return f"Producer {producer_name} stopped successfully"
@@ -127,7 +163,7 @@ class ProducerManager:
                 return {"error": "Container IP not found"}
             
             api_url = f"http://{container_ip}:5000"
-            response = requests.get(f"{api_url}/status", timeout=10)
+            response = self.http.get(f"{api_url}/status", timeout=10)
             response.raise_for_status()
             
             return response.json()
@@ -142,7 +178,7 @@ class ProducerManager:
                 return f"Failed to update producer {producer_name}: Container IP not found"
             
             api_url = f"http://{container_ip}:5000"
-            response = requests.put(
+            response = self.http.put(
                 f"{api_url}/config",
                 json=new_config,
                 timeout=30
@@ -161,6 +197,11 @@ class ProducerManager:
         vehicle_config = self._convert_to_json_serializable(vehicle_config)
         probe_metrics = self._convert_to_json_serializable(self.probe_metrics)
         attack_config = self._convert_to_json_serializable(self.attack_config)
+        
+        # Debug logging to identify problematic values
+        logging.getLogger("PRODUCER_MANAGER").debug(f"Vehicle config type: {type(vehicle_config)}")
+        logging.getLogger("PRODUCER_MANAGER").debug(f"Probe metrics type: {type(probe_metrics)}")
+        logging.getLogger("PRODUCER_MANAGER").debug(f"Attack config type: {type(attack_config)}")
         
         config_data = {
             'vehicle_name': vehicle_config.get('vehicle_name'),
@@ -199,6 +240,9 @@ class ProducerManager:
             'diagnostics_classes': vehicle_config.get('diagnostics_classes', list(range(0, 15)))
         }
         
+        # Final conversion to ensure everything is JSON serializable
+        config_data = self._convert_to_json_serializable(config_data)
+        
         return config_data
 
     def stop_all_producers(self):
@@ -216,3 +260,20 @@ class ProducerManager:
             status = self.get_producer_status(producer_name, producer_container)
             statuses[producer_name] = status
         return statuses
+
+    def _wait_for_health(self, api_url, overall_timeout_seconds=60, poll_interval_seconds=2):
+        """Poll the producer /health endpoint until healthy or timeout.
+        Returns True if healthy, False otherwise.
+        """
+        logger = logging.getLogger("PRODUCER_MANAGER")
+        deadline = time.time() + overall_timeout_seconds
+        while time.time() < deadline:
+            try:
+                resp = self.http.get(f"{api_url}/health", timeout=3)
+                if resp.ok:
+                    return True
+            except requests.exceptions.RequestException:
+                pass
+            time.sleep(poll_interval_seconds)
+        logger.error(f"Health check timed out for {api_url}")
+        return False
