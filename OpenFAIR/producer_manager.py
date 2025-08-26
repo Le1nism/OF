@@ -78,19 +78,25 @@ class ProducerManager:
             if not container_ip:
                 return f"Failed to start producer {producer_name}: Container IP not found"
             
-            # Prefer Docker DNS name if available (container names are keys in self.producers)
-            # self.producers keys appear like 'producer-bob', 'producer-angela', etc.
+            # Build candidate URLs: prefer DNS name when running inside the Docker network,
+            # but fall back to direct container IP when running on host
             hostname_url = f"http://{producer_name}:5000"
-            api_url = hostname_url if producer_name in self.producers else f"http://{container_ip}:5000"
-            
-            # Wait for the API to be healthy before configuring
-            if not self._wait_for_health(api_url, overall_timeout_seconds=90):
-                error_msg = f"Failed to start producer {producer_name}: API at {api_url} not healthy"
+            ip_url = f"http://{container_ip}:5000"
+
+            # Pick the first URL whose health endpoint looks like the producer API (not the dashboard)
+            api_url = None
+            for candidate in (hostname_url, ip_url):
+                if self._wait_for_health(candidate, overall_timeout_seconds=20):
+                    api_url = candidate
+                    break
+            if not api_url:
+                error_msg = f"Failed to start producer {producer_name}: API not healthy at {hostname_url} or {ip_url}"
                 logging.getLogger("PRODUCER_MANAGER").error(error_msg)
                 return error_msg
             
+            
             # Step 1: Configure the producer
-            config_data = self._build_config_data(vehicle_config)
+            config_data = self._build_config_data(vehicle_config, producer_name.split('_')[0])
             
             # Test JSON serialization before sending
             try:
@@ -191,7 +197,7 @@ class ProducerManager:
             logging.getLogger("PRODUCER_MANAGER").error(error_msg)
             return error_msg
 
-    def _build_config_data(self, vehicle_config):
+    def _build_config_data(self, vehicle_config, vehicle_name):
         """Build configuration data for HTTP API"""
         # Convert all OmegaConf objects to JSON serializable Python objects
         vehicle_config = self._convert_to_json_serializable(vehicle_config)
@@ -204,7 +210,7 @@ class ProducerManager:
         logging.getLogger("PRODUCER_MANAGER").debug(f"Attack config type: {type(attack_config)}")
         
         config_data = {
-            'vehicle_name': vehicle_config.get('vehicle_name'),
+            'vehicle_name': vehicle_name,
             'kafka_broker': vehicle_config.get('kafka_broker', 'kafka:9092'),
             'logging_level': self.logging_level,
             'manager_port': self.manager_port,
@@ -269,11 +275,23 @@ class ProducerManager:
         deadline = time.time() + overall_timeout_seconds
         while time.time() < deadline:
             try:
-                resp = self.http.get(f"{api_url}/health", timeout=3)
+                resp = self.http.get(f"{api_url}/health", timeout=5)
                 if resp.ok:
-                    return True
-            except requests.exceptions.RequestException:
-                pass
+                    # Validate it's the producer health, not dashboard's
+                    try:
+                        data = resp.json()
+                        # Producer health has keys like 'running' or 'config_loaded' or 'vehicle'
+                        if isinstance(data, dict) and ("running" in data or "config_loaded" in data or "vehicle" in data):
+                            logger.info(f"Health check passed for {api_url}: {data}")
+                            return True
+                        else:
+                            logger.debug(f"Health check response doesn't look like producer API: {data}")
+                    except Exception as e:
+                        logger.debug(f"Failed to parse health response from {api_url}: {e}")
+                else:
+                    logger.debug(f"Health check failed with status {resp.status_code} for {api_url}")
+            except requests.exceptions.RequestException as e:
+                logger.debug(f"Health check request failed for {api_url}: {e}")
             time.sleep(poll_interval_seconds)
-        logger.error(f"Health check timed out for {api_url}")
+        logger.error(f"Health check timed out or not producer API for {api_url}")
         return False

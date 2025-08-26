@@ -70,6 +70,7 @@ services:
       WANDB_API_KEY: ${WANDB_API_KEY}
       no_proxy: ${HOST_IP}  # Allows the container to access the host machine in case the host has a proxy.
       HOST_IP: ${HOST_IP}  #  Replace with your host IP address in the .env file
+      BOOTSTRAP_SERVERS: kafka:9092
     depends_on:
       kafka:
         condition: service_healthy  # Wait for kafka to be healthy
@@ -77,6 +78,27 @@ services:
       - trains_network  # Connect the producer to the custom Docker network
     restart: unless-stopped
     command: ["tail", "-f", "/dev/null"]
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: ./dashboard/Dockerfile
+    container_name: dashboard
+    hostname: dashboard
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - trains_network
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - no_proxy=${HOST_IP}
+      - HOST_IP=${HOST_IP}
+      - BOOTSTRAP_SERVERS=kafka:9092
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 
   # consumer:
   #   build:
