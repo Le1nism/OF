@@ -80,6 +80,10 @@ def create_app(cfg: DictConfig) -> None:
     # pretty print the cfg OmegaDict
     app.logger.info(OmegaConf.to_yaml(cfg))
 
+    @app.route('/health', methods=['GET'])
+    def health():
+        return {"status": "ok"}, 200
+
     # Create a ConainerManager instance
     container_manager = ContainerManager(cfg)
 
