@@ -1,6 +1,7 @@
 # Definition of the custom network for container communication
 networks:
   trains_network:
+    name: trains_network
     driver: bridge  # Use the bridge network driver for isolated container communication
 
 services:

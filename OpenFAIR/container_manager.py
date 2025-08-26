@@ -210,14 +210,14 @@ class ContainerManager:
         cmd = [
             "docker", "run", "-d",
             "--name", container_name,
-            "--network", "of_trains_network",
+            "--network", "trains_network",
             "--env", f"VEHICLE_NAME={vehicle_name}",
             "--env", f"HOST_IP={self.host_ip}",
             "--cpuset-cpus", self.producer_manager.vehicle_configs[vehicle_name]['cpu_cores'],
             "--cpu-period", str(self.producer_manager.vehicle_configs[vehicle_name]['cpu_period']),
             "--cpu-quota", str(self.producer_manager.vehicle_configs[vehicle_name]['cpu_quota']),
             "open_fair-producer",
-            "tail", "-f", "/dev/null"
+            "python", "produce.py"
         ]
         subprocess.run(cmd)
         
@@ -227,7 +227,7 @@ class ContainerManager:
         cmd = [
             "docker", "run", "-d",
             "--name", container_name,
-            "--network", "of_trains_network",
+            "--network", "trains_network",
             "--env", f"VEHICLE_NAME={vehicle_name}",
             "--env", f"HOST_IP={self.host_ip}",
             "--cpuset-cpus", self.consumer_manager.consumer_configs[vehicle_name]['cpu_cores'],
@@ -245,9 +245,13 @@ class ContainerManager:
             container_info = self.client.api.inspect_container(container.id)
             # Extract the IP address of the container from its network settings
             container_img_name = container_info['Config']['Image']
-            container_ip = container_info['NetworkSettings']['Networks']['of_trains_network']['IPAddress']
+            # Prefer the compose network name 'trains_network'
+            networks = container_info['NetworkSettings']['Networks']
+            network_name = 'trains_network' if 'trains_network' in networks else next(iter(networks.keys()), None)
+            container_ip = networks[network_name]['IPAddress'] if network_name else None
             self.logger.info(f'Found {container.name} container with ip {container_ip}')
-            if 'producer' in container_img_name:
+            # Classify by container name for reliability
+            if 'producer' in container.name:
                 self.producers[container.name] = container
             elif 'consumer' in container.name:
                 self.consumers[container.name] = container
