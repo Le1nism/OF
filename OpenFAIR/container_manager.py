@@ -205,38 +205,48 @@ class ContainerManager:
 
     def create_producer(self, vehicle_name):
         container_name = f"{vehicle_name}_producer"
+        env_vars = {
+            "VEHICLE_NAME": vehicle_name,
+            "HOST_IP": self.host_ip,
+        }
+        cpu_period = int(self.producer_manager.vehicle_configs[vehicle_name]['cpu_period'])
+        cpu_quota = int(self.producer_manager.vehicle_configs[vehicle_name]['cpu_quota'])
+        cpuset_cpus = str(self.producer_manager.vehicle_configs[vehicle_name]['cpu_cores'])
 
-
-        cmd = [
-            "docker", "run", "-d",
-            "--name", container_name,
-            "--network", "trains_network",
-            "--env", f"VEHICLE_NAME={vehicle_name}",
-            "--env", f"HOST_IP={self.host_ip}",
-            "--cpuset-cpus", self.producer_manager.vehicle_configs[vehicle_name]['cpu_cores'],
-            "--cpu-period", str(self.producer_manager.vehicle_configs[vehicle_name]['cpu_period']),
-            "--cpu-quota", str(self.producer_manager.vehicle_configs[vehicle_name]['cpu_quota']),
-            "open_fair-producer",
-            "python", "produce.py"
-        ]
-        subprocess.run(cmd)
+        self.client.containers.run(
+            image="open_fair-producer",
+            name=container_name,
+            detach=True,
+            network="trains_network",
+            environment=env_vars,
+            cpu_period=cpu_period,
+            cpu_quota=cpu_quota,
+            cpuset_cpus=cpuset_cpus
+            # rely on image CMD to start the app
+        )
         
 
     def create_consumer(self, vehicle_name):
         container_name = f"{vehicle_name}_consumer"
-        cmd = [
-            "docker", "run", "-d",
-            "--name", container_name,
-            "--network", "trains_network",
-            "--env", f"VEHICLE_NAME={vehicle_name}",
-            "--env", f"HOST_IP={self.host_ip}",
-            "--cpuset-cpus", self.consumer_manager.consumer_configs[vehicle_name]['cpu_cores'],
-            "--cpu-period", str(self.consumer_manager.consumer_configs[vehicle_name]['cpu_period']),
-            "--cpu-quota", str(self.consumer_manager.consumer_configs[vehicle_name]['cpu_quota']),
-            "open_fair-consumer",
-            "python", "consume.py"
-        ]
-        subprocess.run(cmd)
+        env_vars = {
+            "VEHICLE_NAME": vehicle_name,
+            "HOST_IP": self.host_ip,
+        }
+        cpu_period = int(self.consumer_manager.consumer_configs[vehicle_name]['cpu_period'])
+        cpu_quota = int(self.consumer_manager.consumer_configs[vehicle_name]['cpu_quota'])
+        cpuset_cpus = str(self.consumer_manager.consumer_configs[vehicle_name]['cpu_cores'])
+
+        self.client.containers.run(
+            image="open_fair-consumer",
+            name=container_name,
+            detach=True,
+            network="trains_network",
+            environment=env_vars,
+            cpu_period=cpu_period,
+            cpu_quota=cpu_quota,
+            cpuset_cpus=cpuset_cpus
+            # rely on image CMD to start the app
+        )
 
 
     def refresh_containers(self):     
