@@ -234,7 +234,7 @@ class ContainerManager:
             "--cpu-period", str(self.consumer_manager.consumer_configs[vehicle_name]['cpu_period']),
             "--cpu-quota", str(self.consumer_manager.consumer_configs[vehicle_name]['cpu_quota']),
             "open_fair-consumer",
-            "tail", "-f", "/dev/null"
+            "python", "consume.py"
         ]
         subprocess.run(cmd)
 
@@ -284,7 +284,10 @@ class ContainerManager:
 
 
     def consume_all(self):
-        return self.consumer_manager.start_all_consumers()
+        message, results = self.consumer_manager.start_all_consumers()
+        for result in results:
+            self.logger.info(result)
+        return message
 
 
     def stop_consuming_all(self):
