@@ -19,6 +19,8 @@ class ContainerAPI:
         self.container_name = container_name
         self.port = port
         self.status = "initialized"
+        self.configured = False
+        self.config = {}
 
         # Register routes
         self.register_routes()
@@ -29,6 +31,14 @@ class ContainerAPI:
 
     def register_routes(self):
 
+        @self.app.route('/health', methods = ['GET'])
+        def health():
+            return jsonify({
+                "status": "healthy",
+                "running": self.status == "running",
+                "configured": self.configured
+            })
+
         @self.app.route('/status', methods = ['GET'])
         def get_status():
 
@@ -37,8 +47,37 @@ class ContainerAPI:
                 "container_type": self.container_type,
                 "container_name": self.container_name,
                 "status": self.status,
+                "configured": self.configured,
                 "details": self.get_detailed_status()
             })
+
+        @self.app.route('/configure', methods = ['POST'])
+        def configure():
+            try:
+                data = request.get_json() or {}
+                self.validate_config(data)
+                self.config.update(data)
+                self.configured = True
+                return jsonify({"status": "configured", "config": self.config})
+            except Exception as e:
+                self.logger.error(f"Error configuring container: {str(e)}")
+                return jsonify({"status": "error", "message": str(e)}), 400
+
+        @self.app.route('/config', methods = ['GET'])
+        def get_config():
+            return jsonify(self.config)
+
+        @self.app.route('/config', methods = ['PUT'])
+        def update_config():
+            try:
+                updates = request.get_json() or {}
+                merged = dict(self.config)
+                merged.update(updates)
+                self.validate_config(merged)
+                self.config.update(updates)
+                return jsonify({"status": "updated", "config": self.config})
+            except Exception as e:
+                return jsonify({"status": "error", "message": str(e)}), 400
 
         @self.app.route('/start', methods = ['POST'])
         def start():
@@ -118,8 +157,15 @@ class ContainerAPI:
         """
         return {"message": f"Executed command: {command}", "params": params}
 
+    def validate_config(self, config):
+        """
+        Validate configuration before accepting it.
+        Override in subclasses to enforce schema.
+        """
+        return True
+
     def run(self):
 
         """ Run the API server """
-        self.app.run(host = '0.0.0.0', port = self.port)
+        self.app.run(host = '0.0.0.0', port = self.port, debug = False, use_reloader = False)
 
