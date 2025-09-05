@@ -125,7 +125,7 @@ class ConsumerManager:
             # Try hostname first
             try:
                 tried.append(hostname_url)
-                r = requests.post(hostname_url, timeout=20)
+                r = requests.post(hostname_url, json={}, timeout=20)
                 r.raise_for_status()
                 self.logger.info(f"Stopped consumer {consumer_name}")
                 return
@@ -136,7 +136,7 @@ class ConsumerManager:
             if container_ip:
                 ip_url = f"http://{container_ip}:5000/stop"
                 tried.append(ip_url)
-                r = requests.post(ip_url, timeout=20)
+                r = requests.post(ip_url, json={}, timeout=20)
                 r.raise_for_status()
                 self.logger.info(f"Stopped consumer {consumer_name}")
                 return

@@ -153,7 +153,7 @@ class ProducerManager:
                 return f"Failed to stop producer {producer_name}: Container IP not found"
             
             api_url = f"http://{container_ip}:5000"
-            response = self.http.post(f"{api_url}/stop", timeout=30)
+            response = self.http.post(f"{api_url}/stop", json={}, timeout=30)
             response.raise_for_status()
             
             return f"Producer {producer_name} stopped successfully"
