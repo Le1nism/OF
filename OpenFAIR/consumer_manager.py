@@ -106,7 +106,7 @@ class ConsumerManager:
 
             r1 = requests.post(f"{api_url}/configure", json=cfg_payload, timeout=30)
             r1.raise_for_status()
-            r2 = requests.post(f"{api_url}/start", timeout=30)
+            r2 = requests.post(f"{api_url}/start", json={}, timeout=30)
             r2.raise_for_status()
             self.logger.info(f"Consumer {consumer_name} started successfully")
             return f"Consumer {consumer_name} started successfully"

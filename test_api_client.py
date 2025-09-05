@@ -27,7 +27,7 @@ class ProducerAPIClient:
     def start(self):
         """Start the producer"""
         try:
-            response = requests.post(f"{self.base_url}/start", timeout=30)
+            response = requests.post(f"{self.base_url}/start", json={}, timeout=30)
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
@@ -37,7 +37,7 @@ class ProducerAPIClient:
     def stop(self):
         """Stop the producer"""
         try:
-            response = requests.post(f"{self.base_url}/stop", timeout=30)
+            response = requests.post(f"{self.base_url}/stop", json={}, timeout=30)
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:

@@ -124,6 +124,7 @@ class ProducerManager:
             # Step 2: Start the producer
             start_response = self.http.post(
                 f"{api_url}/start",
+                json={},
                 timeout=30
             )
             start_response.raise_for_status()
